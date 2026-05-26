@@ -1,0 +1,48 @@
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  image: string;
+  status: 'In Stock' | 'Limited Edition' | 'Best Seller' | 'New Arrival';
+}
+
+export const mockProducts: Product[] = [
+  {
+    id: '1',
+    name: 'ProBook X15 G9 - i9/32GB',
+    description: 'Optimizado para cargas de trabajo pesadas y entornos empresariales.',
+    price: 1499,
+    category: 'Laptops',
+    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAnlMbnng-Tto1PqWo3DFn2hJykYWyHz8TKE2PVnIxehLi5fWUye1lFLIkjthXV5td8yLkdKP6-00111U4rQgSSIjdQz18Aa0hmljAvVAl1OSbFrXq6ZlcKfLCdntBu7ja4Stpfa-2Efp3eTkaphaSt6c52-QSj65qNVHn81-E8AJZipmT6rmQr0DOTmqxQ6uACN5Lx9G8LbMmI5VI6nXRrJfLp9miM4iprKHf6FAg17n_H0nZSAwihosudVjpYfKSrrbiC4xJVN8M',
+    status: 'In Stock'
+  },
+  {
+    id: '2',
+    name: 'Nexus Ultra 5G',
+    description: 'Conjunto de cámaras inigualable y pantalla LTPO de 120Hz.',
+    price: 999,
+    category: 'Smartphones',
+    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB3ySY66kgUJmWWfQNuwVEMKgUoShs04iCWklyi3Istqx21ub_PtsrX6rB-JlL5nYwTSzgBgxjiC02lhxsQGMrhjGADe7K8aOcGVCXexbyI9V6a15RPRrP4gkV1aAhmInvSuyQ6xbWB074wXM-N1YNjmbbY6GFBv6G57nQPl8squU_AXz8A8QI966dNYVRJfU25Zunnptq6h0stRc_LvftlRdN6ryP5M2XjJfewEzKZJTh-DiKHrx0fHBSuMjIW-UUp7MtrF3EX0SI',
+    status: 'Limited Edition'
+  },
+  {
+    id: '3',
+    name: 'Pantalla de Precisión 4K',
+    description: 'Cobertura sRGB del 99% para flujos de trabajo creativos profesionales.',
+    price: 649,
+    category: 'Monitors',
+    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAoHyUO_CJZH4O0q3yR0o2wEQRSgN26OmcIndyZw83S-1Q4AcyyhRikgMn2gcJD4Fm6GjSgnqfnNjQx72rywYiVyd4l3__RatgEOjwmQJAuUgEA3Q7kkPuOP1x0X6_4jNJoph4eu8F1O_Vm4wkEJgqa0zMpfcfJbiBNTc9tQURWVyir87IL8sVtvxZxBtzy6JUS_Q-B0NbMh2PtbcpVkZo0A18zofORJ4KMXnJajp68KgngTaDoVxxXWtK0oRAesWrn-tis7pfMTKA',
+    status: 'Best Seller'
+  },
+  {
+    id: '4',
+    name: 'TabPro 12.9" M2',
+    description: 'Rendimiento de clase escritorio en un formato de tableta portátil.',
+    price: 899,
+    category: 'Tablets',
+    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCvM7R9FffvsBfVm0b7HZaCVeLK7ekLbHRqLqg8COKG81rPe1qEoF7InjzQhOZkLetblTyPpCOru9WzuZVjT8bO-zS0YJ_l-uuumjbFZ6doocvcJxoG8B94tygbyXKVLvAlFifbBOygUco0qwfXlfOiQhfC4vbPgWRDgA-0spr_Esqblutcc74vg1jbydoHFL0SFahoed1PHSPeNxwL1bYsr1OFCrVBAkg2yDoDA7BCo7bVe9v9xqzUFlFcMWyRsLKdgstX8TF1I4c',
+    status: 'New Arrival'
+  }
+];
