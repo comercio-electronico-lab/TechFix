@@ -1,63 +1,253 @@
-# TechFix - E-commerce de Tecnología y Servicios de Reparación 🛠️💻
+# TechFix - Plataforma Modular de Reparación de Equipos 🛠️💻
 
-## 📋 Descripción del Proyecto
-[cite_start]**TechFix** es una plataforma digital de modelo **B2C (Business to Consumer)** diseñada para la venta de productos tecnológicos y la gestión de servicios técnicos especializados[cite: 22, 24, 25]. [cite_start]Los usuarios pueden adquirir periféricos y repuestos, así como reservar citas para la reparación de laptops, celulares y tablets[cite: 26].
+Plataforma B2C completa para venta de productos tecnológicos y gestión integral de servicios de reparación con diagnóstico guiado, carrito de compras y panel administrativo.
 
-## 🏗️ Stack Tecnológico
-* [cite_start]**CMS:** WordPress[cite: 22, 29].
-* [cite_start]**E-commerce:** WooCommerce[cite: 22, 29].
-* [cite_start]**Gestión de Citas:** Plugin WooCommerce Bookings[cite: 31].
-* [cite_start]**Pasarelas de Pago:** Integración con Izipay, Culqi y PayPal[cite: 33].
-* [cite_start]**Diseño y Prototipado:** Figma + Stitch AI[cite: 149].
+## 🏗️ Tech Stack General
 
----
+### Backend
+- **Lenguaje**: Go 1.21+
+- **Framework**: Gin Gonic
+- **ORM**: GORM
+- **Base de Datos**: PostgreSQL
+- **IDs**: UUID v4
 
-## 📊 Modelo de Negocio (BMC) & Requisitos
-[cite_start]El sistema se ha diseñado bajo los siguientes pilares funcionales derivados del Business Model Canvas[cite: 38, 39]:
-
-| Módulo | Requisito Funcional (RF) |
-| :--- | :--- |
-| **Clientes** | [cite_start]Registro, inicio de sesión y gestión de perfil (historial de citas/pedidos)[cite: 39]. |
-| **Propuesta de Valor** | [cite_start]Catálogo con filtros y módulo de servicios con precios estimados[cite: 39]. |
-| **Fuentes de Ingreso** | [cite_start]Carrito de compras con cálculo de IGV/envío y pasarela de pago integrada[cite: 39]. |
-| **Recursos Clave** | [cite_start]Panel administrativo para inventario y agenda para técnicos[cite: 41]. |
-| **Logística** | [cite_start]Integración con APIs de courier (Olva, Shalom) para seguimiento en tiempo real[cite: 41]. |
+### Frontend
+- **Framework**: Next.js 16.2.6
+- **Runtime**: Bun (package manager)
+- **Styling**: Tailwind CSS 4
+- **Lenguaje**: TypeScript 5
+- **UI**: React 19.2.4, Lucide Icons, Recharts
 
 ---
 
-## 🗺️ Arquitectura de Información
-[cite_start]La plataforma se divide en tres niveles principales[cite: 43]:
-1.  [cite_start]**Nivel Público:** Home, Catálogo de productos, Servicios de reparación, Nosotros y Contacto[cite: 44, 45, 46, 48, 50, 51].
-2.  [cite_start]**Nivel Transaccional:** Flujo de carrito, Checkout en 2 pasos y Confirmación de pedido[cite: 52, 54, 55, 56, 57].
-3.  [cite_start]**Área Privada:** Gestión de perfil, direcciones, reseñas y seguimiento de citas/pedidos[cite: 58, 59, 60, 61, 62, 63].
+## 📁 Estructura del Proyecto
+
+```
+laboratorio-1/
+├── backend/
+│   ├── cmd/api/              # Punto de entrada
+│   ├── internal/
+│   │   ├── db/              # Configuración DB y migraciones
+│   │   ├── models/          # Modelos de datos
+│   │   ├── handlers/        # Controllers HTTP
+│   │   └── repositories/    # Queries a BD
+│   ├── go.mod & go.sum
+│   ├── Makefile
+│   ├── .env.example
+│   └── README.md
+│
+├── frontend/
+│   ├── src/
+│   │   ├── app/             # App Router de Next.js
+│   │   ├── components/      # Componentes reutilizables
+│   │   ├── context/         # Estado global (CartContext)
+│   │   └── mock/            # Datos de prueba
+│   ├── package.json (Bun)
+│   ├── tailwind.config.ts
+│   ├── tsconfig.json
+│   └── README.md
+│
+└── README.md                 # Este archivo
+```
 
 ---
 
-## 🔄 Flujos de Usuario (Happy Paths)
+## 🚀 Quick Start
+
+### Requisitos Previos
+- **Go** 1.21+ (backend)
+- **Bun** 1.0+ (frontend) - [Instalar](https://bun.sh/)
+- **PostgreSQL** 12+ (base de datos)
+- **Make** (opcional, para backend)
+
+### 1. Backend
+
+```bash
+cd backend
+
+# Copiar variables de entorno
+cp .env.example .env
+
+# Instalar dependencias
+go mod download && go mod tidy
+
+# Crear tablas y cargar datos base
+make migrate-up
+make seed
+
+# Ejecutar servidor (puerto 8080)
+make dev
+```
+
+**Ver más**: [backend/README.md](./backend/README.md)
+
+### 2. Frontend
+
+```bash
+cd frontend
+
+# Instalar dependencias con Bun
+bun install
+
+# Copiar variables de entorno
+cp .env.example .env.local
+
+# Ejecutar servidor dev (puerto 3000)
+bun run dev
+```
+
+**Ver más**: [frontend/README.md](./frontend/README.md)
+
+---
+
+## 📊 Modelo de Datos
+
+### Entidades Principales
+
+| Entidad | Descripción | Relaciones |
+| :--- | :--- | :--- |
+| **Usuario** | Clientes, técnicos, administradores | → Dispositivos, Órdenes |
+| **Dispositivo** | Equipos registrados (laptops, celulares) | ← Usuario |
+| **Orden de Reparación** | Orden central de servicio | → Usuario, Dispositivo, Productos |
+| **Producto** | Repuestos y servicios | ← Órdenes, Diagnóstico |
+| **Diagnóstico (PIG)** | Árbol de decisión guiado | → Productos sugeridos |
+| **Garantía Digital** | Post-reparación | ← Orden |
+| **Transacción** | Pagos realizados | → Productos, Orden |
+
+**Detalle completo**: Ver [backend/README.md](./backend/README.md#-estructura-de-la-base-de-datos)
+
+---
+
+## 🎯 Funcionalidades
+
+### 👥 Cliente
+- ✅ Registro e inicio de sesión
+- ✅ Perfil con historial de citas y pedidos
+- ✅ Catálogo de productos con filtros
+- ✅ Carrito de compras con cálculo de envíos
+- ✅ Diagnóstico guiado (PIG) para servicios
+- ✅ Booking de citas con técnicos
+- ✅ Garantía digital post-reparación
+
+### 👨‍💼 Administrador
+- ✅ Panel de control
+- ✅ Gestión de pedidos (actualizar estados)
+- ✅ Control de inventario
+- ✅ Gestión de citas y asignación de técnicos
+- ✅ Reportes de ventas
+
+### 🔧 Características Técnicas
+- ✅ Diagnóstico inteligente guiado (PIG)
+- ✅ Órdenes de reparación modulares
+- ✅ Tracking de estado en tiempo real
+- ✅ Sistema de garantías digitales
+- ✅ Integración con proveedores
+
+---
+
+## 🔄 Flujos Principales (Happy Paths)
 
 ### 🛒 Compra de Producto
-1.  [cite_start]**Home:** Visualización de productos destacados[cite: 66].
-2.  [cite_start]**Búsqueda:** Uso de filtros y categorías[cite: 66].
-3.  [cite_start]**Detalle:** Revisión de specs, precio y stock[cite: 66].
-4.  [cite_start]**Checkout:** Autenticación, selección de envío y pago vía Culqi[cite: 66].
-5.  [cite_start]**Éxito:** Recepción de número de pedido y correo de confirmación[cite: 66].
+1. Usuario navega catálogo
+2. Selecciona producto y lo añade al carrito
+3. Procede a checkout
+4. Selecciona dirección de envío
+5. Realiza pago
+6. Recibe confirmación y número de pedido
 
-### 🔧 Reserva de Servicio
-1.  [cite_start]**Servicios:** Selección del tipo de reparación (ej. Cambio de pantalla)[cite: 111].
-2.  [cite_start]**Agenda:** Selección de fecha y hora en calendario interactivo[cite: 111, 160].
-3.  [cite_start]**Diagnóstico:** Descripción del problema y modelo del equipo[cite: 111].
-4.  [cite_start]**Confirmación:** Creación de cita y recordatorio automático[cite: 111].
+### 🔧 Servicio de Reparación
+1. Usuario inicia diagnóstico guiado (PIG)
+2. Responde preguntas sobre el problema
+3. Sistema sugiere productos/servicios
+4. Usuario selecciona fecha en calendario
+5. Se crea cita y se asigna técnico
+6. Técnico completa reparación
+7. Sistema genera garantía digital
+
+---
+
+## 📝 Desarrollo
+
+### Agregar nueva ruta en backend
+
+1. Crear handler en `backend/internal/handlers/`
+2. Crear repository en `backend/internal/repositories/`
+3. Registrar ruta en `backend/cmd/api/main.go`
+4. Testear con curl o Postman
+
+### Agregar nueva página en frontend
+
+1. Crear carpeta en `frontend/src/app/nombre-pagina/`
+2. Crear archivo `page.tsx`
+3. Next.js enruta automáticamente
+
+### Agregar modelo a base de datos
+
+1. Definir struct en `backend/internal/models/models.go`
+2. Agregar `TableName()` si es necesario
+3. Incluir en `DB.AutoMigrate()` en `backend/internal/db/db.go`
+4. Ejecutar `make migrate-down && make migrate-up`
 
 ---
 
-## 👨‍💼 Panel de Administración
-El administrador cuenta con herramientas para:
-* [cite_start]**Gestión de Pedidos:** Actualización de estados (Pendiente, En camino, Entregado)[cite: 142].
-* [cite_start]**Control de Inventario:** Edición de productos y alertas de stock bajo[cite: 143].
-* [cite_start]**Gestión de Citas:** Asignación de técnicos y cierre de servicios atendidos[cite: 143, 144].
-* [cite_start]**Reportes:** Exportación de métricas de ventas en Excel/PDF[cite: 144].
+## 🔐 Variables de Entorno
+
+### Backend (.env)
+```env
+PORT=8080
+GIN_MODE=debug
+DB_HOST=localhost
+DB_USER=parker
+DB_PASSWORD=parker123
+DB_NAME=tech_fix
+DB_PORT=5432
+JWT_SECRET=tu_secreto_aqui
+```
+
+### Frontend (.env.local)
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8080
+```
 
 ---
+
+## 🆘 Troubleshooting
+
+**Backend - Error conexión PostgreSQL**
+```bash
+# Verificar que PostgreSQL está corriendo
+# Crear BD si no existe:
+createdb tech_fix
+```
+
+**Frontend - Puerto 3000 en uso**
+```bash
+bun run dev --port 3001
+```
+
+**Node modules corrupto**
+```bash
+rm -rf frontend/node_modules frontend/bun.lockb
+cd frontend && bun install
+```
+
+**Cambiar npm a Bun**
+```bash
+rm package-lock.json
+bun install  # Genera bun.lockb
+```
+
+---
+
+## 📚 Documentación Relacionada
+
+- [Backend README](./backend/README.md) - Guía completa del servidor Go/Gin
+- [Frontend README](./frontend/README.md) - Guía completa de Next.js/Bun
+- [Figma Design](https://figma.com) - Prototipos UI/UX
+
+---
+
+## 👥 Equipo
 
 ## 👥 Equipo de Trabajo (Semana 05)
 * [cite_start]RODRIGUEZ RUIZ, JHORVIN [cite: 9]
@@ -67,6 +257,11 @@ El administrador cuenta con herramientas para:
 * [cite_start]HUAMAN PERALTA, RICHARD BRUNO [cite: 13]
 * [cite_start]YUPARI RAMOS, GABRIEL [cite: 14]
 
-[cite_start]**Institución:** Universidad Nacional de San Cristóbal de Huamanga[cite: 1].  
-[cite_start]**Curso:** Comercio Electrónico[cite: 18].  
-[cite_start]**Docente:** Espinoza Reina Stivens Rayli[cite: 16].
+- **Institución**: Universidad Nacional de San Cristóbal de Huamanga
+- **Curso**: Comercio Electrónico
+- **Docente**: Espinoza Reina Stivens Rayli
+
+---
+
+**Última actualización**: 2026-05-26  
+**Versión**: 0.1.0 (Early Development)
