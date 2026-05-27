@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"net/http"
 	"os"
 
@@ -9,30 +10,47 @@ import (
 )
 
 func main() {
-	// Inicializar DB
+	seedFlag := flag.Bool("seed", false, "Insertar datos iniciales")
+	migrateFlag := flag.Bool("migrate", false, "Ejecutar migraciones")
+	migrateDownFlag := flag.Bool("migrate-down", false, "Revertir migraciones")
+	flag.Parse()
+
+	// Siempre conectar
 	db.Connect()
 
-	r := gin.Default()
+	// Si es migración down, revertir y salir
+	if *migrateDownFlag {
+		db.MigrateDown()
+		return
+	}
 
-	// Middleware de recuperación ante panics
+	// Si es migración, migrar y salir
+	if *migrateFlag {
+		db.Migrate()
+		return
+	}
+
+	// Si es seed, insertar datos y salir
+	if *seedFlag {
+		db.Seed()
+		return
+	}
+
+	// Si no hay flags, correr el servidor normal
+	startServer()
+}
+
+func startServer() {
+	r := gin.Default()
 	r.Use(gin.Recovery())
 
-	// Ruta de salud
 	r.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"status": "ok",
-			"db":     "connected",
-		})
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
-
-	// Aquí irán las rutas directas
-	// r.GET("/usuarios", handlers.GetUsuarios)
-	// r.POST("/reparaciones", handlers.CreateReparacion)
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-
 	r.Run(":" + port)
 }

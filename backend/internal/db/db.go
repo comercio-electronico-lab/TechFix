@@ -26,24 +26,57 @@ func Connect() {
 		log.Fatal("Error al conectar a la base de datos:", err)
 	}
 
-	// AutoMigrate de todos los modelos
-	err = database.AutoMigrate(
+	DB = database
+	fmt.Println("Conexión a base de datos exitosa.")
+}
+
+func Migrate() {
+	if DB == nil {
+		log.Fatal("DB no conectada")
+	}
+	fmt.Println("Ejecutando AutoMigrate...")
+	err := DB.AutoMigrate(
 		&models.Usuario{},
-		&models.Equipo{},
+		&models.Device{},
 		&models.Producto{},
 		&models.Proveedor{},
+		&models.PigNode{},
+		&models.PigNodeProducto{},
+		&models.PigSession{},
 		&models.PedidoRepuesto{},
+		&models.RepairOrder{},
+		&models.RepairOrderProducto{},
 		&models.Transaccion{},
-		&models.NodoGuia{},
-		&models.SesionGuia{},
-		&models.OrdenReparacion{},
-		&models.Seguimiento{},
-		&models.Garantia{},
+		&models.TransaccionProducto{},
+		&models.RepairTracking{},
+		&models.Warranty{},
 	)
 	if err != nil {
-		log.Fatal("Error al migrar modelos:", err)
+		log.Fatal("Error en migración:", err)
 	}
+	fmt.Println("✓ Migración completada.")
+}
 
-	DB = database
-	fmt.Println("Conexión a base de datos exitosa y modelos migrados.")
+func MigrateDown() {
+	if DB == nil {
+		log.Fatal("DB no conectada")
+	}
+	fmt.Println("Revirtiendo migraciones...")
+	err := DB.Migrator().DropTable(
+		&models.Warranty{},
+		&models.RepairTracking{},
+		&models.RepairOrder{},
+		&models.Transaccion{},
+		&models.PedidoRepuesto{},
+		&models.PigSession{},
+		&models.PigNode{},
+		&models.Proveedor{},
+		&models.Device{},
+		&models.Producto{},
+		&models.Usuario{},
+	)
+	if err != nil {
+		log.Fatal("Error al revertir migraciones:", err)
+	}
+	fmt.Println("Migraciones revertidas.")
 }

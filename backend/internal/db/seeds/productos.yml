@@ -1,0 +1,270 @@
+productos:
+  # Baterías
+  - nombre: "Batería Dell XPS 13"
+    descripcion: "Batería original 56Wh para Dell XPS 13"
+    sku: "BAT-DELL-XPS-56WH"
+    precio_venta: 89.99
+    precio_costo: 45.00
+    stock_actual: 8
+    stock_minimo: 2
+    categoria: "Baterías"
+    imagen_url: "https://via.placeholder.com/300?text=Dell+Battery"
+    estado_comercial: "In Stock"
+
+  - nombre: "Batería MacBook Pro 16"
+    descripcion: "Batería de litio para MacBook Pro 16 pulgadas M1/M2"
+    sku: "BAT-APPLE-MBP-16"
+    precio_venta: 129.99
+    precio_costo: 65.00
+    stock_actual: 5
+    stock_minimo: 1
+    categoria: "Baterías"
+    imagen_url: "https://via.placeholder.com/300?text=MacBook+Battery"
+    estado_comercial: "In Stock"
+
+  - nombre: "Batería HP Pavilion 15"
+    descripcion: "Batería estándar para HP Pavilion 15"
+    sku: "BAT-HP-PAV-15"
+    precio_venta: 65.00
+    precio_costo: 32.00
+    stock_actual: 6
+    stock_minimo: 2
+    categoria: "Baterías"
+    imagen_url: "https://via.placeholder.com/300?text=HP+Battery"
+    estado_comercial: "In Stock"
+
+  - nombre: "Batería Lenovo ThinkPad"
+    descripcion: "Batería para Lenovo ThinkPad series"
+    sku: "BAT-LENOVO-TP"
+    precio_venta: 72.00
+    precio_costo: 38.00
+    stock_actual: 7
+    stock_minimo: 2
+    categoria: "Baterías"
+    imagen_url: "https://via.placeholder.com/300?text=ThinkPad+Battery"
+    estado_comercial: "In Stock"
+
+  - nombre: "Batería iPhone 14"
+    descripcion: "Batería original para iPhone 14 Pro Max"
+    sku: "BAT-APPLE-IPN14"
+    precio_venta: 59.99
+    precio_costo: 25.00
+    stock_actual: 15
+    stock_minimo: 5
+    categoria: "Baterías"
+    imagen_url: "https://via.placeholder.com/300?text=iPhone+Battery"
+    estado_comercial: "In Stock"
+
+  - nombre: "Batería Samsung Galaxy S23"
+    descripcion: "Batería original para Samsung Galaxy S23 Ultra"
+    sku: "BAT-SAMSUNG-S23"
+    precio_venta: 54.99
+    precio_costo: 22.00
+    stock_actual: 12
+    stock_minimo: 4
+    categoria: "Baterías"
+    imagen_url: "https://via.placeholder.com/300?text=Samsung+Battery"
+    estado_comercial: "In Stock"
+
+  # Pantallas
+  - nombre: "Pantalla LCD Dell XPS 13"
+    descripcion: "Display FHD+ 1920x1200 para Dell XPS 13"
+    sku: "DISP-DELL-XPS-FHD"
+    precio_venta: 199.99
+    precio_costo: 95.00
+    stock_actual: 3
+    stock_minimo: 1
+    categoria: "Pantallas"
+    imagen_url: "https://via.placeholder.com/300?text=XPS+Screen"
+    estado_comercial: "In Stock"
+
+  - nombre: "Pantalla OLED iPhone 14 Pro"
+    descripcion: "Display OLED original con cristal para iPhone 14 Pro"
+    sku: "DISP-APPLE-IPN14PRO"
+    precio_venta: 299.99
+    precio_costo: 140.00
+    stock_actual: 4
+    stock_minimo: 1
+    categoria: "Pantallas"
+    imagen_url: "https://via.placeholder.com/300?text=iPhone+Screen"
+    estado_comercial: "In Stock"
+
+  - nombre: "Pantalla Samsung Galaxy Tab S8"
+    descripcion: "Display AMOLED 11 pulgadas para Samsung Galaxy Tab S8"
+    sku: "DISP-SAMSUNG-TAB-S8"
+    precio_venta: 249.99
+    precio_costo: 120.00
+    stock_actual: 2
+    stock_minimo: 1
+    categoria: "Pantallas"
+    imagen_url: "https://via.placeholder.com/300?text=Tab+Screen"
+    estado_comercial: "Low Stock"
+
+  - nombre: "Pantalla HP Pavilion 15"
+    descripcion: "Pantalla LED 15.6 pulgadas para HP Pavilion"
+    sku: "DISP-HP-PAV-15"
+    precio_venta: 145.00
+    precio_costo: 70.00
+    stock_actual: 5
+    stock_minimo: 2
+    categoria: "Pantallas"
+    imagen_url: "https://via.placeholder.com/300?text=HP+Screen"
+    estado_comercial: "In Stock"
+
+  # Almacenamiento
+  - nombre: "SSD 500GB NVMe"
+    descripcion: "SSD M.2 NVMe 500GB para upgrade de laptop"
+    sku: "SSD-500GB-NVMe"
+    precio_venta: 55.00
+    precio_costo: 28.00
+    stock_actual: 12
+    stock_minimo: 3
+    categoria: "Almacenamiento"
+    imagen_url: "https://via.placeholder.com/300?text=SSD+500GB"
+    estado_comercial: "In Stock"
+
+  - nombre: "SSD 1TB NVMe"
+    descripcion: "SSD M.2 NVMe 1TB para upgrade de laptop"
+    sku: "SSD-1TB-NVMe"
+    precio_venta: 89.99
+    precio_costo: 45.00
+    stock_actual: 8
+    stock_minimo: 2
+    categoria: "Almacenamiento"
+    imagen_url: "https://via.placeholder.com/300?text=SSD+1TB"
+    estado_comercial: "In Stock"
+
+  - nombre: "HDD 1TB 2.5"
+    descripcion: "Disco duro 1TB 2.5 pulgadas 7200RPM"
+    sku: "HDD-1TB-25"
+    precio_venta: 45.00
+    precio_costo: 22.00
+    stock_actual: 10
+    stock_minimo: 3
+    categoria: "Almacenamiento"
+    imagen_url: "https://via.placeholder.com/300?text=HDD+1TB"
+    estado_comercial: "In Stock"
+
+  # Conectores y Cables
+  - nombre: "Cable USB-C"
+    descripcion: "Cable USB-C de carga rápida 2 metros"
+    sku: "CABLE-USB-C-2M"
+    precio_venta: 12.99
+    precio_costo: 5.00
+    stock_actual: 25
+    stock_minimo: 5
+    categoria: "Cables"
+    imagen_url: "https://via.placeholder.com/300?text=USB-C+Cable"
+    estado_comercial: "In Stock"
+
+  - nombre: "Cable Lightning iPhone"
+    descripcion: "Cable Lightning original para iPhone"
+    sku: "CABLE-LIGHTNING"
+    precio_venta: 15.99
+    precio_costo: 7.00
+    stock_actual: 30
+    stock_minimo: 10
+    categoria: "Cables"
+    imagen_url: "https://via.placeholder.com/300?text=Lightning+Cable"
+    estado_comercial: "In Stock"
+
+  - nombre: "Puerto USB-C Replacement"
+    descripcion: "Puerto USB-C de reemplazo para laptop"
+    sku: "PORT-USB-C"
+    precio_venta: 45.00
+    precio_costo: 20.00
+    stock_actual: 8
+    stock_minimo: 2
+    categoria: "Conectores"
+    imagen_url: "https://via.placeholder.com/300?text=USB-C+Port"
+    estado_comercial: "In Stock"
+
+  # Accesorios y Componentes
+  - nombre: "Thermal Paste Premium"
+    descripcion: "Pasta térmica de alta conductividad para CPU/GPU"
+    sku: "THERM-PASTE-PREM"
+    precio_venta: 18.99
+    precio_costo: 8.00
+    stock_actual: 20
+    stock_minimo: 5
+    categoria: "Accesorios"
+    imagen_url: "https://via.placeholder.com/300?text=Thermal+Paste"
+    estado_comercial: "In Stock"
+
+  - nombre: "Ventilador Laptop"
+    descripcion: "Ventilador de reemplazo para laptop 15 pulgadas"
+    sku: "FAN-LAPTOP-15"
+    precio_venta: 35.00
+    precio_costo: 16.00
+    stock_actual: 6
+    stock_minimo: 2
+    categoria: "Accesorios"
+    imagen_url: "https://via.placeholder.com/300?text=Laptop+Fan"
+    estado_comercial: "In Stock"
+
+  - nombre: "RAM DDR4 8GB"
+    descripcion: "Memoria RAM DDR4 8GB 3200MHz"
+    sku: "RAM-DDR4-8GB"
+    precio_venta: 42.00
+    precio_costo: 20.00
+    stock_actual: 9
+    stock_minimo: 2
+    categoria: "Memoria"
+    imagen_url: "https://via.placeholder.com/300?text=RAM+8GB"
+    estado_comercial: "In Stock"
+
+  - nombre: "RAM DDR4 16GB"
+    descripcion: "Memoria RAM DDR4 16GB 3200MHz"
+    sku: "RAM-DDR4-16GB"
+    precio_venta: 72.00
+    precio_costo: 35.00
+    stock_actual: 5
+    stock_minimo: 2
+    categoria: "Memoria"
+    imagen_url: "https://via.placeholder.com/300?text=RAM+16GB"
+    estado_comercial: "In Stock"
+
+  # Servicios
+  - nombre: "Diagnóstico Técnico"
+    descripcion: "Servicio de diagnóstico completo de hardware y software"
+    sku: "SRV-DIAGNOSIS"
+    precio_venta: 45.00
+    precio_costo: 10.00
+    stock_actual: 999
+    stock_minimo: 1
+    categoria: "Servicios"
+    imagen_url: "https://via.placeholder.com/300?text=Diagnosis"
+    estado_comercial: "In Stock"
+
+  - nombre: "Limpieza y Mantenimiento"
+    descripcion: "Limpieza profunda, reemplazo de pasta térmica y mantenimiento"
+    sku: "SRV-CLEANING"
+    precio_venta: 65.00
+    precio_costo: 15.00
+    stock_actual: 999
+    stock_minimo: 1
+    categoria: "Servicios"
+    imagen_url: "https://via.placeholder.com/300?text=Cleaning"
+    estado_comercial: "In Stock"
+
+  - nombre: "Instalación y Setup"
+    descripcion: "Servicio de instalación de componentes y configuración"
+    sku: "SRV-INSTALLATION"
+    precio_venta: 55.00
+    precio_costo: 12.00
+    stock_actual: 999
+    stock_minimo: 1
+    categoria: "Servicios"
+    imagen_url: "https://via.placeholder.com/300?text=Installation"
+    estado_comercial: "In Stock"
+
+  - nombre: "Backup y Recuperación"
+    descripcion: "Servicio de backup de datos y recuperación"
+    sku: "SRV-BACKUP"
+    precio_venta: 40.00
+    precio_costo: 10.00
+    stock_actual: 999
+    stock_minimo: 1
+    categoria: "Servicios"
+    imagen_url: "https://via.placeholder.com/300?text=Backup"
+    estado_comercial: "In Stock"

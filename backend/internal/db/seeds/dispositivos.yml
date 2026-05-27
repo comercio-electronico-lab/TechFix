@@ -1,0 +1,21 @@
+dispositivos:
+  - user_email: "carlos@example.com"
+    brand: "Dell"
+    model: "XPS 13"
+    serial_number: "SN-DELL-XPS-13-001"
+    device_type: "laptop"
+    purchase_date: 2022-06-15T00:00:00Z
+
+  - user_email: "carlos@example.com"
+    brand: "Apple"
+    model: "iPhone 14 Pro"
+    serial_number: "SN-APPLE-IPN14PRO-001"
+    device_type: "phone"
+    purchase_date: 2023-10-20T00:00:00Z
+
+  - user_email: "ana@example.com"
+    brand: "Samsung"
+    model: "Galaxy Tab S8"
+    serial_number: "SN-SAMSUNG-TAB-S8-001"
+    device_type: "tablet"
+    purchase_date: 2023-02-10T00:00:00Z
