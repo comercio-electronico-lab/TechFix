@@ -1,0 +1,42 @@
+usuarios:
+  - login: admin
+    nombre: Administrador del Sistema
+    email: admin@techfix.com
+    rol: Admin
+    estado: Activo
+    joined_date: 2024-01-15T10:00:00Z
+
+  - login: technician_juan
+    nombre: Juan Pérez García
+    email: juan@techfix.com
+    rol: Técnico
+    estado: Activo
+    joined_date: 2024-02-20T14:30:00Z
+
+  - login: technician_maria
+    nombre: María López Rodríguez
+    email: maria@techfix.com
+    rol: Técnico
+    estado: Activo
+    joined_date: 2024-03-10T09:15:00Z
+
+  - login: customer_carlos
+    nombre: Carlos González Martínez
+    email: carlos@example.com
+    rol: Cliente
+    estado: Activo
+    joined_date: 2024-04-05T11:00:00Z
+
+  - login: customer_ana
+    nombre: Ana Martínez Fernández
+    email: ana@example.com
+    rol: Cliente
+    estado: Activo
+    joined_date: 2024-05-12T16:45:00Z
+
+  - login: customer_luis
+    nombre: Luis Sánchez Díaz
+    email: luis@example.com
+    rol: Cliente
+    estado: Activo
+    joined_date: 2024-05-20T13:20:00Z

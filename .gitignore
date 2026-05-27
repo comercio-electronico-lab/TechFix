@@ -1,0 +1,37 @@
+# Binarios de Go
+backend/api
+backend/backend
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Dependencias de Node
+node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+.pnpm-store/
+bun.lockb
+
+# Variables de entorno (¡Seguridad!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# IDEs y Sistema
+.vscode/
+.idea/
+.DS_Store
+*.swp
+Thumbs.db
