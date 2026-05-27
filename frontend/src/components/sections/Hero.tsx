@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import Button from '../ui/Button';
 import { Wrench, ShoppingCart } from 'lucide-react';
 
@@ -18,15 +19,21 @@ const Hero = () => {
             Desde portátiles empresariales hasta smartphones insignia, lo reparamos con precisión.
           </p>
           <div className="flex flex-wrap gap-stack-md">
-            <Button variant="primary" icon={Wrench}>
-              Reservar Reparación
-            </Button>
-            <Button variant="accent" icon={ShoppingCart}>
-              Comprar ahora
-            </Button>
-            <Button variant="outline">
-              Explorar Hardware
-            </Button>
+            <Link href="/reparaciones">
+              <Button variant="primary" icon={Wrench}>
+                Reservar Reparación
+              </Button>
+            </Link>
+            <Link href="/catalogo">
+              <Button variant="accent" icon={ShoppingCart}>
+                Comprar ahora
+              </Button>
+            </Link>
+            <Link href="/catalogo">
+              <Button variant="outline">
+                Explorar Hardware
+              </Button>
+            </Link>
           </div>
         </div>
         
