@@ -170,20 +170,38 @@ func getMethodColor(method string) string {
 
 func printBanner(port string) {
 	banner := fmt.Sprintf(`
-╔════════════════════════════════════════════════════════════╗
-║                                                            ║
-║               🔧 TECHFIX API SERVER 🔧                    ║
-║                                                            ║
-║            ✨ Database: Connected ✨                      ║
-║            🚀 Server: Running on port %s 🚀              ║
-║            📍 Environment: %s                   ║
-║            🕐 Started at: %s           ║
-║                                                            ║
-║              Ready to handle requests! 💪                 ║
-║                                                            ║
-╚════════════════════════════════════════════════════════════╝
-`, port, os.Getenv("GIN_MODE"), time.Now().Format("2006-01-02 15:04:05"))
+   _____ _____ _   _
+  / ____|_   _| \ | |
+ | |  __  | | |  \| |
+ | | |_ | | | | . \ |
+ | |__| |_| |_| |\  |
+  \_____|_____|_| \_|
 
-	// Imprimir el banner sin el logger de Gin interfiriendo
+┌─────────────────────────────────────────────────────────┐
+│                                                         │
+│           ✨ TECHFIX API SERVER RUNNING ✨            │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  📊 Database ............ ✓ Connected                  │
+│  🚀 Server Port ......... %s                           │
+│  🔧 Environment ......... %s                    │
+│  🕐 Started ............. %s          │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│  ✅ Ready to handle requests! 💪                       │
+│  🔥 Hot reload enabled - watching for changes...       │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+
+`, port, padRight(os.Getenv("GIN_MODE"), 17), time.Now().Format("2006-01-02 15:04:05"))
+
 	fmt.Print(banner)
+}
+
+func padRight(s string, length int) string {
+	if len(s) >= length {
+		return s
+	}
+	return s + " " + fmt.Sprintf("%*s", length-len(s)-1, "")
 }
