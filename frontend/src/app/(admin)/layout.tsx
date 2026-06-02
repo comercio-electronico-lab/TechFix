@@ -17,7 +17,7 @@ export default function AdminLayout({
   React.useEffect(() => {
     if (!loading) {
       if (!isAuthenticated || user?.rol !== "Admin") {
-        router.push("/perfil");
+        router.push("/login");
       }
     }
   }, [loading, isAuthenticated, user, router]);

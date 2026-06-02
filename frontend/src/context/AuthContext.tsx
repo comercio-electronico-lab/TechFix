@@ -14,7 +14,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
   register: (nombre: string, email: string, login: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   updateProfile: (nombre: string, login: string) => Promise<{ success: boolean; error?: string }>;
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(data.usuario);
       localStorage.setItem('techfix_token', data.token);
       localStorage.setItem('techfix_user', JSON.stringify(data.usuario));
-      return { success: true };
+      return { success: true, user: data.usuario };
     } catch (err) {
       console.error(err);
       return { success: false, error: 'No se pudo conectar al servidor de la API' };

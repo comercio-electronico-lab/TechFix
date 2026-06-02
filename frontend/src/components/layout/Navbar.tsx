@@ -26,6 +26,13 @@ const Navbar = () => {
     { name: 'Nosotros', href: '/nosotros' },
   ];
 
+  const getDashboardLink = () => {
+    if (!isAuthenticated || !user) return "/auth/login";
+    if (user.rol === "Admin") return "/admin/dashboard";
+    if (user.rol === "Técnico") return "/tecnico/dashboard";
+    return "/cliente/dashboard";
+  };
+
   return (
     <header className="fixed top-0 w-full h-18 bg-primary border-b border-outline-variant/20 shadow-sm z-50">
       <div className="flex justify-between items-center px-gutter max-w-container-max mx-auto h-full">
@@ -52,7 +59,6 @@ const Navbar = () => {
             })}
           </nav>
         </div>
-...
 
         <div className="flex items-center gap-stack-md">
           <div className="relative hidden lg:block">
@@ -89,7 +95,7 @@ const Navbar = () => {
               )}
             </Link>
             <Link 
-              href={isAuthenticated ? "/perfil" : "/login"} 
+              href={getDashboardLink()} 
               className="hover:text-secondary-container transition-colors flex items-center gap-1.5"
               title={isAuthenticated ? `Mi Perfil: ${user?.nombre}` : "Iniciar Sesión"}
             >
