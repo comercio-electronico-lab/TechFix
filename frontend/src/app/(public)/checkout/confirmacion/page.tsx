@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, Truck, Mail, BellRing, Printer, Home, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import CheckoutHeader from '@/components/checkout/CheckoutHeader';
 
 export default function CheckoutConfirmacion() {
   // Estado para la orden simulada
@@ -53,20 +54,7 @@ export default function CheckoutConfirmacion() {
   return (
     <div className="bg-background dark:bg-slate-950 min-h-screen flex flex-col font-body-md antialiased transition-colors duration-300">
       
-      {/* TopNavBar (Transactional mode - simplified) */}
-      <header className="bg-surface/80 dark:bg-slate-900/80 backdrop-blur-md fixed top-0 w-full z-50 border-b border-outline-variant dark:border-slate-800 shadow-sm h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop left-0 right-0">
-        <div className="max-w-container-max mx-auto w-full flex justify-between items-center px-4 md:px-8">
-          <div className="font-headline-md text-2xl font-bold text-primary dark:text-sky-400 select-none tracking-tight">
-            <Link href="/" className="hover:opacity-90 transition-opacity">
-              TechFix
-            </Link>
-          </div>
-          <div className="flex items-center gap-2 text-on-surface-variant dark:text-slate-400">
-            <ShieldCheck className="w-4 h-4 text-emerald-500" />
-            <span className="font-semibold text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Order Confirmed</span>
-          </div>
-        </div>
-      </header>
+      <CheckoutHeader status="confirmed" />
 
       {/* Main Content */}
       <main className="flex-grow pt-24 pb-16 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full px-4 md:px-8">
