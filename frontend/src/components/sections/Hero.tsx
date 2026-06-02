@@ -5,7 +5,7 @@ import { Wrench, ShoppingCart } from 'lucide-react';
 
 const Hero = () => {
   return (
-    <section className="hero-gradient relative overflow-hidden py-section-padding text-white">
+    <section className="hero-gradient relative overflow-hidden -mt-[72px] pt-[152px] pb-section-padding text-white">
       <div className="max-w-container-max mx-auto px-gutter grid grid-cols-1 lg:grid-cols-2 gap-stack-lg items-center">
         <div className="z-10">
           <span className="inline-block bg-secondary text-white px-4 py-1 rounded-full text-[12px] font-bold uppercase tracking-widest mb-stack-md">
