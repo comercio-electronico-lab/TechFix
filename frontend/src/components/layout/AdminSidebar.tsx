@@ -12,11 +12,14 @@ import {
   Users, 
   Settings, 
   Ticket,
-  ChevronRight
+  ChevronRight,
+  LogOut
 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const AdminSidebar = () => {
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   const links = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
@@ -64,10 +67,17 @@ const AdminSidebar = () => {
         })}
       </nav>
 
-      <div className="mt-auto pt-6 border-t border-outline-variant/30">
-        <button className="w-full bg-primary text-white py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:opacity-95 transition-all shadow-md active:scale-95 font-bold text-sm">
+      <div className="mt-auto pt-6 border-t border-outline-variant/30 space-y-2">
+        <button className="w-full bg-primary text-white py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:opacity-95 transition-all shadow-md active:scale-95 font-bold text-sm cursor-pointer">
           <Ticket className="w-4 h-4" />
           Support Ticket
+        </button>
+        <button 
+          onClick={logout}
+          className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/30 py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 font-bold text-sm cursor-pointer"
+        >
+          <LogOut className="w-4 h-4" />
+          Cerrar Sesión
         </button>
       </div>
     </aside>

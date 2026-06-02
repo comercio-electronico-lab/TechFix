@@ -2,6 +2,8 @@
 
 import { mockUsers } from '../mock/users';
 import { mockRepairTickets } from '../mock/repairs';
+import { mockProducts } from '../mock/products';
+import { mockSuppliers, mockSupplierOrders } from '../mock/suppliers';
 
 // Mapeador para adaptar los tipos del archivo mock al formato esperado por el frontend
 function mapMockUser(user: any) {
@@ -144,6 +146,23 @@ export async function getRepairTrackingAction(ticketId: string) {
 
 // Estado en memoria para persistencia de modificaciones en la cola de reparaciones
 let repairsState = [...mockRepairTickets];
+
+let productsState = mockProducts.map((p) => ({
+  id: p.id,
+  sku: `SKU-PROD-${p.id}`,
+  nombre: p.name,
+  descripcion: p.description,
+  precio_venta: p.price,
+  precio_costo: p.price * 0.6,
+  stock_actual: p.status === 'In Stock' ? 25 : p.status === 'Limited Edition' ? 8 : 12,
+  stock_minimo: 5,
+  categoria: p.category,
+  imagen_url: p.image,
+  status: p.status,
+}));
+
+let suppliersState = [...mockSuppliers];
+let supplierOrdersState = [...mockSupplierOrders];
 
 export async function getClientRepairsAction(token: string) {
   await new Promise((resolve) => setTimeout(resolve, 300));
@@ -298,4 +317,98 @@ export async function addPartToRepairAction(
   }
 
   return { success: true };
+}
+
+export async function getProductsAction() {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  return productsState;
+}
+
+export async function getAdminProductsAction(token: string) {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  await meAction(token);
+  return productsState;
+}
+
+export async function getSuppliersAction(token: string) {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  await meAction(token);
+  return suppliersState;
+}
+
+export async function createSupplierOrderAction(
+  token: string,
+  orderInput: { proveedor_id: string; producto_id: string; cantidad: number }
+) {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  await meAction(token);
+
+  const supplier = suppliersState.find((s) => s.id === orderInput.proveedor_id);
+  const product = productsState.find((p) => p.id === orderInput.producto_id);
+
+  if (!supplier) throw new Error('Proveedor no encontrado');
+  if (!product) throw new Error('Producto no encontrado');
+
+  const newOrder = {
+    id: `SO-2026-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+    supplierName: supplier.name,
+    partName: product.nombre,
+    quantity: orderInput.cantidad,
+    unitPrice: product.precio_costo || (product.precio_venta * 0.6),
+    totalPrice: (product.precio_costo || (product.precio_venta * 0.6)) * orderInput.cantidad,
+    status: 'pending' as const,
+    orderDate: new Date().toISOString().split('T')[0],
+  };
+
+  supplierOrdersState.unshift(newOrder);
+  return newOrder;
+}
+
+export async function createProductAction(token: string, productInput: any) {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  await meAction(token);
+
+  const newId = (productsState.length + 1).toString();
+  const newProduct = {
+    id: newId,
+    sku: productInput.sku || `SKU-PROD-${newId}`,
+    nombre: productInput.nombre,
+    descripcion: productInput.descripcion,
+    precio_venta: Number(productInput.precio_venta),
+    precio_costo: Number(productInput.precio_costo) || Number(productInput.precio_venta) * 0.6,
+    stock_actual: Number(productInput.stock_actual) || 0,
+    stock_minimo: Number(productInput.stock_minimo) || 5,
+    categoria: productInput.categoria || 'Generales',
+    imagen_url: 'https://via.placeholder.com/300',
+    status: (Number(productInput.stock_actual) === 0 ? 'Out of Stock' : Number(productInput.stock_actual) <= Number(productInput.stock_minimo) ? 'Low Stock' : 'In Stock') as any,
+  };
+
+  productsState.push(newProduct);
+  return newProduct;
+}
+
+export async function updateProductAction(token: string, id: string, productInput: any) {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  await meAction(token);
+
+  const productIndex = productsState.findIndex((p) => p.id === id);
+  if (productIndex === -1) {
+    throw new Error('Producto no encontrado');
+  }
+
+  const current = productsState[productIndex];
+  const updated = {
+    ...current,
+    nombre: productInput.nombre !== undefined ? productInput.nombre : current.nombre,
+    descripcion: productInput.descripcion !== undefined ? productInput.descripcion : current.descripcion,
+    precio_venta: productInput.precio_venta !== undefined ? Number(productInput.precio_venta) : current.precio_venta,
+    stock_actual: productInput.stock_actual !== undefined ? Number(productInput.stock_actual) : current.stock_actual,
+    stock_minimo: productInput.stock_minimo !== undefined ? Number(productInput.stock_minimo) : current.stock_minimo,
+    status: (productInput.stock_actual !== undefined 
+      ? (Number(productInput.stock_actual) === 0 ? 'Out of Stock' : Number(productInput.stock_actual) <= (productInput.stock_minimo !== undefined ? Number(productInput.stock_minimo) : current.stock_minimo) ? 'Low Stock' : 'In Stock') 
+      : current.status) as any,
+  };
+
+  productsState[productIndex] = updated;
+  return updated;
 }

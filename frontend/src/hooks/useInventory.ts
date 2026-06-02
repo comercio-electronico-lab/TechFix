@@ -3,6 +3,13 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { InventoryItem } from '@/types';
+import {
+  getAdminProductsAction,
+  getSuppliersAction,
+  createSupplierOrderAction,
+  createProductAction,
+  updateProductAction
+} from '@/app/actions';
 
 export interface UseInventoryReturn {
   inventory: InventoryItem[];
@@ -61,8 +68,6 @@ export function useInventory(): UseInventoryReturn {
     stock: 20, maxStock: 50, price: 49.99
   });
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-
   const fetchInventory = useCallback(async () => {
     if (!isAuthenticated || !token) {
       setInventory([]);
@@ -73,39 +78,28 @@ export function useInventory(): UseInventoryReturn {
     setError(null);
 
     try {
-      const res = await fetch(`${API_URL}/api/admin/products`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        // Mapear GORM Producto a formato de UI InventoryItem
-        const mapped: InventoryItem[] = (data || []).map((p: any) => ({
-          id: p.id,
-          sku: p.sku || `SKU-${p.id.slice(0, 6).toUpperCase()}`,
-          name: p.nombre,
-          category: p.categoria || 'Generales',
-          stock: p.stock_actual,
-          maxStock: p.stock_minimo * 4 || 100,
-          price: p.precio_venta,
-          status: (p.stock_actual === 0 ? 'Out of Stock' : p.stock_actual <= p.stock_minimo ? 'Low Stock' : 'In Stock') as any,
-          supplier: 'Importaciones TechParts S.A.', // Proveedor principal
-          compatibility: p.descripcion || 'Universal / OEM',
-        }));
-        setInventory(mapped);
-      } else {
-        const errData = await res.json();
-        setError(errData.error || 'Error al obtener inventario del taller.');
-      }
-    } catch (e) {
+      const data = await getAdminProductsAction(token);
+      // Mapear GORM Producto a formato de UI InventoryItem
+      const mapped: InventoryItem[] = (data || []).map((p: any) => ({
+        id: p.id,
+        sku: p.sku || `SKU-${p.id.slice(0, 6).toUpperCase()}`,
+        name: p.nombre,
+        category: p.categoria || 'Generales',
+        stock: p.stock_actual,
+        maxStock: p.stock_minimo * 4 || 100,
+        price: p.precio_venta,
+        status: (p.stock_actual === 0 ? 'Out of Stock' : p.stock_actual <= p.stock_minimo ? 'Low Stock' : 'In Stock') as any,
+        supplier: 'Importaciones TechParts S.A.', // Proveedor principal
+        compatibility: p.descripcion || 'Universal / OEM',
+      }));
+      setInventory(mapped);
+    } catch (e: any) {
       console.error(e);
-      setError('Error de conexión con el servidor.');
+      setError(e.message || 'Error al obtener inventario del taller.');
     } finally {
       setLoading(false);
     }
-  }, [API_URL, token, isAuthenticated]);
+  }, [token, isAuthenticated]);
 
   useEffect(() => {
     fetchInventory();
@@ -156,17 +150,8 @@ export function useInventory(): UseInventoryReturn {
     if (!token) return;
 
     try {
-      // 1. Obtener lista de proveedores semilla en Go
-      const supRes = await fetch(`${API_URL}/api/admin/suppliers`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!supRes.ok) {
-        alert('Error al obtener la lista de proveedores mayoristas.');
-        return;
-      }
-
-      const suppliers = await supRes.json();
+      // 1. Obtener lista de proveedores
+      const suppliers = await getSuppliersAction(token);
       if (!suppliers || suppliers.length === 0) {
         alert('No hay proveedores mayoristas registrados en el sistema.');
         return;
@@ -176,122 +161,78 @@ export function useInventory(): UseInventoryReturn {
       const mainSupplier = suppliers[0];
 
       // 2. Colocar pedido de repuesto
-      const orderRes = await fetch(`${API_URL}/api/admin/supplier-orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          proveedor_id: mainSupplier.id,
-          producto_id: itemId,
-          cantidad: 20, // Cantidad estándar de reabastecimiento
-        }),
+      await createSupplierOrderAction(token, {
+        proveedor_id: mainSupplier.id,
+        producto_id: itemId,
+        cantidad: 20, // Cantidad estándar de reabastecimiento
       });
 
-      if (orderRes.ok) {
-        alert(`¡Orden de compra mayorista enviada con éxito a "${mainSupplier.nombre}" por 20 unidades!`);
-        // Actualizar localmente el stock para simular el arribo express
-        // En una app real, el arribo se marca como "entregado" en backoffice
-        // Haremos una llamada PUT para reabastecer el stock local en vivo de forma integrada.
-        const itemToUpdate = inventory.find(i => i.id === itemId);
-        if (itemToUpdate) {
-          const newStockVal = itemToUpdate.stock + 20;
-          await fetch(`${API_URL}/api/admin/products/${itemId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              stock_actual: newStockVal,
-              stock_minimo: Math.round(newStockVal / 4) || 5,
-            }),
-          });
-          await fetchInventory();
-        }
-      } else {
-        const err = await orderRes.json();
-        alert(err.error || 'Error al emitir el pedido al mayorista.');
+      alert(`¡Orden de compra mayorista enviada con éxito a "${mainSupplier.name}" por 20 unidades!`);
+
+      // Actualizar localmente el stock para simular el arribo express
+      const itemToUpdate = inventory.find(i => i.id === itemId);
+      if (itemToUpdate) {
+        const newStockVal = itemToUpdate.stock + 20;
+        await updateProductAction(token, itemId, {
+          stock_actual: newStockVal,
+          stock_minimo: Math.round(newStockVal / 4) || 5,
+        });
+        await fetchInventory();
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert('Error de red al procesar el reabastecimiento.');
+      alert(e.message || 'Error de red al procesar el reabastecimiento.');
     }
   };
 
   // Crear nuevo repuesto en catálogo
   const handleCreateItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newItem.sku || !newItem.name || !newItem.compatibility) return;
+    if (!token || !newItem.sku || !newItem.name || !newItem.compatibility) return;
 
     try {
-      const res = await fetch(`${API_URL}/api/admin/products`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          nombre: newItem.name,
-          descripcion: newItem.compatibility, // mapped to compatibility in ui
-          sku: newItem.sku.toUpperCase(),
-          precio_venta: Number(newItem.price),
-          precio_costo: Math.round(Number(newItem.price) * 0.6 * 100) / 100, // costo simulado
-          stock_actual: Number(newItem.stock),
-          stock_minimo: Math.round(Number(newItem.maxStock) / 4) || 5,
-          categoria: newItem.category,
-        }),
+      await createProductAction(token, {
+        nombre: newItem.name,
+        descripcion: newItem.compatibility, // mapped to compatibility in ui
+        sku: newItem.sku.toUpperCase(),
+        precio_venta: Number(newItem.price),
+        precio_costo: Math.round(Number(newItem.price) * 0.6 * 100) / 100, // costo simulado
+        stock_actual: Number(newItem.stock),
+        stock_minimo: Math.round(Number(newItem.maxStock) / 4) || 5,
+        categoria: newItem.category,
       });
 
-      if (res.ok) {
-        alert('¡Repuesto registrado con éxito en el catálogo de TechFix!');
-        setIsModalOpen(false);
-        setNewItem({ sku: '', name: '', compatibility: '', category: 'Displays', supplier: 'TechParts Global', stock: 20, maxStock: 50, price: 49.99 });
-        await fetchInventory();
-        setCurrentPage(1);
-      } else {
-        const err = await res.json();
-        alert(err.error || 'Error al registrar el repuesto.');
-      }
-    } catch (e) {
+      alert('¡Repuesto registrado con éxito en el catálogo de TechFix!');
+      setIsModalOpen(false);
+      setNewItem({ sku: '', name: '', compatibility: '', category: 'Displays', supplier: 'TechParts Global', stock: 20, maxStock: 50, price: 49.99 });
+      await fetchInventory();
+      setCurrentPage(1);
+    } catch (e: any) {
       console.error(e);
-      alert('Error de red al crear el producto.');
+      alert(e.message || 'Error al registrar el repuesto.');
     }
   };
 
   // Modificar repuesto existente
   const handleUpdateItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingItem) return;
+    if (!token || !editingItem) return;
 
     try {
-      const res = await fetch(`${API_URL}/api/admin/products/${editingItem.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          nombre: editingItem.name,
-          descripcion: editingItem.compatibility,
-          precio_venta: Number(editingItem.price),
-          stock_actual: Number(editingItem.stock),
-        }),
+      await updateProductAction(token, editingItem.id, {
+        nombre: editingItem.name,
+        descripcion: editingItem.compatibility,
+        precio_venta: Number(editingItem.price),
+        stock_actual: Number(editingItem.stock),
       });
 
-      if (res.ok) {
-        alert('¡Repuesto actualizado correctamente!');
-        setIsEditModalOpen(false);
-        setEditingItem(null);
-        await fetchInventory();
-      } else {
-        const err = await res.json();
-        alert(err.error || 'Error al actualizar el repuesto.');
-      }
-    } catch (e) {
+      alert('¡Repuesto actualizado correctamente!');
+      setIsEditModalOpen(false);
+      setEditingItem(null);
+      await fetchInventory();
+    } catch (e: any) {
       console.error(e);
-      alert('Error de conexión.');
+      alert(e.message || 'Error al actualizar el repuesto.');
     }
   };
 

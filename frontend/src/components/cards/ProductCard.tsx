@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Product } from '@/mock/products';
+import { Product } from '@/types';
 import Button from '../ui/Button';
 import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';

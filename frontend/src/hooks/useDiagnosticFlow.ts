@@ -28,6 +28,19 @@ export interface UseDiagnosticFlowReturn {
 
 const TOTAL_STEPS = 5;
 
+// Mapeador para adaptar los nodos mock al formato esperado por el frontend
+const mapNode = (node: any) => {
+  if (!node) return null;
+  return {
+    ...node,
+    question_text: node.question, // Mapea question a question_text
+    answer_option: node.question, // Mapea question a answer_option para la lista de opciones
+    preliminary_result: node.preliminary_result || `Fallo técnico identificado: ${node.question}.`,
+    estimated_min: node.estimated_min !== undefined ? node.estimated_min : Math.round((node.suggestedProducts || []).reduce((sum: number, p: any) => sum + p.price, 0) * 0.8) || 45,
+    estimated_max: node.estimated_max !== undefined ? node.estimated_max : Math.round((node.suggestedProducts || []).reduce((sum: number, p: any) => sum + p.price, 0) * 1.2) || 120,
+  };
+};
+
 export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
   // Estados de flujo
   const [step, setStep] = useState(1);
@@ -60,8 +73,9 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
     const rootNode = getNodeById(rootNodeId);
 
     if (rootNode) {
-      setCurrentNode(rootNode);
-      const opts = getOptionsForNode(rootNodeId);
+      const mappedRoot = mapNode(rootNode);
+      setCurrentNode(mappedRoot);
+      const opts = getOptionsForNode(rootNodeId).map(mapNode);
       setOptions(opts);
       setStep(2);
     } else {
@@ -71,16 +85,23 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
 
   // Avanzar nodo del árbol
   const selectOption = (optionNode: any) => {
+    // Almacenar el nodo actual mapeado antes de avanzar
     setHistory((prev) => [...prev, { node: currentNode, options }]);
-    setSymptomPath((prev) => [...prev, optionNode.question]);
-    setCurrentNode(optionNode);
+    
+    // Guardar el formato "Pregunta → Respuesta"
+    const currentQuestionText = currentNode?.question_text || currentNode?.question || 'Pregunta';
+    const selectedAnswerOption = optionNode?.answer_option || optionNode?.question || 'Opción';
+    setSymptomPath((prev) => [...prev, `${currentQuestionText} → ${selectedAnswerOption}`]);
+
+    const mappedNode = mapNode(optionNode);
+    setCurrentNode(mappedNode);
 
     if (optionNode.isTerminal) {
       setSuggestedProducts(optionNode.suggestedProducts || []);
-      setTerminalNode(optionNode);
-      setStep(3);
+      setTerminalNode(mappedNode);
+      setStep(4); // Avanzar directamente al paso 4 (Contacto, mapeado como paso 3 en el Stepper)
     } else {
-      const opts = getOptionsForNode(optionNode.id);
+      const opts = getOptionsForNode(optionNode.id).map(mapNode);
       setOptions(opts);
     }
   };
@@ -93,6 +114,18 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
       setOptions([]);
       setSymptomPath([]);
       setDeviceTypeState(null);
+    } else if (step === 4) {
+      // Si estamos en el formulario de contacto (Paso 4), volvemos a la última pregunta
+      if (history.length > 0) {
+        const lastHistory = history[history.length - 1];
+        setHistory((prev) => prev.slice(0, -1));
+        setCurrentNode(lastHistory.node);
+        setOptions(lastHistory.options);
+        setSymptomPath((prev) => prev.slice(0, -1));
+        setTerminalNode(null);
+        setSuggestedProducts([]);
+        setStep(2);
+      }
     } else if (history.length > 0) {
       const lastHistory = history[history.length - 1];
       setHistory((prev) => prev.slice(0, -1));

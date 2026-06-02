@@ -3,13 +3,13 @@
 // ============================================
 export interface Product {
   id: string;
-  sku: string;
+  sku?: string;
   name: string;
   description: string;
   price: number;
   category: string;
   image: string;
-  status: 'In Stock' | 'Low Stock' | 'Out of Stock' | 'Limited Edition';
+  status: string;
 }
 
 // ============================================

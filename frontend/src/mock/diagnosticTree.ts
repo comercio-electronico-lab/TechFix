@@ -15,6 +15,59 @@ export interface DiagnosticNode {
 
 export const mockDiagnosticTree: Record<string, DiagnosticNode> = {
   // Root nodes por tipo de dispositivo
+  'root_smartphone': {
+    id: 'root_smartphone',
+    question: '¿Cuál es el síntoma principal de tu teléfono móvil?',
+    isRoot: true,
+    isTerminal: false,
+    children: ['smartphone_screen_issue', 'smartphone_battery_issue'],
+  },
+  'smartphone_screen_issue': {
+    id: 'smartphone_screen_issue',
+    question: '¿Qué tipo de problema tiene la pantalla?',
+    isTerminal: false,
+    children: ['smartphone_glass_broken', 'smartphone_lcd_broken'],
+  },
+  'smartphone_glass_broken': {
+    id: 'smartphone_glass_broken',
+    question: '¿Solo el cristal exterior está roto?',
+    isTerminal: true,
+    suggestedProducts: [
+      { id: 'prod15', name: 'Vidrio templado protector', price: 15, category: 'Accesorios' },
+      { id: 'prod11', name: 'Cristal exterior de repuesto', price: 45, category: 'Repuestos' },
+    ],
+  },
+  'smartphone_lcd_broken': {
+    id: 'smartphone_lcd_broken',
+    question: '¿No da imagen o tiene líneas/manchas?',
+    isTerminal: true,
+    suggestedProducts: [
+      { id: 'prod12', name: 'Módulo de pantalla completo OLED', price: 150, category: 'Componentes' },
+    ],
+  },
+  'smartphone_battery_issue': {
+    id: 'smartphone_battery_issue',
+    question: '¿Qué problema tiene con la batería o carga?',
+    isTerminal: false,
+    children: ['smartphone_battery_drain', 'smartphone_charging_port'],
+  },
+  'smartphone_battery_drain': {
+    id: 'smartphone_battery_drain',
+    question: '¿La batería dura muy poco o está inflada?',
+    isTerminal: true,
+    suggestedProducts: [
+      { id: 'prod3', name: 'Batería original de repuesto', price: 65, category: 'Componentes' },
+    ],
+  },
+  'smartphone_charging_port': {
+    id: 'smartphone_charging_port',
+    question: '¿Hay que mover el cable o no carga nada?',
+    isTerminal: true,
+    suggestedProducts: [
+      { id: 'prod1', name: 'Cable USB-C reforzado', price: 20, category: 'Cables' },
+      { id: 'prod2', name: 'Flex puerto de carga de repuesto', price: 35, category: 'Componentes' },
+    ],
+  },
   'root_laptop': {
     id: 'root_laptop',
     question: '¿Cuál es el problema principal con tu laptop?',

@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { Product } from '@/types';
+import { getProductsAction } from '@/app/actions';
 
 export type SortOption = 'Relevance' | 'Price: Low to High' | 'Price: High to Low' | 'Newest Arrivals';
 
@@ -43,33 +44,28 @@ export function useCatalog(): UseCatalogReturn {
   const [sortBy, setSortByState] = useState<SortOption>('Relevance');
   const [currentPage, setCurrentPage] = useState(1);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-
-  // Cargar catálogo real desde el backend Go
+  // Cargar catálogo usando Server Action
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await fetch(`${API_URL}/api/products`);
-        if (res.ok) {
-          const data = await res.json();
-          const mapped = data.map((p: any) => ({
-            id: p.id,
-            sku: p.sku || 'N/A',
-            name: p.nombre,
-            description: p.descripcion || '',
-            price: p.precio_venta,
-            category: p.categoria,
-            image: p.imagen_url || 'https://via.placeholder.com/300',
-            status: p.status || 'In Stock',
-          }));
-          setProducts(mapped);
-        }
+        const data = await getProductsAction();
+        const mapped = data.map((p: any) => ({
+          id: p.id,
+          sku: p.sku || 'N/A',
+          name: p.nombre,
+          description: p.descripcion || '',
+          price: p.precio_venta,
+          category: p.categoria,
+          image: p.imagen_url || 'https://via.placeholder.com/300',
+          status: p.status || 'In Stock',
+        }));
+        setProducts(mapped);
       } catch (e) {
         console.error('Error al cargar productos del servidor:', e);
       }
     }
     fetchProducts();
-  }, [API_URL]);
+  }, []);
 
   const categoriesList = useMemo(() =>
     Array.from(new Set(products.map(p => p.category))), [products]);
@@ -81,7 +77,7 @@ export function useCatalog(): UseCatalogReturn {
       const q = searchQuery.toLowerCase();
       result = result.filter(p =>
         p.name.toLowerCase().includes(q) ||
-        p.sku.toLowerCase().includes(q) ||
+        (p.sku || '').toLowerCase().includes(q) ||
         p.description.toLowerCase().includes(q)
       );
     }
