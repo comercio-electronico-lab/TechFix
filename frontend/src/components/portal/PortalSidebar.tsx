@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Laptop, ShoppingBag, Wrench, LogOut } from 'lucide-react';
 import { PortalTab } from '@/hooks/useCustomerPortal';
+import { useAuth } from '@/context/AuthContext';
 
 interface PortalSidebarProps {
   activeTab: PortalTab;
@@ -17,6 +18,8 @@ const NAV_ITEMS: { tab: PortalTab; icon: React.ElementType; label: string }[] = 
 ];
 
 export default function PortalSidebar({ activeTab, onTabChange }: PortalSidebarProps) {
+  const { user, logout } = useAuth();
+
   return (
     <aside className="hidden md:flex flex-col w-64 bg-surface dark:bg-slate-900 border-r border-outline-variant/40 dark:border-slate-800 p-4 shrink-0 transition-colors">
       
@@ -29,9 +32,13 @@ export default function PortalSidebar({ activeTab, onTabChange }: PortalSidebarP
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0UEDyYFZRhkV1tfOUGdJZUt84g5tOj3_KlrvAt2ne8Pa0gtGXvUiT4K0lIwJ1VvBURRAfuNo2Mo_yh-oTK2sjFd0G8BaLf6MFC6Dnyixy-4QeMX9_QXZLmlx-GrKCc4MpfPEN-wlUPJtCxuRo6hNDQghcXF83upDo_yGMasAOACvCd0Nk42yQJy2AQPiwuGdSm7l17M_R2r4-Zuia3zRPwon5U5KCG4FNQofvQIS90pwWJ4Pcj7fSzlXNs39uF9_6M9HWXNJZ8xZQ"
           />
         </div>
-        <div>
-          <h4 className="font-bold text-sm text-primary dark:text-sky-400 leading-snug">Portal del Cliente</h4>
-          <p className="text-[10px] text-on-surface-variant dark:text-slate-500 font-bold uppercase tracking-wider mt-0.5">Carlos Pérez</p>
+        <div className="min-w-0 flex-1">
+          <h4 className="font-bold text-sm text-primary dark:text-sky-400 leading-snug truncate">
+            {user?.nombre || 'Portal del Cliente'}
+          </h4>
+          <p className="text-[9px] text-on-surface-variant dark:text-slate-500 font-bold uppercase tracking-wider mt-0.5 truncate">
+            {user?.rol || 'Cliente'}
+          </p>
         </div>
       </div>
 
@@ -58,13 +65,13 @@ export default function PortalSidebar({ activeTab, onTabChange }: PortalSidebarP
 
       {/* Sign Out */}
       <div className="mt-auto pt-4 border-t border-outline-variant/30 dark:border-slate-800">
-        <Link
-          href="/"
-          className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-on-surface-variant dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-error dark:hover:text-red-400 transition-colors uppercase tracking-wider"
+        <button
+          onClick={logout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-on-surface-variant dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-error dark:hover:text-red-400 transition-colors uppercase tracking-wider cursor-pointer text-left"
         >
           <LogOut className="w-4 h-4 shrink-0" />
           <span>Cerrar Sesión</span>
-        </Link>
+        </button>
       </div>
     </aside>
   );

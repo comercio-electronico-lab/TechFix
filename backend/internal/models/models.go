@@ -23,12 +23,13 @@ func (b *Base) BeforeCreate(tx *gorm.DB) error {
 
 type Usuario struct {
 	Base
-	Login      string    `gorm:"size:60;not null" json:"login" yaml:"login"`
-	Nombre     string    `gorm:"size:255;not null" json:"nombre" yaml:"nombre"`
-	Email      string    `gorm:"size:100;uniqueIndex;not null" json:"email" yaml:"email"`
-	Rol        string    `gorm:"size:20;default:'Cliente'" json:"rol" yaml:"rol"`
-	Estado     string    `gorm:"size:20;default:'Activo'" json:"estado" yaml:"estado"`
-	JoinedDate time.Time `json:"joined_date" yaml:"joined_date"`
+	Login        string    `gorm:"size:60;not null" json:"login" yaml:"login"`
+	Nombre       string    `gorm:"size:255;not null" json:"nombre" yaml:"nombre"`
+	Email        string    `gorm:"size:100;uniqueIndex;not null" json:"email" yaml:"email"`
+	Rol          string    `gorm:"size:20;default:'Cliente'" json:"rol" yaml:"rol"`
+	Estado       string    `gorm:"size:20;default:'Activo'" json:"estado" yaml:"estado"`
+	JoinedDate   time.Time `json:"joined_date" yaml:"joined_date"`
+	PasswordHash string    `gorm:"size:255;not null" json:"-"`
 }
 
 func (Usuario) TableName() string {
@@ -37,13 +38,15 @@ func (Usuario) TableName() string {
 
 type Device struct {
 	Base
-	UserID       uuid.UUID `gorm:"type:uuid;not null" json:"user_id" yaml:"user_id"`
-	User         Usuario   `gorm:"foreignKey:UserID" json:"user,omitempty"`
-	Brand        string    `gorm:"size:80;not null" json:"brand" yaml:"brand"`
-	Model        string    `gorm:"size:120;not null" json:"model" yaml:"model"`
-	SerialNumber string    `gorm:"size:100;uniqueIndex;not null" json:"serial_number" yaml:"serial_number"`
-	DeviceType   string    `gorm:"size:20;not null" json:"device_type" yaml:"device_type"`
+	UserID       uuid.UUID  `gorm:"type:uuid;not null" json:"user_id" yaml:"user_id"`
+	User         Usuario    `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	Brand        string     `gorm:"size:80;not null" json:"brand" yaml:"brand"`
+	Model        string     `gorm:"size:120;not null" json:"model" yaml:"model"`
+	SerialNumber string     `gorm:"size:100;uniqueIndex;not null" json:"serial_number" yaml:"serial_number"`
+	DeviceType   string     `gorm:"size:20;not null" json:"device_type" yaml:"device_type"`
 	PurchaseDate *time.Time `json:"purchase_date" yaml:"purchase_date"`
+	Specs        string     `gorm:"size:255" json:"specs" yaml:"specs"`
+	Status       string     `gorm:"size:40;default:'Active Warranty'" json:"status" yaml:"status"`
 }
 
 func (Device) TableName() string {

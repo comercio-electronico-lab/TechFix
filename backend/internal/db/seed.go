@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"backend/internal/models"
+	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/yaml.v3"
 )
 
@@ -13,8 +15,18 @@ type DeviceSeedData struct {
 	Dispositivos []map[string]interface{} `yaml:"dispositivos"`
 }
 
+type UserSeedItem struct {
+	Login      string    `yaml:"login"`
+	Nombre     string    `yaml:"nombre"`
+	Email      string    `yaml:"email"`
+	Rol        string    `yaml:"rol"`
+	Estado     string    `yaml:"estado"`
+	JoinedDate time.Time `yaml:"joined_date"`
+	Password   string    `yaml:"password"`
+}
+
 type UserSeedData struct {
-	Usuarios []models.Usuario `yaml:"usuarios"`
+	Usuarios []UserSeedItem `yaml:"usuarios"`
 }
 
 type ProductoSeedData struct {
@@ -60,8 +72,36 @@ func loadUsers(filePath string) error {
 		return fmt.Errorf("error parsing usuarios: %w", err)
 	}
 
-	for _, u := range seedData.Usuarios {
-		DB.Where(models.Usuario{Email: u.Email}).FirstOrCreate(&u)
+	for _, su := range seedData.Usuarios {
+		// Encriptar contraseña
+		pwd := su.Password
+		if pwd == "" {
+			pwd = "password123"
+		}
+		hash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
+		if err != nil {
+			return fmt.Errorf("error al hashear password para %s: %w", su.Email, err)
+		}
+
+		u := models.Usuario{
+			Login:        su.Login,
+			Nombre:       su.Nombre,
+			Email:        su.Email,
+			Rol:          su.Rol,
+			Estado:       su.Estado,
+			JoinedDate:   su.JoinedDate,
+			PasswordHash: string(hash),
+		}
+
+		// Buscar si ya existe por email
+		var existing models.Usuario
+		err = DB.Where("email = ?", u.Email).First(&existing).Error
+		if err != nil {
+			// No existe, crear
+			if err := DB.Create(&u).Error; err != nil {
+				return fmt.Errorf("error al crear usuario semilla %s: %w", u.Email, err)
+			}
+		}
 	}
 	fmt.Printf("✓ usuarios cargados\n")
 	return nil

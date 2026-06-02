@@ -4,9 +4,11 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { Plus, Wrench, ShieldCheck, ArrowUpRight } from 'lucide-react';
 import { useCustomerPortal } from '@/hooks/useCustomerPortal';
+import { useAuth } from '@/context/AuthContext';
 import PortalSidebar from '@/components/portal/PortalSidebar';
 import DevicesTab from '@/components/portal/DevicesTab';
 import RegisterDeviceModal from '@/components/portal/RegisterDeviceModal';
+import AuthForm from '@/components/portal/AuthForm';
 
 const TAB_LABELS: Record<string, string> = {
   Devices: 'Equipos Registrados',
@@ -21,6 +23,7 @@ const TAB_DESCRIPTIONS: Record<string, string> = {
 };
 
 export default function CustomerPortal() {
+  const { isAuthenticated, loading } = useAuth();
   const {
     devices,
     activeTab,
@@ -43,6 +46,21 @@ export default function CustomerPortal() {
       }
     }
   }, [setActiveTab]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[calc(100vh-72px)] flex items-center justify-center bg-background dark:bg-slate-950">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-primary dark:border-sky-500 border-t-transparent rounded-full animate-spin text-primary dark:text-sky-500" />
+          <p className="text-xs text-on-surface-variant dark:text-slate-400 font-semibold animate-pulse">Verificando sesión...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthForm />;
+  }
 
   return (
     <div className="bg-background dark:bg-slate-950 min-h-[calc(100vh-72px)] flex font-body-md antialiased transition-colors duration-300">
