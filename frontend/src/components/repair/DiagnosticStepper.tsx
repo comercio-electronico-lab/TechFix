@@ -8,12 +8,13 @@ interface DiagnosticStepperProps {
 
 export default function DiagnosticStepper({ currentStep, onBack }: DiagnosticStepperProps) {
   const steps = [
-    { number: 1, label: 'Dispositivo' },
-    { number: 2, label: 'Categoría' },
-    { number: 3, label: 'Detalles' },
-    { number: 4, label: 'Contacto' },
-    { number: 5, label: 'Resumen' }
+    { number: 1, label: 'Dispositivo', value: 1 },
+    { number: 2, label: 'Cuestionario', value: 2 },
+    { number: 3, label: 'Contacto', value: 4 },
+    { number: 4, label: 'Resumen', value: 5 }
   ];
+
+  const activeIndex = steps.findIndex((s) => s.value === currentStep);
 
   return (
     <div className="w-full space-y-6 pb-6 border-b border-outline-variant/30 dark:border-slate-800/80 transition-colors">
@@ -31,7 +32,7 @@ export default function DiagnosticStepper({ currentStep, onBack }: DiagnosticSte
         )}
         
         <span className="text-[10px] font-bold text-on-surface-variant/60 dark:text-slate-500 uppercase tracking-widest">
-          {currentStep === 5 ? 'Proceso Completado' : `Paso ${currentStep} de 4`}
+          {currentStep === 5 ? 'Proceso Completado' : `Paso ${activeIndex !== -1 ? activeIndex + 1 : 1} de 4`}
         </span>
       </div>
 
@@ -42,15 +43,15 @@ export default function DiagnosticStepper({ currentStep, onBack }: DiagnosticSte
         {/* Timeline progress line */}
         <div 
           className="absolute top-1/2 left-0 h-1 bg-primary dark:bg-sky-500 -translate-y-1/2 rounded-full -z-10 transition-all duration-500 ease-out" 
-          style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
+          style={{ width: `${activeIndex !== -1 ? (activeIndex / (steps.length - 1)) * 100 : 0}%` }}
         />
 
-        {steps.map((step) => {
-          const isCompleted = currentStep > step.number;
-          const isActive = currentStep === step.number;
+        {steps.map((step, idx) => {
+          const isCompleted = activeIndex > idx;
+          const isActive = activeIndex === idx;
 
           return (
-            <div key={step.number} className="flex flex-col items-center gap-2">
+            <div key={step.value} className="flex flex-col items-center gap-2">
               <div 
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shadow-sm border ${
                   isCompleted 

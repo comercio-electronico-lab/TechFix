@@ -63,6 +63,11 @@ func startServer() {
 		// Pasarela de pago / Checkout
 		api.POST("/checkout", handlers.ProcessCheckout)
 
+		// Asistente de Diagnóstico (PIG)
+		api.GET("/pig/start", handlers.StartDiagnostic)
+		api.GET("/pig/node/:id", handlers.GetDiagnosticNode)
+		api.POST("/pig/sessions", handlers.SaveDiagnosticSession)
+
 		// Rutas protegidas por JWT
 		protected := api.Group("")
 		protected.Use(middleware.AuthMiddleware())

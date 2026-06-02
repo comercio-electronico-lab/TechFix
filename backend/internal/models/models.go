@@ -164,15 +164,15 @@ func (t *TransaccionProducto) BeforeCreate(tx *gorm.DB) error {
 
 type PigSession struct {
 	Base
-	UserID            uuid.UUID `gorm:"type:uuid;not null" json:"user_id" yaml:"user_id"`
-	User              Usuario   `gorm:"foreignKey:UserID" json:"user,omitempty"`
-	DeviceID          *uuid.UUID `gorm:"type:uuid" json:"device_id" yaml:"device_id"`
-	Device            *Device    `gorm:"foreignKey:DeviceID" json:"device,omitempty"`
-	SymptomPath       []byte    `gorm:"type:jsonb" json:"symptom_path" yaml:"symptom_path"`
-	PreliminaryDiagnosis string  `gorm:"size:255" json:"preliminary_diagnosis" yaml:"preliminary_diagnosis"`
-	EstimatedPriceMin float64   `json:"estimated_price_min" yaml:"estimated_price_min"`
-	EstimatedPriceMax float64   `json:"estimated_price_max" yaml:"estimated_price_max"`
-	ConvertedToOrder  bool      `gorm:"default:false" json:"converted_to_order" yaml:"converted_to_order"`
+	UserID               *uuid.UUID `gorm:"type:uuid" json:"user_id,omitempty" yaml:"user_id"`
+	User                 *Usuario   `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	DeviceID             *uuid.UUID `gorm:"type:uuid" json:"device_id,omitempty" yaml:"device_id"`
+	Device               *Device    `gorm:"foreignKey:DeviceID" json:"device,omitempty"`
+	SymptomPath          []byte     `gorm:"type:jsonb" json:"symptom_path" yaml:"symptom_path"`
+	PreliminaryDiagnosis string     `gorm:"size:255" json:"preliminary_diagnosis" yaml:"preliminary_diagnosis"`
+	EstimatedPriceMin    float64    `json:"estimated_price_min" yaml:"estimated_price_min"`
+	EstimatedPriceMax    float64    `json:"estimated_price_max" yaml:"estimated_price_max"`
+	ConvertedToOrder     bool       `gorm:"default:false" json:"converted_to_order" yaml:"converted_to_order"`
 }
 
 func (PigSession) TableName() string {

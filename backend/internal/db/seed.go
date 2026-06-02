@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"backend/internal/models"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/yaml.v3"
 )
@@ -33,6 +34,23 @@ type ProductoSeedData struct {
 	Productos []models.Producto `yaml:"productos"`
 }
 
+type PigNodeSeedItem struct {
+	Key                 string   `yaml:"key"`
+	ParentKey           string   `yaml:"parent_key"`
+	DeviceType          string   `yaml:"device_type"`
+	QuestionText        string   `yaml:"question_text"`
+	AnswerOption        string   `yaml:"answer_option"`
+	PreliminaryResult   string   `yaml:"preliminary_result"`
+	EstimatedMin        float64  `yaml:"estimated_min"`
+	EstimatedMax        float64  `yaml:"estimated_max"`
+	IsTerminal          bool     `yaml:"is_terminal"`
+	RecommendedProducts []string `yaml:"recommended_products"`
+}
+
+type PigNodeSeedData struct {
+	PigNodes []PigNodeSeedItem `yaml:"pig_nodes"`
+}
+
 func Seed() {
 	if DB == nil {
 		fmt.Println("No hay conexión a la base de datos para sembrar datos.")
@@ -55,6 +73,11 @@ func Seed() {
 
 	// Productos
 	if err := loadProductos(seedPath + "/productos.yml"); err != nil {
+		log.Printf("Advertencia: %v\n", err)
+	}
+
+	// Asistente de Diagnóstico (PIG)
+	if err := loadPigNodes(seedPath + "/pig_nodes.yml"); err != nil {
 		log.Printf("Advertencia: %v\n", err)
 	}
 
@@ -156,5 +179,72 @@ func loadProductos(filePath string) error {
 		DB.Where(models.Producto{SKU: p.SKU}).FirstOrCreate(&p)
 	}
 	fmt.Printf("✓ productos cargados\n")
+	return nil
+}
+
+func loadPigNodes(filePath string) error {
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("no se pudo leer pig_nodes: %w", err)
+	}
+
+	var seedData PigNodeSeedData
+	if err := yaml.Unmarshal(data, &seedData); err != nil {
+		return fmt.Errorf("error parsing pig_nodes: %w", err)
+	}
+
+	// Pre-generar un mapa estable de Key -> UUID
+	keyToUUID := make(map[string]uuid.UUID)
+	for _, item := range seedData.PigNodes {
+		keyToUUID[item.Key] = uuid.New()
+	}
+
+	for _, item := range seedData.PigNodes {
+		nodeID := keyToUUID[item.Key]
+
+		var parentNodeID *uuid.UUID
+		if item.ParentKey != "" {
+			pID, ok := keyToUUID[item.ParentKey]
+			if ok {
+				parentNodeID = &pID
+			}
+		}
+
+		node := models.PigNode{
+			ID:                nodeID,
+			ParentNodeID:      parentNodeID,
+			DeviceType:        item.DeviceType,
+			QuestionText:      item.QuestionText,
+			AnswerOption:      item.AnswerOption,
+			PreliminaryResult: item.PreliminaryResult,
+			EstimatedMin:      item.EstimatedMin,
+			EstimatedMax:      item.EstimatedMax,
+			IsTerminal:        item.IsTerminal,
+		}
+
+		// Crear nodo
+		if err := DB.FirstOrCreate(&node).Error; err != nil {
+			log.Printf("Error al sembrar nodo %s: %v\n", item.Key, err)
+			continue
+		}
+
+		// Si tiene productos recomendados, asociar a pig_node_producto
+		if item.IsTerminal && len(item.RecommendedProducts) > 0 {
+			for _, sku := range item.RecommendedProducts {
+				var prod models.Producto
+				if err := DB.Where("sku = ?", sku).First(&prod).Error; err == nil {
+					link := models.PigNodeProducto{
+						ID:         uuid.New(),
+						PigNodeID:  node.ID,
+						ProductoID: prod.ID,
+						CreatedAt:  time.Now(),
+					}
+					DB.FirstOrCreate(&link)
+				}
+			}
+		}
+	}
+
+	fmt.Printf("✓ nodos y recomendaciones PIG cargados\n")
 	return nil
 }

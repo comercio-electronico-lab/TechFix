@@ -1,0 +1,193 @@
+pig_nodes:
+  # Laptops Root Question
+  - key: root_laptop
+    device_type: Laptop
+    question_text: "¿Cuál es el síntoma principal que observas en tu Laptop?"
+    answer_option: ""
+    preliminary_result: ""
+    is_terminal: false
+    estimated_min: 0
+    estimated_max: 0
+
+  # Laptop branches
+  - key: laptop_no_enciende
+    parent_key: root_laptop
+    device_type: Laptop
+    question_text: "Al conectar el cargador original, ¿enciende algún LED indicador en el chasis?"
+    answer_option: "No enciende nada (muerte total)"
+    preliminary_result: ""
+    is_terminal: false
+    estimated_min: 0
+    estimated_max: 0
+
+  - key: laptop_falla_led
+    parent_key: laptop_no_enciende
+    device_type: Laptop
+    question_text: ""
+    answer_option: "Sí, parpadea o brilla de color fijo"
+    preliminary_result: "Falla de Batería, Cargador o Puerto de Carga"
+    is_terminal: true
+    estimated_min: 45.00
+    estimated_max: 120.00
+    recommended_products:
+      - "BAT-DELL-XPS-56WH"
+      - "BAT-APPLE-MBP-16"
+      - "BAT-HP-PAV-15"
+      - "BAT-LENOVO-TP"
+
+  - key: laptop_falla_placa
+    parent_key: laptop_no_enciende
+    device_type: Laptop
+    question_text: ""
+    answer_option: "No, ningún LED enciende"
+    preliminary_result: "Falla Grave de Placa Madre (Cortocircuito o Chip de Carga)"
+    is_terminal: true
+    estimated_min: 120.00
+    estimated_max: 350.00
+
+  - key: laptop_pantalla_negra
+    parent_key: root_laptop
+    device_type: Laptop
+    question_text: "Al conectar una pantalla externa (TV/Monitor) mediante HDMI, ¿da imagen?"
+    answer_option: "Enciende, pero la pantalla se queda negra"
+    preliminary_result: ""
+    is_terminal: false
+    estimated_min: 0
+    estimated_max: 0
+
+  - key: laptop_falla_pantalla
+    parent_key: laptop_pantalla_negra
+    device_type: Laptop
+    question_text: ""
+    answer_option: "Sí, da imagen perfectamente en la pantalla externa"
+    preliminary_result: "Falla del Display LCD o Flex de Video"
+    is_terminal: true
+    estimated_min: 145.00
+    estimated_max: 200.00
+    recommended_products:
+      - "DISP-DELL-XPS-FHD"
+      - "DISP-HP-PAV-15"
+
+  - key: laptop_falla_gpu
+    parent_key: laptop_pantalla_negra
+    device_type: Laptop
+    question_text: ""
+    answer_option: "No, sigue sin dar imagen en ninguna pantalla"
+    preliminary_result: "Falla de Memoria RAM o Chip de Video Integrado"
+    is_terminal: true
+    estimated_min: 59.00
+    estimated_max: 180.00
+    recommended_products:
+      - "RAM-DDR4-8GB"
+      - "RAM-DDR4-16GB"
+
+  - key: laptop_sistema_lento
+    parent_key: root_laptop
+    device_type: Laptop
+    question_text: "¿El problema comenzó de forma repentina tras un golpe o caída?"
+    answer_option: "Enciende, pero está extremadamente lento o da pantallas azules"
+    preliminary_result: ""
+    is_terminal: false
+    estimated_min: 0
+    estimated_max: 0
+
+  - key: laptop_falla_disco
+    parent_key: laptop_sistema_lento
+    device_type: Laptop
+    question_text: ""
+    answer_option: "Sí, se golpeó o cayó encendido"
+    preliminary_result: "Daño Físico del Disco de Almacenamiento (HDD/SSD)"
+    is_terminal: true
+    estimated_min: 50.00
+    estimated_max: 110.00
+    recommended_products:
+      - "SSD-500GB-NVMe"
+      - "SSD-1TB-NVMe"
+
+  - key: laptop_falla_so
+    parent_key: laptop_sistema_lento
+    device_type: Laptop
+    question_text: ""
+    answer_option: "No, de forma espontánea o tras actualizar"
+    preliminary_result: "Corrupción del Sistema Operativo o Virus"
+    is_terminal: true
+    estimated_min: 30.00
+    estimated_max: 60.00
+    recommended_products:
+      - "SRV-DIAGNOSIS"
+
+  # Smartphones Root Question
+  - key: root_smartphone
+    device_type: Smartphone
+    question_text: "¿Cuál es el síntoma principal que observas en tu Smartphone?"
+    answer_option: ""
+    preliminary_result: ""
+    is_terminal: false
+    estimated_min: 0
+    estimated_max: 0
+
+  # Smartphone branches
+  - key: phone_no_enciende
+    parent_key: root_smartphone
+    device_type: Smartphone
+    question_text: "Al conectarlo a la corriente con un cargador certificado, ¿muestra algún indicador de carga?"
+    answer_option: "El teléfono no enciende nada (muerte total)"
+    preliminary_result: ""
+    is_terminal: false
+    estimated_min: 0
+    estimated_max: 0
+
+  - key: phone_falla_bateria
+    parent_key: phone_no_enciende
+    device_type: Smartphone
+    question_text: ""
+    answer_option: "Muestra el logo de carga pero parpadea o no avanza"
+    preliminary_result: "Batería Degradada o Daño del Puerto de Carga"
+    is_terminal: true
+    estimated_min: 45.00
+    estimated_max: 89.00
+    recommended_products:
+      - "BAT-APPLE-IPN14"
+      - "BAT-SAMSUNG-S23"
+
+  - key: phone_falla_placa
+    parent_key: phone_no_enciende
+    device_type: Smartphone
+    question_text: ""
+    answer_option: "No muestra absolutamente nada ni calienta"
+    preliminary_result: "Falla de Placa Base (Módulo de Encendido/IC de Carga)"
+    is_terminal: true
+    estimated_min: 100.00
+    estimated_max: 250.00
+
+  - key: phone_pantalla_negra
+    parent_key: root_smartphone
+    device_type: Smartphone
+    question_text: "¿El teléfono vibra o emite sonidos pero la pantalla sigue negra?"
+    answer_option: "Se escucha que enciende pero la pantalla no da imagen"
+    preliminary_result: ""
+    is_terminal: false
+    estimated_min: 0
+    estimated_max: 0
+
+  - key: phone_falla_pantalla
+    parent_key: phone_pantalla_negra
+    device_type: Smartphone
+    question_text: ""
+    answer_option: "Sí, vibra, suena o entran llamadas"
+    preliminary_result: "Display LCD/OLED Dañado (Falla de Pantalla)"
+    is_terminal: true
+    estimated_min: 120.00
+    estimated_max: 300.00
+    recommended_products:
+      - "DISP-APPLE-IPN14PRO"
+
+  - key: phone_falla_sistema
+    parent_key: phone_pantalla_negra
+    device_type: Smartphone
+    question_text: ""
+    answer_option: "No, muerte total sin sonidos ni vibración"
+    preliminary_result: "Módulo Lógico Dañado (Bucle de Arranque)"
+    is_terminal: true
+    estimated_min: 80.00
+    estimated_max: 180.00
