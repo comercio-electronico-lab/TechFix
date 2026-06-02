@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { getRepairTrackingAction } from '@/app/actions';
 import RepairTimeline, { TimelineStep } from '@/components/repair/RepairTimeline';
 import DeviceSummaryCard from '@/components/repair/DeviceSummaryCard';
 import WarrantyCertificateCard from '@/components/repair/WarrantyCertificateCard';
@@ -29,8 +30,6 @@ function RepairTrackingContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-
   useEffect(() => {
     async function fetchTracking() {
       if (!ticketId) {
@@ -43,30 +42,20 @@ function RepairTrackingContent() {
       setError(null);
 
       try {
-        const headers: Record<string, string> = {};
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-
-        const res = await fetch(`${API_URL}/api/repairs/${ticketId}`, { headers });
-        if (res.ok) {
-          const data = await res.json();
-          setOrder(data.order);
-          setTrackingLogs(data.tracking || []);
-          setWarranty(data.warranty);
-        } else {
-          setError('No se pudo encontrar el ticket de reparación. Por favor, asegúrate de haber iniciado sesión con la cuenta propietaria.');
-        }
-      } catch (e) {
+        const data = await getRepairTrackingAction(ticketId);
+        setOrder(data.order);
+        setTrackingLogs(data.tracking || []);
+        setWarranty(data.warranty);
+      } catch (e: any) {
         console.error(e);
-        setError('Error al establecer conexión con el servidor.');
+        setError(e.message || 'No se pudo encontrar el ticket de reparación. Por favor, asegúrate de que el código sea correcto.');
       } finally {
         setLoading(false);
       }
     }
 
     fetchTracking();
-  }, [ticketId, token, API_URL]);
+  }, [ticketId]);
 
   const getStatusIndex = (status: string) => {
     switch (status) {

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { loginAction, registerAction, meAction } from '@/app/actions';
 
 interface User {
   id: string;
@@ -27,8 +28,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -46,25 +45,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setToken(storedToken);
           setUser(JSON.parse(storedUser));
 
-          // Verificar si el token sigue siendo válido
+          // Verificar si el token sigue siendo válido con Server Action
           try {
-            const res = await fetch(`${API_URL}/api/auth/me`, {
-              headers: {
-                Authorization: `Bearer ${storedToken}`,
-              },
-            });
-
-            if (res.ok) {
-              const userData = await res.json();
-              setUser(userData);
-              localStorage.setItem('techfix_user', JSON.stringify(userData));
-            } else {
-              // Token vencido o inválido
-              handleLogout();
-            }
+            const userData = await meAction(storedToken);
+            setUser(userData);
+            localStorage.setItem('techfix_user', JSON.stringify(userData));
           } catch (e) {
-            console.error('Error al verificar sesión con el servidor:', e);
-            // Si hay un error de red, mantenemos la sesión local por ahora
+            console.error('Error al verificar sesión:', e);
+            handleLogout();
           }
         }
       } catch (e) {
@@ -80,26 +68,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const handleLogin = async (email: string, password: string): Promise<User> => {
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const { user: userData, token: userToken } = await loginAction(email, password);
 
-      const data = await res.json();
+      setToken(userToken);
+      setUser(userData);
+      localStorage.setItem('techfix_token', userToken);
+      localStorage.setItem('techfix_user', JSON.stringify(userData));
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Credenciales de acceso incorrectas');
-      }
-
-      setToken(data.token);
-      setUser(data.user);
-      localStorage.setItem('techfix_token', data.token);
-      localStorage.setItem('techfix_user', JSON.stringify(data.user));
-
-      return data.user;
+      return userData;
     } catch (e: any) {
       setError(e.message);
       throw e;
@@ -114,26 +90,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ): Promise<User> => {
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ nombre, login, email, password }),
-      });
+      const { user: userData, token: userToken } = await registerAction(nombre, login, email);
 
-      const data = await res.json();
+      setToken(userToken);
+      setUser(userData);
+      localStorage.setItem('techfix_token', userToken);
+      localStorage.setItem('techfix_user', JSON.stringify(userData));
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Error al crear la cuenta. Por favor intente de nuevo.');
-      }
-
-      setToken(data.token);
-      setUser(data.user);
-      localStorage.setItem('techfix_token', data.token);
-      localStorage.setItem('techfix_user', JSON.stringify(data.user));
-
-      return data.user;
+      return userData;
     } catch (e: any) {
       setError(e.message);
       throw e;
