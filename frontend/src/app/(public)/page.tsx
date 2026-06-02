@@ -47,13 +47,16 @@ export default function Home() {
                 <p className="text-sm text-white/60">Consulta por ID de Ticket</p>
               </div>
             </div>
-            <div className="bg-white/10 p-6 rounded-xl flex items-center gap-4 text-left border border-white/10 hover:bg-white/20 transition-all cursor-pointer">
+            <Link 
+              href="/cotizacion" 
+              className="bg-white/10 p-6 rounded-xl flex items-center gap-4 text-left border border-white/10 hover:bg-white/20 transition-all cursor-pointer hover:scale-[1.02]"
+            >
               <ReceiptText className="text-secondary-container w-10 h-10" />
               <div>
                 <p className="font-bold text-white">Cotización Instantánea</p>
                 <p className="text-sm text-white/60">Estima costos de reparación ahora</p>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </section>

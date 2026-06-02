@@ -72,6 +72,12 @@ func startServer() {
 	// Grupo de rutas de la API
 	api := r.Group("/api")
 	{
+		// Rutas del sistema de presupuesto interactivo (PIG)
+		pig := api.Group("/pig")
+		{
+			pig.GET("/nodes", handlers.GetPigNodes)
+		}
+
 		// Rutas públicas de Autenticación
 		auth := api.Group("/auth")
 		{

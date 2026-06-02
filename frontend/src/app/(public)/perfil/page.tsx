@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { 
@@ -256,6 +257,20 @@ export default function PerfilPage() {
 
           {/* Contenido Principal */}
           <div className="lg:col-span-3">
+            {user?.rol === "Admin" && (
+              <div className="mb-8 p-6 bg-[#022448] dark:bg-slate-900 border border-outline-variant/10 dark:border-outline/20 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-white shadow-lg">
+                <div>
+                  <h4 className="font-bold text-white mb-1">Panel de Administración Activo</h4>
+                  <p className="text-xs text-white/70">Tienes permisos de Administrador para gestionar inventario, usuarios y citas de reparación.</p>
+                </div>
+                <Link 
+                  href="/admin/dashboard" 
+                  className="bg-secondary hover:bg-secondary/95 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap"
+                >
+                  Acceder al Panel Admin
+                </Link>
+              </div>
+            )}
             
             {/* Pestaña: Mi Información */}
             {activeTab === 'perfil' && (
