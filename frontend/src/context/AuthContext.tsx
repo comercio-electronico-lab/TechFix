@@ -1,122 +1,185 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export interface User {
+interface User {
   id: string;
   nombre: string;
-  email: string;
   login: string;
+  email: string;
   rol: string;
+  estado: string;
+  joined_date: string;
 }
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
-  register: (nombre: string, email: string, login: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<User>;
+  register: (nombre: string, login: string, email: string, password: string) => Promise<User>;
   logout: () => void;
   updateProfile: (nombre: string, login: string) => Promise<{ success: boolean; error?: string }>;
-  isAuthenticated: boolean;
+  error: string | null;
+  setError: (err: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock Users for simulation
-const MOCK_USERS: User[] = [
-  { id: 'USR-001', nombre: 'Marcos Rodriguez', email: 'admin@techfix.com', login: 'admin', rol: 'Admin' },
-  { id: 'USR-002', nombre: 'Laura Martinez', email: 'tecnico@techfix.com', login: 'tecnico', rol: 'Técnico' },
-  { id: 'USR-003', nombre: 'Juan Perez', email: 'juan.perez@gmail.com', login: 'juanperez', rol: 'Cliente' },
-];
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Cargar sesión del localStorage al montar el componente
+  // Inicializar auth desde localStorage
   useEffect(() => {
-    const savedToken = localStorage.getItem('techfix_token');
-    const savedUser = localStorage.getItem('techfix_user');
-    
-    if (savedToken && savedUser) {
+    async function loadStoredAuth() {
       try {
-        setToken(savedToken);
-        setUser(JSON.parse(savedUser));
+        const storedToken = localStorage.getItem('techfix_token');
+        const storedUser = localStorage.getItem('techfix_user');
+
+        if (storedToken && storedUser) {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+
+          // Verificar si el token sigue siendo válido
+          try {
+            const res = await fetch(`${API_URL}/api/auth/me`, {
+              headers: {
+                Authorization: `Bearer ${storedToken}`,
+              },
+            });
+
+            if (res.ok) {
+              const userData = await res.json();
+              setUser(userData);
+              localStorage.setItem('techfix_user', JSON.stringify(userData));
+            } else {
+              // Token vencido o inválido
+              handleLogout();
+            }
+          } catch (e) {
+            console.error('Error al verificar sesión con el servidor:', e);
+            // Si hay un error de red, mantenemos la sesión local por ahora
+          }
+        }
       } catch (e) {
-        console.error("Error parsing saved user", e);
-        localStorage.removeItem('techfix_token');
-        localStorage.removeItem('techfix_user');
+        console.error('Error al cargar sesión desde almacenamiento local:', e);
+      } finally {
+        setLoading(false);
       }
     }
-    setLoading(false);
+
+    loadStoredAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
-    // Simular retraso de red
-    return new Promise<{ success: boolean; error?: string; user?: User }>((resolve) => {
-      setTimeout(() => {
-        const foundUser = MOCK_USERS.find(u => u.email === email);
-        
-        // Simular que cualquier contraseña funciona para el mock si el usuario existe
-        if (foundUser && password.length >= 4) {
-          const mockToken = `mock-jwt-token-${foundUser.id}`;
-          setToken(mockToken);
-          setUser(foundUser);
-          localStorage.setItem('techfix_token', mockToken);
-          localStorage.setItem('techfix_user', JSON.stringify(foundUser));
-          resolve({ success: true, user: foundUser });
-        } else {
-          resolve({ success: false, error: 'Credenciales incorrectas (Usa admin@techfix.com, tecnico@techfix.com o juan.perez@gmail.com)' });
-        }
-      }, 1000);
-    });
+  const handleLogin = async (email: string, password: string): Promise<User> => {
+    setError(null);
+    try {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Credenciales de acceso incorrectas');
+      }
+
+      setToken(data.token);
+      setUser(data.user);
+      localStorage.setItem('techfix_token', data.token);
+      localStorage.setItem('techfix_user', JSON.stringify(data.user));
+
+      return data.user;
+    } catch (e: any) {
+      setError(e.message);
+      throw e;
+    }
   };
 
-  const register = async (nombre: string, email: string, login: string, password: string) => {
-    return new Promise<{ success: boolean; error?: string }>((resolve) => {
-      setTimeout(() => {
-        // En un mock, siempre aceptamos el registro
-        console.log("Mock Register:", { nombre, email, login, password });
-        resolve({ success: true });
-      }, 1000);
-    });
+  const handleRegister = async (
+    nombre: string,
+    login: string,
+    email: string,
+    password: string
+  ): Promise<User> => {
+    setError(null);
+    try {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ nombre, login, email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al crear la cuenta. Por favor intente de nuevo.');
+      }
+
+      setToken(data.token);
+      setUser(data.user);
+      localStorage.setItem('techfix_token', data.token);
+      localStorage.setItem('techfix_user', JSON.stringify(data.user));
+
+      return data.user;
+    } catch (e: any) {
+      setError(e.message);
+      throw e;
+    }
   };
 
-  const logout = () => {
-    setToken(null);
+  const handleLogout = () => {
     setUser(null);
+    setToken(null);
     localStorage.removeItem('techfix_token');
     localStorage.removeItem('techfix_user');
+    setError(null);
   };
 
-  const updateProfile = async (nombre: string, login: string) => {
+  const updateProfile = async (nombre: string, login: string): Promise<{ success: boolean; error?: string }> => {
     if (!user) return { success: false, error: 'No has iniciado sesión' };
-    
-    return new Promise<{ success: boolean; error?: string }>((resolve) => {
-      setTimeout(() => {
-        const updatedUser = { ...user, nombre, login };
-        setUser(updatedUser);
-        localStorage.setItem('techfix_user', JSON.stringify(updatedUser));
-        resolve({ success: true });
-      }, 800);
-    });
+    const updatedUser = { ...user, nombre, login };
+    setUser(updatedUser);
+    localStorage.setItem('techfix_user', JSON.stringify(updatedUser));
+    return { success: true };
   };
-
-  const isAuthenticated = !!token;
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateProfile, isAuthenticated }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        loading,
+        isAuthenticated: !!token,
+        login: handleLogin,
+        register: handleRegister,
+        logout: handleLogout,
+        updateProfile,
+        error,
+        setError,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  if (context === undefined) {
+    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
   }
   return context;
-};
+}

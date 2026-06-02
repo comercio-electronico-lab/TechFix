@@ -2,8 +2,10 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"backend/internal/db"
 	"backend/internal/handlers"
@@ -46,8 +48,24 @@ func main() {
 }
 
 func startServer() {
-	r := gin.Default()
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	// Configurar modo de Gin basado en ambiente
+	env := os.Getenv("GIN_MODE")
+	if env == "" {
+		gin.SetMode(gin.DebugMode)
+	}
+
+	// Crear router con logger personalizado
+	r := gin.New()
+	r.Use(customLogger())
 	r.Use(gin.Recovery())
+
+	// Mostrar banner de bienvenida
+	printBanner(port)
 
 	// Middleware de CORS para permitir solicitudes del Frontend en Next.js
 	r.Use(func(c *gin.Context) {
@@ -100,9 +118,90 @@ func startServer() {
 		}
 	}
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
 	r.Run(":" + port)
+}
+
+func customLogger() gin.HandlerFunc {
+	return gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+		statusColor := getStatusColor(param.StatusCode)
+		methodColor := getMethodColor(param.Method)
+
+		return fmt.Sprintf("[%s] %s %s%s%s %s %s → %d %s\n",
+			param.TimeStamp.Format("15:04:05"),
+			methodColor+param.Method+"\033[0m",
+			statusColor,
+			param.Path,
+			"\033[0m",
+			param.ClientIP,
+			param.Latency,
+			param.StatusCode,
+			param.ErrorMessage,
+		)
+	})
+}
+
+func getStatusColor(code int) string {
+	switch {
+	case code >= 200 && code < 300:
+		return "\033[32m" // Green
+	case code >= 300 && code < 400:
+		return "\033[36m" // Cyan
+	case code >= 400 && code < 500:
+		return "\033[33m" // Yellow
+	default:
+		return "\033[31m" // Red
+	}
+}
+
+func getMethodColor(method string) string {
+	switch method {
+	case "GET":
+		return "\033[34m" // Blue
+	case "POST":
+		return "\033[32m" // Green
+	case "PUT":
+		return "\033[33m" // Yellow
+	case "DELETE":
+		return "\033[31m" // Red
+	default:
+		return "\033[35m" // Magenta
+	}
+}
+
+func printBanner(port string) {
+	banner := fmt.Sprintf(`
+   _____ _____ _   _
+  / ____|_   _| \ | |
+ | |  __  | | |  \| |
+ | | |_ | | | | . \ |
+ | |__| |_| |_| |\  |
+  \_____|_____|_| \_|
+
+┌─────────────────────────────────────────────────────────┐
+│                                                         │
+│           ✨ TECHFIX API SERVER RUNNING ✨            │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  📊 Database ............ ✓ Connected                  │
+│  🚀 Server Port ......... %s                           │
+│  🔧 Environment ......... %s                    │
+│  🕐 Started ............. %s          │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│  ✅ Ready to handle requests! 💪                       │
+│  🔥 Hot reload enabled - watching for changes...       │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+
+`, port, padRight(os.Getenv("GIN_MODE"), 17), time.Now().Format("2006-01-02 15:04:05"))
+
+	fmt.Print(banner)
+}
+
+func padRight(s string, length int) string {
+	if len(s) >= length {
+		return s
+	}
+	return s + " " + fmt.Sprintf("%*s", length-len(s)-1, "")
 }

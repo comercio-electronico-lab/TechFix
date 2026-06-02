@@ -11,9 +11,9 @@ install:
 	@go mod tidy
 	@echo "Dependencias instaladas correctamente"
 
-## dev: Inicia el servidor en modo desarrollo
+## dev: Inicia el servidor en modo desarrollo con hot reload
 dev:
-	@go run $(MAIN_PATH)
+	@air
 
 ## migrate-up: Ejecuta las migraciones automáticas
 migrate-up:
