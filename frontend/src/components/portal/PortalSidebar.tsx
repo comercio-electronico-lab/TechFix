@@ -11,9 +11,9 @@ interface PortalSidebarProps {
 }
 
 const NAV_ITEMS: { tab: PortalTab; icon: React.ElementType; label: string }[] = [
-  { tab: 'Devices', icon: Laptop, label: 'My Devices' },
-  { tab: 'Purchases', icon: ShoppingBag, label: 'My Purchases' },
-  { tab: 'Repairs', icon: Wrench, label: 'My Repairs' },
+  { tab: 'Devices', icon: Laptop, label: 'Mis Equipos' },
+  { tab: 'Purchases', icon: ShoppingBag, label: 'Mis Compras' },
+  { tab: 'Repairs', icon: Wrench, label: 'Mis Reparaciones' },
 ];
 
 export default function PortalSidebar({ activeTab, onTabChange }: PortalSidebarProps) {
@@ -30,7 +30,7 @@ export default function PortalSidebar({ activeTab, onTabChange }: PortalSidebarP
           />
         </div>
         <div>
-          <h2 className="font-bold text-sm text-primary dark:text-sky-400 leading-snug">Customer Portal</h2>
+          <h4 className="font-bold text-sm text-primary dark:text-sky-400 leading-snug">Portal del Cliente</h4>
           <p className="text-[10px] text-on-surface-variant dark:text-slate-500 font-bold uppercase tracking-wider mt-0.5">Carlos Pérez</p>
         </div>
       </div>
@@ -46,7 +46,7 @@ export default function PortalSidebar({ activeTab, onTabChange }: PortalSidebarP
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-left cursor-pointer active:opacity-80 ${
                 isActive
                   ? 'bg-secondary-container dark:bg-sky-950 text-on-secondary-container dark:text-sky-300 font-bold border-l-4 border-primary dark:border-sky-500 shadow-sm'
-                  : 'text-on-surface-variant dark:text-slate-450 hover:bg-surface-container-high/50 dark:hover:bg-slate-800'
+                  : 'text-on-surface-variant dark:text-slate-400 hover:bg-surface-container-high/50 dark:hover:bg-slate-800'
               }`}
             >
               <Icon className="w-4 h-4 shrink-0 text-primary dark:text-sky-400" />
@@ -60,10 +60,10 @@ export default function PortalSidebar({ activeTab, onTabChange }: PortalSidebarP
       <div className="mt-auto pt-4 border-t border-outline-variant/30 dark:border-slate-800">
         <Link
           href="/"
-          className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-on-surface-variant dark:text-slate-450 hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-error dark:hover:text-red-400 transition-colors uppercase tracking-wider"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-on-surface-variant dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-error dark:hover:text-red-400 transition-colors uppercase tracking-wider"
         >
           <LogOut className="w-4 h-4 shrink-0" />
-          <span>Sign Out</span>
+          <span>Cerrar Sesión</span>
         </Link>
       </div>
     </aside>
