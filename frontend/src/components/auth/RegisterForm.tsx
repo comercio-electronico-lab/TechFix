@@ -37,14 +37,14 @@ const RegisterForm = () => {
       return;
     }
 
-    const res = await register(nombre, email, loginUsername, password);
-    if (res.success) {
+    try {
+      await register(nombre, loginUsername, email, password);
       setSuccessMsg('¡Registro exitoso! Ya puedes iniciar sesión.');
       setTimeout(() => {
         router.push('/auth/login');
       }, 2000);
-    } else {
-      setErrorMsg(res.error || 'Ocurrió un error en el registro');
+    } catch (e: any) {
+      setErrorMsg(e.message || 'Ocurrió un error en el registro');
     }
 
     setSubmitting(false);

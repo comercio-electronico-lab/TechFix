@@ -30,17 +30,17 @@ const LoginForm = () => {
       return;
     }
 
-    const res = await login(email, password);
-    if (res.success && res.user) {
-      if (res.user.rol === 'Admin') {
+    try {
+      const user = await login(email, password);
+      if (user.rol === 'Admin') {
         router.push('/admin/dashboard');
-      } else if (res.user.rol === 'Técnico') {
+      } else if (user.rol === 'Técnico') {
         router.push('/tecnico/dashboard');
       } else {
         router.push('/cliente/dashboard');
       }
-    } else {
-      setErrorMsg(res.error || 'Correo o contraseña incorrectos');
+    } catch (e: any) {
+      setErrorMsg(e.message || 'Correo o contraseña incorrectos');
     }
 
     setSubmitting(false);
