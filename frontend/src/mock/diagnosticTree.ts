@@ -124,32 +124,112 @@ export const mockDiagnosticTree: Record<string, DiagnosticNode> = {
     ],
   },
 
-  // Desktop branches
-  'power_issue': {
-    id: 'power_issue',
-    question: '¿El desktop no enciende?',
+  // Tablet branches
+  'root_tablet': {
+    id: 'root_tablet',
+    question: '¿Cuál es el problema principal con tu tableta?',
+    isRoot: true,
+    isTerminal: false,
+    children: ['tablet_screen_issue', 'tablet_battery_issue', 'tablet_stylus_issue'],
+  },
+  'tablet_screen_issue': {
+    id: 'tablet_screen_issue',
+    question: '¿La pantalla está rota o el táctil no responde?',
     isTerminal: true,
     suggestedProducts: [
-      { id: 'prod17', name: 'Fuente de poder 850W', price: 120, category: 'Componentes' },
-      { id: 'prod18', name: 'Batería UPS', price: 180, category: 'Accesorios' },
+      { id: 'prod11', name: 'Módulo de pantalla iPad Pro 12.9"', price: 320, category: 'Pantallas' },
+      { id: 'prod12', name: 'Servicio de instalación de pantalla', price: 80, category: 'Servicios' },
+    ],
+  },
+  'tablet_battery_issue': {
+    id: 'tablet_battery_issue',
+    question: '¿La batería se descarga muy rápido o no carga?',
+    isTerminal: true,
+    suggestedProducts: [
+      { id: 'prod3', name: 'Batería interna de tableta', price: 85, category: 'Componentes' },
+      { id: 'prod17', name: 'Cargador rápido USB-C 45W', price: 35, category: 'Accesorios' },
+    ],
+  },
+  'tablet_stylus_issue': {
+    id: 'tablet_stylus_issue',
+    question: '¿El lápiz óptico (Stylus) tiene problemas de precisión o conexión?',
+    isTerminal: true,
+    suggestedProducts: [
+      { id: 'prod30', name: 'Lápiz óptico activo universal', price: 65, category: 'Accesorios' },
+      { id: 'prod31', name: 'Puntas de repuesto para lápiz (x4)', price: 15, category: 'Repuestos' },
+    ],
+  },
+
+  'power_issue': {
+    id: 'power_issue',
+    question: '¿Qué sucede cuando intentas encender la PC?',
+    isTerminal: false,
+    children: ['power_supply_failure', 'motherboard_shortcircuit'],
+  },
+  'power_supply_failure': {
+    id: 'power_supply_failure',
+    question: '¿La PC no hace ningún ruido ni encienden luces?',
+    isTerminal: true,
+    suggestedProducts: [
+      { id: 'prod17', name: 'Fuente de poder 750W 80+ Gold', price: 120, category: 'Componentes' },
+      { id: 'prod33', name: 'Cable de poder de PC', price: 10, category: 'Accesorios' },
+    ],
+  },
+  'motherboard_shortcircuit': {
+    id: 'motherboard_shortcircuit',
+    question: '¿Se encienden los ventiladores medio segundo y se apaga?',
+    isTerminal: true,
+    suggestedProducts: [
+      { id: 'prod34', name: 'Tarjeta madre ATX compatible', price: 180, category: 'Componentes' },
+      { id: 'prod35', name: 'Servicio de diagnóstico microscópico', price: 50, category: 'Servicios' },
     ],
   },
   'overheating': {
     id: 'overheating',
-    question: '¿El desktop se sobrecalienta?',
+    question: '¿El equipo se apaga repentinamente al jugar o trabajar?',
+    isTerminal: false,
+    children: ['dust_accumulation', 'thermal_paste_dry'],
+  },
+  'dust_accumulation': {
+    id: 'dust_accumulation',
+    question: '¿Se escucha demasiado ruido en los ventiladores?',
     isTerminal: true,
     suggestedProducts: [
-      { id: 'prod19', name: 'Ventilador de CPU premium', price: 85, category: 'Refrigeración' },
-      { id: 'prod20', name: 'Pasta térmica profesional', price: 30, category: 'Mantenimiento' },
+      { id: 'prod19', name: 'Ventilador de CPU premium Noctua', price: 85, category: 'Refrigeración' },
+      { id: 'prod10', name: 'Limpieza de polvo profesional', price: 40, category: 'Servicios' },
+    ],
+  },
+  'thermal_paste_dry': {
+    id: 'thermal_paste_dry',
+    question: '¿Los ventiladores giran pero el flujo de aire es muy caliente?',
+    isTerminal: true,
+    suggestedProducts: [
+      { id: 'prod20', name: 'Pasta térmica profesional MX-4', price: 15, category: 'Mantenimiento' },
+      { id: 'prod12', name: 'Servicio de mantenimiento completo', price: 60, category: 'Servicios' },
     ],
   },
   'component_failure': {
     id: 'component_failure',
-    question: '¿Algún componente está fallando?',
+    question: '¿Estás experimentando pantallazos azules o cuelgues?',
+    isTerminal: false,
+    children: ['ram_failure', 'gpu_artifacting'],
+  },
+  'ram_failure': {
+    id: 'ram_failure',
+    question: '¿La PC emite pitidos al encender o da pantallazos con código MEMORY?',
     isTerminal: true,
     suggestedProducts: [
-      { id: 'prod21', name: 'Tarjeta gráfica RTX 4070', price: 600, category: 'GPU' },
-      { id: 'prod22', name: 'Memoria RAM DDR5 32GB', price: 150, category: 'Memoria' },
+      { id: 'prod22', name: 'Memoria RAM DDR5 32GB (2x16GB)', price: 150, category: 'Memoria' },
+      { id: 'prod6', name: 'Memoria RAM DDR4 16GB', price: 65, category: 'Memoria' },
+    ],
+  },
+  'gpu_artifacting': {
+    id: 'gpu_artifacting',
+    question: '¿Se distorsiona la imagen o aparecen rayas en la pantalla?',
+    isTerminal: true,
+    suggestedProducts: [
+      { id: 'prod21', name: 'Tarjeta gráfica RTX 4060 Ti 8GB', price: 450, category: 'GPU' },
+      { id: 'prod38', name: 'Cable HDMI 2.1 trenzado', price: 20, category: 'Accesorios' },
     ],
   },
 };

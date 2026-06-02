@@ -12,8 +12,8 @@ interface Step1Props {
 const DEVICE_OPTIONS = [
   { type: 'Smartphone', icon: Smartphone, label: 'Teléfono Móvil', desc: 'Soporte premium para iPhone, Samsung Galaxy, Xiaomi y más.', disabled: false },
   { type: 'Laptop', icon: Laptop, label: 'Computadora Portátil', desc: 'Ingeniería experta para MacBook Pro/Air, Dell XPS, HP y Lenovo.', disabled: false },
-  { type: 'Tablet', icon: Tablet, label: 'Tableta Gráfica/Móvil', desc: 'Reparación especializada de iPad Pro/Air y Samsung Galaxy Tab.', disabled: true },
-  { type: 'Desktop', icon: Monitor, label: 'PC de Escritorio', desc: 'Diagnóstico en PCs de alto rendimiento, iMacs y estaciones de trabajo.', disabled: true },
+  { type: 'Tablet', icon: Tablet, label: 'Tableta Gráfica/Móvil', desc: 'Reparación especializada de iPad Pro/Air y Samsung Galaxy Tab.', disabled: false },
+  { type: 'Desktop', icon: Monitor, label: 'PC de Escritorio', desc: 'Diagnóstico en PCs de alto rendimiento, iMacs y estaciones de trabajo.', disabled: false },
 ];
 
 export function DiagnosticStep1({ currentDevice, onSelect }: Step1Props) {
