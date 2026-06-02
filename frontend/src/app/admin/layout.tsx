@@ -14,7 +14,7 @@ export default function AdminLayout({
     <div className="bg-background min-h-screen">
       <AdminNavbar />
       <AdminSidebar />
-      <main className="ml-64 pt-18 min-h-screen transition-all duration-300">
+      <main className="ml-64 pt-[72px] min-h-screen transition-all duration-300">
         <div className="max-w-container-max mx-auto p-gutter">
           {children}
         </div>

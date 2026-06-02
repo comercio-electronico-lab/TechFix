@@ -5,7 +5,7 @@ import { Search, Bell, UserCircle } from 'lucide-react';
 
 const AdminNavbar = () => {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-gutter bg-primary text-white h-18 shadow-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-gutter bg-primary text-white h-[72px] shadow-sm">
       <div className="flex items-center gap-stack-md">
         <span className="text-xl font-bold">TechFix Admin</span>
         <div className="hidden md:flex ml-stack-lg items-center bg-white/10 rounded-lg px-4 py-2 w-96 border border-white/20">

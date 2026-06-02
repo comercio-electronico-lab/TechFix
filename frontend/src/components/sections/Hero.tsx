@@ -17,7 +17,7 @@ const Hero = () => {
             Reparaciones de hardware expertas y un catálogo curado de tecnología de alto rendimiento. 
             Desde portátiles empresariales hasta smartphones insignia, lo reparamos con precisión.
           </p>
-          <div className="flex flex-wrap gap-stack-md">
+          <div className="flex flex-wrap gap-4">
             <Button variant="primary" icon={Wrench}>
               Reservar Reparación
             </Button>
