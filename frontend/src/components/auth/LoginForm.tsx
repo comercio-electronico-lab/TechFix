@@ -6,10 +6,12 @@ import { useAuth } from '@/context/AuthContext';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import { useCart } from '@/context/CartContext';
 
 const LoginForm = () => {
   const router = useRouter();
   const { login } = useAuth();
+  const { items } = useCart();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,7 +39,11 @@ const LoginForm = () => {
       } else if (user.rol === 'Técnico') {
         router.push('/tecnico/dashboard');
       } else {
-        router.push('/cliente/dashboard');
+        if (items.length > 0) {
+          router.push('/checkout/envio');
+        } else {
+          router.push('/cliente/dashboard');
+        }
       }
     } catch (e: any) {
       setErrorMsg(e.message || 'Correo o contraseña incorrectos');

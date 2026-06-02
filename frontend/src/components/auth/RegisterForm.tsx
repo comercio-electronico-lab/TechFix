@@ -6,10 +6,12 @@ import { useAuth } from '@/context/AuthContext';
 import { User, Mail, Lock, ArrowRight } from 'lucide-react';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import { useCart } from '@/context/CartContext';
 
 const RegisterForm = () => {
   const router = useRouter();
   const { register } = useAuth();
+  const { items } = useCart();
 
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
@@ -39,10 +41,14 @@ const RegisterForm = () => {
 
     try {
       await register(nombre, loginUsername, email, password);
-      setSuccessMsg('¡Registro exitoso! Ya puedes iniciar sesión.');
+      setSuccessMsg('¡Registro exitoso! Redirigiendo...');
       setTimeout(() => {
-        router.push('/auth/login');
-      }, 2000);
+        if (items.length > 0) {
+          router.push('/checkout/envio');
+        } else {
+          router.push('/cliente/dashboard');
+        }
+      }, 1500);
     } catch (e: any) {
       setErrorMsg(e.message || 'Ocurrió un error en el registro');
     }

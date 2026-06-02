@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { mockDiagnosticTree, getNodeById, getOptionsForNode } from '@/mock/diagnosticTree';
 
@@ -18,11 +18,19 @@ export interface UseDiagnosticFlowReturn {
   ticketId: string | null;
   progressPercentage: number;
   terminalNode: any;
+  // Nuevas variables
+  serialNumber: string;
+  deviceModel: string;
+  appointmentDate: string;
+  appointmentTime: string;
+  selectedBranch: string;
+  failurePhoto: string | null;
   handleBack: () => void;
   selectOption: (optionNode: any) => void;
   handleSubmit: (e: React.FormEvent) => void;
   setDeviceType: (device: string) => void;
-  setClientField: (field: 'clientName' | 'clientEmail' | 'clientPhone', value: string) => void;
+  setClientField: (field: 'clientName' | 'clientEmail' | 'clientPhone' | 'serialNumber' | 'deviceModel' | 'appointmentDate' | 'appointmentTime' | 'selectedBranch', value: string) => void;
+  setFailurePhoto: (photo: string | null) => void;
   resetFlow: () => void;
 }
 
@@ -42,6 +50,8 @@ const mapNode = (node: any) => {
 };
 
 export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
+  const { user } = useAuth();
+
   // Estados de flujo
   const [step, setStep] = useState(1);
   const [deviceType, setDeviceTypeState] = useState<string | null>(null);
@@ -52,12 +62,27 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
   const [history, setHistory] = useState<{ node: any; options: any[] }[]>([]);
   const [terminalNode, setTerminalNode] = useState<any>(null);
 
-  // Estados de cliente
-  const [clientName, setClientName] = useState('');
-  const [clientEmail, setClientEmail] = useState('');
+  // Estados de cliente y cita
+  const [clientName, setClientName] = useState(user?.nombre || '');
+  const [clientEmail, setClientEmail] = useState(user?.email || '');
   const [clientPhone, setClientPhone] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [ticketId, setTicketId] = useState<string | null>(null);
+
+  // Nuevos estados premium
+  const [serialNumber, setSerialNumber] = useState('');
+  const [deviceModel, setDeviceModel] = useState('');
+  const [appointmentDate, setAppointmentDate] = useState('');
+  const [appointmentTime, setAppointmentTime] = useState('');
+  const [selectedBranch, setSelectedBranch] = useState('Central Miraflores');
+  const [failurePhoto, setFailurePhoto] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setClientName(user.nombre);
+      setClientEmail(user.email);
+    }
+  }, [user]);
 
   const progressPercentage = (step / TOTAL_STEPS) * 100;
 
@@ -85,10 +110,8 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
 
   // Avanzar nodo del árbol
   const selectOption = (optionNode: any) => {
-    // Almacenar el nodo actual mapeado antes de avanzar
     setHistory((prev) => [...prev, { node: currentNode, options }]);
     
-    // Guardar el formato "Pregunta → Respuesta"
     const currentQuestionText = currentNode?.question_text || currentNode?.question || 'Pregunta';
     const selectedAnswerOption = optionNode?.answer_option || optionNode?.question || 'Opción';
     setSymptomPath((prev) => [...prev, `${currentQuestionText} → ${selectedAnswerOption}`]);
@@ -99,7 +122,7 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
     if (optionNode.isTerminal) {
       setSuggestedProducts(optionNode.suggestedProducts || []);
       setTerminalNode(mappedNode);
-      setStep(4); // Avanzar directamente al paso 4 (Contacto, mapeado como paso 3 en el Stepper)
+      setStep(4);
     } else {
       const opts = getOptionsForNode(optionNode.id).map(mapNode);
       setOptions(opts);
@@ -115,7 +138,6 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
       setSymptomPath([]);
       setDeviceTypeState(null);
     } else if (step === 4) {
-      // Si estamos en el formulario de contacto (Paso 4), volvemos a la última pregunta
       if (history.length > 0) {
         const lastHistory = history[history.length - 1];
         setHistory((prev) => prev.slice(0, -1));
@@ -140,30 +162,37 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
     }
   };
 
-  // Rellenar datos cliente
-  const setClientField = (field: 'clientName' | 'clientEmail' | 'clientPhone', value: string) => {
+  // Rellenar campos de cliente y reserva
+  const setClientField = (
+    field: 'clientName' | 'clientEmail' | 'clientPhone' | 'serialNumber' | 'deviceModel' | 'appointmentDate' | 'appointmentTime' | 'selectedBranch',
+    value: string
+  ) => {
     if (field === 'clientName') setClientName(value);
     if (field === 'clientEmail') setClientEmail(value);
     if (field === 'clientPhone') setClientPhone(value);
+    if (field === 'serialNumber') setSerialNumber(value);
+    if (field === 'deviceModel') setDeviceModel(value);
+    if (field === 'appointmentDate') setAppointmentDate(value);
+    if (field === 'appointmentTime') setAppointmentTime(value);
+    if (field === 'selectedBranch') setSelectedBranch(value);
   };
 
   // Submit del formulario
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!clientName || !clientEmail || !clientPhone) {
-      alert('Por favor completa todos los campos de contacto.');
+    if (!clientName || !clientEmail || !clientPhone || !appointmentDate || !appointmentTime) {
+      alert('Por favor completa todos los campos de contacto y selecciona una fecha/hora para tu cita.');
       return;
     }
 
     setIsSubmitting(true);
 
-    // Simular envío al servidor
     setTimeout(() => {
       const generatedTicketId = `TKT-${Date.now()}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
       setTicketId(generatedTicketId);
       setStep(5);
       setIsSubmitting(false);
-    }, 1000);
+    }, 800);
   };
 
   // Reset
@@ -180,6 +209,12 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
     setClientEmail('');
     setClientPhone('');
     setTicketId(null);
+    setSerialNumber('');
+    setDeviceModel('');
+    setAppointmentDate('');
+    setAppointmentTime('');
+    setSelectedBranch('Central Miraflores');
+    setFailurePhoto(null);
   };
 
   return {
@@ -196,11 +231,19 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
     ticketId,
     progressPercentage,
     terminalNode,
+    serialNumber,
+    deviceModel,
+    appointmentDate,
+    appointmentTime,
+    selectedBranch,
+    failurePhoto,
     handleBack,
     selectOption,
     handleSubmit,
     setDeviceType,
     setClientField,
+    setFailurePhoto,
     resetFlow,
   };
 }
+
