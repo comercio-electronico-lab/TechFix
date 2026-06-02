@@ -5,27 +5,138 @@
 
 @import "tailwindcss";
 
+/* Configure dark variant selector for Tailwind CSS v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
-    --background: 220 100% 99%;
-    --foreground: 212 62% 12%;
+    --background: #f8f9ff;
+    --on-background: #0b1c30;
+    --surface: #f8f9ff;
+    --surface-dim: #cbdbf5;
+    --surface-bright: #f8f9ff;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #eff4ff;
+    --surface-container: #e5eeff;
+    --surface-container-high: #dce9ff;
+    --surface-container-highest: #d3e4fe;
+    --on-surface: #0b1c30;
+    --on-surface-variant: #43474e;
+    
+    --primary: #022448;
+    --on-primary: #ffffff;
+    --primary-container: #1e3a5f;
+    --on-primary-container: #8aa4cf;
+    
+    --secondary: #0b61a1;
+    --on-secondary: #ffffff;
+    --secondary-container: #7cbaff;
+    --on-secondary-container: #004a7d;
+    
+    --outline: #74777f;
+    --outline-variant: #c4c6cf;
+  }
+
+  .dark {
+    /* Rich, deep electric-navy space backgrounds */
+    --background: #020816; /* deep electric midnight blue */
+    --on-background: #f8fafc;
+    
+    --surface: #0a1b3a; /* beautiful deep electric navy surface */
+    --surface-dim: #040c1c;
+    --surface-bright: #12284c;
+    --surface-container-lowest: #01040a;
+    --surface-container-low: #06132b;
+    --surface-container: #0a1b3a;
+    --surface-container-high: #142f5e;
+    --surface-container-highest: #1d3e7a;
+    --on-surface: #f1f5f9;
+    --on-surface-variant: #a5b4fc; /* beautiful light indigo/blue text */
+    
+    /* MAINTAIN the original deep navy primary brand color */
+    --primary: #022448;
+    --on-primary: #ffffff;
+    --primary-container: #06132b;
+    --on-primary-container: #cbd5e1;
+    
+    /* MAINTAIN the original royal electric blue secondary */
+    --secondary: #0b61a1;
+    --on-secondary: #ffffff;
+    --secondary-container: #7cbaff; /* Keep light blue container for stunning active items contrast */
+    --on-secondary-container: #001d36;
+    
+    --outline: #1b3b6f; /* gorgeous electric navy outline */
+    --outline-variant: #0e2246;
   }
 }
 
 @layer utilities {
   .hero-gradient {
-    background: linear-gradient(135deg, #022448 0%, #1e3a5f 100%);
+    /* Beautiful deep electric navy blend */
+    background: linear-gradient(135deg, #022448 0%, #030c1e 100%);
   }
   
   .glass-card {
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  
+  .dark .glass-card {
+    background: rgba(10, 27, 58, 0.6);
+    border: 1px solid rgba(11, 97, 161, 0.25);
   }
 }
 
 body {
-  @apply bg-background text-on-background font-body-md;
+  @apply bg-background text-on-background font-body-md transition-colors duration-300;
+}
+
+/* Catch-all overrides for hardcoded utility classes in dark mode */
+.dark .bg-white {
+  background-color: rgba(10, 27, 58, 0.7) !important; /* deep electric navy glass */
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(11, 97, 161, 0.25) !important; /* original secondary electric blue */
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.dark .bg-white:hover {
+  border-color: rgba(11, 97, 161, 0.6) !important; /* brighter electric blue border on hover */
+  box-shadow: 0 10px 30px -10px rgba(11, 97, 161, 0.4) !important;
+  transform: translateY(-2px) !important;
+}
+
+.dark .bg-white\/50 {
+  background-color: rgba(10, 27, 58, 0.45) !important;
+  backdrop-filter: blur(12px);
+  border-color: rgba(11, 97, 161, 0.15) !important;
+}
+
+.dark .text-primary {
+  color: #f8fafc !important; /* Elegant slate white for headers originally using brand navy */
+}
+
+.dark .text-slate-900,
+.dark .text-gray-900,
+.dark .text-zinc-900 {
+  color: var(--on-surface) !important;
+}
+
+.dark .text-slate-500,
+.dark .text-slate-600,
+.dark .text-gray-500,
+.dark .text-gray-600,
+.dark .text-on-surface-variant {
+  color: var(--on-surface-variant) !important;
+}
+
+.dark .border-slate-200,
+.dark .border-gray-200,
+.dark .border-zinc-200,
+.dark .border-outline-variant\/10,
+.dark .border-outline-variant\/20 {
+  border-color: var(--outline) !important;
 }
 
 h1 { @apply font-h1 text-[48px] leading-[1.2] font-bold tracking-[-0.02em]; }
