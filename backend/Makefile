@@ -3,11 +3,6 @@ MAIN_PATH=./cmd/api/main.go
 BINARY_NAME=api-server
 BUILD_DIR=./bin
 
-ifneq ("$(wildcard .env)","")
-	include .env
-	export $(shell sed 's/=.*//' .env)
-endif
-
 .PHONY: dev migrate-up migrate-down seed build clean help
 
 ## dev: Inicia el servidor en modo desarrollo

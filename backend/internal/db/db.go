@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"backend/internal/models"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -13,6 +14,11 @@ import (
 var DB *gorm.DB
 
 func Connect() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No se pudo cargar el archivo .env, usando variables de entorno del sistema")
+	}
+
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_USER"),
