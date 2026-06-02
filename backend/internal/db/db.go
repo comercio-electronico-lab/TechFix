@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"backend/internal/models"
-	"github.com/glebarez/sqlite"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -20,26 +19,7 @@ func Connect() {
 		log.Println("No se pudo cargar el archivo .env, usando variables de entorno del sistema")
 	}
 
-	// Por defecto usará modo mock (en memoria) para no hacer peticiones a la base de datos PostgreSQL,
-	// pero manteniendo todo el código de GORM y PostgreSQL listo para el futuro.
-	mockMode := os.Getenv("MOCK_MODE") != "false"
-
-	if mockMode {
-		fmt.Println("[MODO MOCK] Inicializando base de datos en memoria SQLite para desarrollo local sin servidor de base de datos...")
-		dsn := "file::memory:?cache=shared"
-		database, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
-		if err != nil {
-			log.Fatal("Error al conectar a la base de datos en memoria:", err)
-		}
-		DB = database
-		fmt.Println("[MODO MOCK] Conexión a base de datos en memoria exitosa.")
-		Migrate()
-		Seed()
-		return
-	}
-
-	// Conexión real a PostgreSQL (se activa configurando MOCK_MODE=false en el archivo .env)
-	fmt.Println("[MODO PRODUCCIÓN] Conectando a PostgreSQL...")
+	fmt.Println("Conectando a PostgreSQL...")
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_USER"),
@@ -77,6 +57,7 @@ func Migrate() {
 		&models.TransaccionProducto{},
 		&models.RepairTracking{},
 		&models.Warranty{},
+		&models.Payment{},
 	)
 	if err != nil {
 		log.Fatal("Error en migración:", err)
@@ -90,6 +71,7 @@ func MigrateDown() {
 	}
 	fmt.Println("Revirtiendo migraciones...")
 	err := DB.Migrator().DropTable(
+		&models.Payment{},
 		&models.Warranty{},
 		&models.RepairTracking{},
 		&models.RepairOrder{},

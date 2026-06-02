@@ -7,8 +7,10 @@ import (
 	"os"
 	"time"
 
+	"backend/internal/auth"
 	"backend/internal/db"
 	"backend/internal/handlers"
+	"backend/internal/payment"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -53,19 +55,16 @@ func startServer() {
 		port = "8080"
 	}
 
-	// Configurar modo de Gin basado en ambiente
-	env := os.Getenv("GIN_MODE")
-	if env == "" {
-		gin.SetMode(gin.DebugMode)
-	}
+	// Desactivar output de Gin
+	gin.SetMode(gin.ReleaseMode)
+
+	// Mostrar banner de bienvenida primero
+	printBanner(port)
 
 	// Crear router con logger personalizado
 	r := gin.New()
 	r.Use(customLogger())
 	r.Use(gin.Recovery())
-
-	// Mostrar banner de bienvenida
-	printBanner(port)
 
 	// Middleware de CORS para permitir solicitudes del Frontend en Next.js
 	r.Use(func(c *gin.Context) {
@@ -97,15 +96,15 @@ func startServer() {
 		}
 
 		// Rutas públicas de Autenticación
-		auth := api.Group("/auth")
+		authRoutes := api.Group("/auth")
 		{
-			auth.POST("/register", handlers.Register)
-			auth.POST("/login", handlers.Login)
+			authRoutes.POST("/register", auth.Register)
+			authRoutes.POST("/login", auth.Login)
 		}
 
 		// Rutas privadas del Usuario (protegidas por AuthMiddleware)
 		user := api.Group("/user")
-		user.Use(handlers.AuthMiddleware())
+		user.Use(auth.AuthMiddleware())
 		{
 			user.GET("/profile", handlers.GetProfile)
 			user.PUT("/profile", handlers.UpdateProfile)
@@ -116,6 +115,23 @@ func startServer() {
 			user.PUT("/devices/:id", handlers.UpdateDevice)
 			user.DELETE("/devices/:id", handlers.DeleteDevice)
 		}
+
+		// Rutas de Pagos (protegidas por AuthMiddleware)
+		payments := api.Group("/payments")
+		payments.Use(auth.AuthMiddleware())
+		{
+			payments.POST("", payment.CreatePayment)
+			payments.GET("/:id", payment.GetPayment)
+			payments.GET("/:id/status", payment.CheckPaymentStatus)
+			payments.POST("/:id/refund", payment.RefundPayment)
+			payments.GET("", payment.GetPayments)
+		}
+
+		// Información pública de Mercado Pago para el frontend (sin autenticación)
+		api.GET("/payments/info", payment.GetTestToken)
+
+		// Webhook de Mercado Pago (sin autenticación)
+		api.POST("/webhooks/mercado-pago", payment.ProcessPaymentWebhook)
 	}
 
 	r.Run(":" + port)
