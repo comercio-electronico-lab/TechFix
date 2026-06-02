@@ -1,146 +1,361 @@
 "use client";
 
-import React from 'react';
-import Navbar from '@/components/layout/Navbar';
-import Input from '@/components/ui/Input';
-import Button from '@/components/ui/Button';
+import React, { useState } from 'react';
+import { useCart } from '@/context/CartContext';
+import { Lock, ArrowRight, ArrowLeft, ShieldCheck, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
-import { ArrowRight, ShoppingCart, Truck, CreditCard, Lock, ChevronRight, Info } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function CheckoutEnvio() {
+  const { items, subtotal } = useCart();
+  const router = useRouter();
+
+  // Estados de datos de contacto y envío
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    saveInfo: false
+  });
+
+  const tax = subtotal * 0.08;
+  const shipping = 0.00; // Envío gratis
+  const total = subtotal + tax;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { id, value, type } = e.target;
+    const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+    setFormData(prev => ({
+      ...prev,
+      [id]: val
+    }));
+  };
+
+  const handleContinue = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.address || !formData.city || !formData.zipCode) {
+      alert("Por favor completa todos los campos requeridos.");
+      return;
+    }
+    // Guardar información en localStorage para simular persistencia
+    localStorage.setItem('checkout_contact', JSON.stringify({
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.phone
+    }));
+    localStorage.setItem('checkout_shipping', JSON.stringify({
+      address: formData.address,
+      city: formData.city,
+      state: formData.state,
+      zipCode: formData.zipCode
+    }));
+    // Navegar al paso de pago
+    router.push('/checkout/pago');
+  };
+
   return (
-    <>
-      <Navbar />
-      <main className="pt-18 min-h-screen bg-background">
-        <div className="max-w-container-max mx-auto px-gutter py-stack-lg">
-          {/* Step Indicator */}
-          <div className="mb-stack-lg flex justify-center">
-            <div className="flex items-center w-full max-w-2xl">
-              <div className="flex flex-col items-center flex-1">
-                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-white mb-2 shadow-sm">
-                  <ShoppingCart className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-bold text-secondary uppercase tracking-widest">CARRITO</span>
-              </div>
-              <div className="h-px bg-outline-variant flex-1 mb-6"></div>
-              <div className="flex flex-col items-center flex-1">
-                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white mb-2 shadow-lg ring-4 ring-primary-container/20">
-                  <Truck className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">ENVÍO</span>
-              </div>
-              <div className="h-px bg-outline-variant flex-1 mb-6"></div>
-              <div className="flex flex-col items-center flex-1">
-                <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-outline mb-2">
-                  <CreditCard className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] font-bold text-outline uppercase tracking-widest">PAGO</span>
-              </div>
-            </div>
+    <div className="bg-background dark:bg-slate-950 min-h-screen flex flex-col font-body-md antialiased transition-colors duration-300">
+      
+      {/* TopNavBar (Transactional mode - simplified) */}
+      <header className="bg-surface/80 dark:bg-slate-900/80 backdrop-blur-md fixed top-0 w-full z-50 border-b border-outline-variant dark:border-slate-800 shadow-sm h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop left-0 right-0">
+        <div className="max-w-container-max mx-auto w-full flex justify-between items-center px-4 md:px-8">
+          <div className="font-headline-md text-2xl font-bold text-primary dark:text-sky-400 select-none tracking-tight">
+            <Link href="/" className="hover:opacity-90 transition-opacity">
+              TechFix
+            </Link>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-stack-lg">
-            {/* Left Column: Shipping Form */}
-            <div className="lg:col-span-8">
-              <div className="bg-white p-8 rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/10">
-                <div className="flex items-center gap-3 mb-8 border-b border-outline-variant/20 pb-4">
-                  <Lock className="w-6 h-6 text-primary" />
-                  <h1 className="text-2xl font-bold text-primary">Información de Envío</h1>
-                </div>
-                
-                <form className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input label="NOMBRE COMPLETO" placeholder="Ej: Juan Pérez" />
-                    <Input label="TELÉFONO" placeholder="+51 999 999 999" />
-                  </div>
-                  
-                  <Input label="DIRECCIÓN" placeholder="Calle, número, departamento" />
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Input label="CIUDAD" placeholder="Ej: Lima" />
-                    <div className="space-y-2">
-                      <label className="text-[12px] font-bold text-primary uppercase tracking-tight">ESTADO / PROVINCIA</label>
-                      <select className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-secondary transition-all">
-                        <option>Seleccionar...</option>
-                        <option>Lima</option>
-                        <option>Arequipa</option>
-                        <option>Cusco</option>
-                      </select>
-                    </div>
-                    <Input label="CÓDIGO POSTAL" placeholder="15047" />
-                  </div>
-                  
-                  <div className="pt-6 border-t border-outline-variant/20 flex items-center gap-3">
-                    <input type="checkbox" className="w-5 h-5 text-secondary border-outline rounded focus:ring-secondary cursor-pointer" id="save_info" />
-                    <label htmlFor="save_info" className="text-sm text-on-surface-variant cursor-pointer">Guardar esta información para futuras órdenes</label>
-                  </div>
-                  
-                  <div className="flex justify-between items-center pt-8">
-                    <Link href="/carrito" className="flex items-center gap-2 text-primary hover:text-secondary transition-colors font-bold">
-                      Volver al Carrito
-                    </Link>
-                    <Link href="/checkout/pago">
-                      <Button variant="secondary" className="px-8 py-4 shadow-md hover:brightness-110 flex items-center gap-2">
-                        Continuar al Pago
-                        <ArrowRight className="w-5 h-5" />
-                      </Button>
-                    </Link>
-                  </div>
-                </form>
-              </div>
-            </div>
-
-            {/* Right Column: Order Summary */}
-            <aside className="lg:col-span-4">
-              <div className="bg-surface-container-low p-8 rounded-xl border border-outline-variant/20 sticky top-24">
-                <h2 className="text-xl font-bold text-primary mb-6">Resumen del Pedido</h2>
-                
-                {/* Order Items */}
-                <div className="space-y-6 mb-8 border-b border-outline-variant/30 pb-6">
-                  <div className="flex gap-4">
-                    <div className="w-16 h-16 bg-white rounded border border-outline-variant/30 p-1 shrink-0">
-                      <img className="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCme1LzT9AXzHJXVxI5EFN5w9j06dYDACPwB8-LmhhLRQJwW-Jlwpept_IP8lZzjIlEPY1Ml2F59hwMSA4v382MJX92OIiCDEZetihjy65cPRjYWxvsh6B0ZRMjCxQnOJhll-49cg57ThSnBRjS5iCWB_kIm3S2xVO0yZwXj1jiIGvrw1FVKVkOVXnNZjYKdYj1KgyI8i1UklA0Q-p1_xTjS4monl27SBNTcwyiveD-bd3DovvmiX6iXe4G3C0RBekH-mdm-jIXhGQ" alt="Ryzen 9" />
-                    </div>
-                    <div className="grow">
-                      <p className="font-bold text-on-surface leading-tight line-clamp-1">Ryzen 9 7950X Processor</p>
-                      <p className="text-xs text-on-surface-variant">Cant: 1</p>
-                      <p className="text-primary font-bold">$549.00</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Price Breakdown */}
-                <div className="space-y-3">
-                  <div className="flex justify-between text-on-surface-variant text-sm">
-                    <span>Subtotal</span>
-                    <span>$738.98</span>
-                  </div>
-                  <div className="flex justify-between text-on-surface-variant text-sm">
-                    <span>Envío</span>
-                    <span className="text-secondary font-bold">GRATIS</span>
-                  </div>
-                  <div className="flex justify-between text-on-surface-variant text-sm">
-                    <span>Impuestos est.</span>
-                    <span>$59.12</span>
-                  </div>
-                  <div className="flex justify-between text-xl font-bold text-primary pt-3 border-t border-outline-variant/10 mt-3">
-                    <span>Total</span>
-                    <span>$798.10</span>
-                  </div>
-                </div>
-
-                <div className="mt-8 bg-white/50 p-4 rounded-lg border border-primary/10">
-                  <div className="flex items-center gap-2 text-primary mb-2">
-                    <Info className="w-4 h-4" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">¿NECESITAS AYUDA?</span>
-                  </div>
-                  <p className="text-xs text-on-surface-variant">Llama a nuestros técnicos expertos al 1-800-TECH-FIX para asistencia.</p>
-                </div>
-              </div>
-            </aside>
+          <div className="flex items-center gap-2 text-on-surface-variant dark:text-slate-400">
+            <Lock className="w-4 h-4 text-primary dark:text-sky-400" />
+            <span className="font-semibold text-xs uppercase tracking-wider">Secure Checkout</span>
           </div>
         </div>
+      </header>
+
+      {/* Main Layout */}
+      <main className="flex-grow pt-24 pb-16 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full px-4 md:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Left Column: Checkout Steps */}
+          <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
+            <h1 className="font-headline-lg text-3xl font-bold text-on-surface dark:text-white mb-2 tracking-tight">
+              Checkout
+            </h1>
+            
+            <form onSubmit={handleContinue} className="space-y-6">
+              
+              {/* Step 1: Contact Information */}
+              <div className="bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-lg p-6 shadow-sm transition-colors">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-headline-md text-xl font-bold text-on-surface dark:text-white flex items-center gap-3">
+                    <span className="bg-primary dark:bg-sky-500 text-on-primary dark:text-slate-950 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-mono">1</span>
+                    Contact Information
+                  </h2>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant dark:text-slate-400" htmlFor="firstName">First Name</label>
+                      <input 
+                        className="w-full bg-surface dark:bg-slate-950 border border-outline-variant dark:border-slate-800 rounded px-3 py-2 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/40 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-sky-500/20 transition-all duration-200"
+                        id="firstName" 
+                        placeholder="Jane" 
+                        required 
+                        type="text"
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant dark:text-slate-400" htmlFor="lastName">Last Name</label>
+                      <input 
+                        className="w-full bg-surface dark:bg-slate-950 border border-outline-variant dark:border-slate-800 rounded px-3 py-2 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/40 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-sky-500/20 transition-all duration-200"
+                        id="lastName" 
+                        placeholder="Doe" 
+                        required 
+                        type="text"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant dark:text-slate-400" htmlFor="email">Email Address</label>
+                      <input 
+                        className="w-full bg-surface dark:bg-slate-950 border border-outline-variant dark:border-slate-800 rounded px-3 py-2 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/40 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-sky-500/20 transition-all duration-200"
+                        id="email" 
+                        placeholder="jane.doe@example.com" 
+                        required 
+                        type="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant dark:text-slate-400" htmlFor="phone">Phone Number</label>
+                      <input 
+                        className="w-full bg-surface dark:bg-slate-950 border border-outline-variant dark:border-slate-800 rounded px-3 py-2 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/40 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-sky-500/20 transition-all duration-200"
+                        id="phone" 
+                        placeholder="+1 (555) 000-0000" 
+                        type="tel"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 2: Shipping Details */}
+              <div className="bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-lg p-6 shadow-sm transition-colors">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-headline-md text-xl font-bold text-on-surface dark:text-white flex items-center gap-3">
+                    <span className="bg-primary dark:bg-sky-500 text-on-primary dark:text-slate-950 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-mono">2</span>
+                    Shipping Details
+                  </h2>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant dark:text-slate-400" htmlFor="address">Address</label>
+                    <input 
+                      className="w-full bg-surface dark:bg-slate-950 border border-outline-variant dark:border-slate-800 rounded px-3 py-2 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/40 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-sky-500/20 transition-all duration-200"
+                      id="address" 
+                      placeholder="123 Science Lab Way, Suite 101" 
+                      required 
+                      type="text"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant dark:text-slate-400" htmlFor="city">City</label>
+                      <input 
+                        className="w-full bg-surface dark:bg-slate-950 border border-outline-variant dark:border-slate-800 rounded px-3 py-2 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/40 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-sky-500/20 transition-all duration-200"
+                        id="city" 
+                        placeholder="Silicon Valley" 
+                        required 
+                        type="text"
+                        value={formData.city}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant dark:text-slate-400" htmlFor="state">State / Province</label>
+                      <select 
+                        className="w-full bg-surface dark:bg-slate-950 border border-outline-variant dark:border-slate-800 rounded px-3 py-2 text-sm text-on-surface dark:text-white focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-sky-500/20 cursor-pointer font-medium"
+                        id="state"
+                        value={formData.state}
+                        onChange={handleInputChange}
+                        required
+                      >
+                        <option value="" className="dark:bg-slate-900">Select...</option>
+                        <option value="CA" className="dark:bg-slate-900">California</option>
+                        <option value="NY" className="dark:bg-slate-900">New York</option>
+                        <option value="TX" className="dark:bg-slate-900">Texas</option>
+                        <option value="FL" className="dark:bg-slate-900">Florida</option>
+                        <option value="Lima" className="dark:bg-slate-900">Lima</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant dark:text-slate-400" htmlFor="zipCode">Zip Code</label>
+                      <input 
+                        className="w-full bg-surface dark:bg-slate-950 border border-outline-variant dark:border-slate-800 rounded px-3 py-2 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/40 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-sky-500/20 transition-all duration-200"
+                        id="zipCode" 
+                        placeholder="94025" 
+                        required 
+                        type="text"
+                        value={formData.zipCode}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-outline-variant/30 dark:border-slate-800 flex items-center gap-3">
+                    <input 
+                      type="checkbox" 
+                      id="saveInfo"
+                      checked={formData.saveInfo}
+                      onChange={handleInputChange}
+                      className="w-4 h-4 rounded border-outline-variant dark:border-slate-700 text-primary dark:text-sky-500 bg-surface dark:bg-slate-950 focus:ring-primary dark:focus:ring-sky-500 cursor-pointer transition-colors" 
+                    />
+                    <label htmlFor="saveInfo" className="text-xs text-on-surface-variant dark:text-slate-400 cursor-pointer select-none">
+                      Save this information for faster checkout next time
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 3: Payment Method (Locked) */}
+              <div className="bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-lg p-6 opacity-50 cursor-not-allowed transition-all shadow-sm">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-headline-md text-xl font-bold text-on-surface dark:text-white flex items-center gap-3 select-none">
+                    <span className="bg-surface-variant dark:bg-slate-800 text-on-surface-variant/60 dark:text-slate-500 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-mono">3</span>
+                    Payment Method
+                  </h2>
+                </div>
+              </div>
+
+              {/* Button Row */}
+              <div className="flex justify-between items-center pt-4">
+                <Link href="/carrito" className="flex items-center gap-1.5 text-xs font-semibold text-primary dark:text-sky-400 hover:text-secondary dark:hover:text-sky-300 transition-colors uppercase tracking-wider group">
+                  <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" /> Back to Cart
+                </Link>
+                
+                <button 
+                  type="submit"
+                  className="px-6 py-2.5 bg-primary dark:bg-sky-600 hover:bg-primary-container dark:hover:bg-sky-500 text-on-primary dark:text-white rounded text-xs font-semibold flex items-center gap-2 transition-all active:scale-[0.98] cursor-pointer shadow-sm hover:shadow dark:hover:shadow-sky-500/20"
+                >
+                  Continue to Shipping
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+
+            </form>
+          </div>
+
+          {/* Right Column: Order Summary */}
+          <aside className="lg:col-span-5 xl:col-span-4 sticky top-24">
+            <div className="bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-lg p-6 shadow-sm transition-colors">
+              <h3 className="font-headline-md text-xl font-bold text-on-surface dark:text-white mb-6 border-b border-outline-variant/30 dark:border-slate-800 pb-4">
+                Order Summary
+              </h3>
+              
+              {/* Order Items List */}
+              <div className="space-y-4 mb-6 max-h-64 overflow-y-auto pr-1">
+                {items.length > 0 ? (
+                  items.map((item) => (
+                    <div key={item.id} className="flex items-start gap-4 pb-2 border-b border-outline-variant/10 dark:border-slate-800/30 last:border-b-0">
+                      <div className="w-14 h-14 bg-surface dark:bg-slate-950 rounded border border-outline-variant/30 dark:border-slate-800 overflow-hidden flex-shrink-0 flex items-center justify-center p-1">
+                        <img 
+                          src={item.image} 
+                          alt={item.name} 
+                          className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal dark:filter dark:brightness-95" 
+                        />
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <h4 className="font-semibold text-xs text-on-surface dark:text-slate-200 line-clamp-1 leading-snug">
+                          {item.name}
+                        </h4>
+                        <p className="text-[10px] text-on-surface-variant/75 dark:text-slate-400 mt-0.5">
+                          Cant: {item.quantity}
+                        </p>
+                      </div>
+                      <div className="font-semibold text-xs text-on-surface dark:text-slate-200 shrink-0">
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 bg-surface-container-low dark:bg-slate-950 rounded border border-outline-variant overflow-hidden flex-shrink-0 flex items-center justify-center">
+                      <img 
+                        alt="Laptop repair parts" 
+                        className="w-full h-full object-cover" 
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGa-hV7dxmLQqQyGJPQrVSmvy0MLGhAvSQeoYMZ8MbiFz9uibnsjpwPreLHT2etDvJGOl4q8KKG4c4A5puiRO3aceZ5d_1XHjqVduF6VIqSTJfZeDPWoRET7cxyc_Zf8IwLwd-_sLeyqpyAy76oWq9QhY4_DzN88a32XCzRXr9ltQ49CExh42RRJIfIeNWeUFiD9gDi1MCEJlJWEuXn5eIMnHmzh-Y7USQdzH1NjOsc77c98ulv2VOMbXXsUD4wRSEsvIdz2MubFfX"
+                      />
+                    </div>
+                    <div className="flex-grow">
+                      <h4 className="font-label-md text-label-md text-on-surface dark:text-slate-200">Screen Replacement Kit</h4>
+                      <p className="font-label-sm text-label-sm text-on-surface-variant dark:text-slate-400">Model X Pro</p>
+                    </div>
+                    <div className="font-label-md text-label-md text-on-surface dark:text-slate-200">$129.99</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Price Breakdown */}
+              <div className="space-y-2 border-t border-outline-variant/30 dark:border-slate-800 pt-4 mb-6 text-xs text-on-surface-variant dark:text-slate-450">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span className="font-semibold text-on-surface dark:text-slate-200">${subtotal > 0 ? subtotal.toFixed(2) : "129.99"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Shipping</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider text-[10px]">Free</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Tax</span>
+                  <span className="font-semibold text-on-surface dark:text-slate-200">${subtotal > 0 ? tax.toFixed(2) : "10.40"}</span>
+                </div>
+              </div>
+
+              {/* Final Total */}
+              <div className="flex justify-between items-center border-t border-outline-variant/30 dark:border-slate-800 pt-4 mb-6">
+                <span className="font-bold text-sm text-on-surface dark:text-white">Total</span>
+                <span className="font-bold text-xl text-primary dark:text-sky-400">${subtotal > 0 ? total.toFixed(2) : "140.39"}</span>
+              </div>
+
+              {/* Transactional Security Badges */}
+              <div className="pt-2 border-t border-outline-variant/20 dark:border-slate-800/40 flex flex-col gap-3">
+                <div className="flex items-center justify-center gap-2 text-on-surface-variant/80 dark:text-slate-400 font-semibold text-[10px] uppercase tracking-wider">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" /> 256-bit SSL Encrypted
+                </div>
+                
+                <div className="bg-surface-container-low dark:bg-slate-950/60 p-4 rounded border border-primary/10 dark:border-slate-800 flex flex-col gap-1.5 transition-colors">
+                  <div className="flex items-center gap-1.5 text-primary dark:text-sky-400">
+                    <span className="font-bold text-[9px] uppercase tracking-widest">ASSISTANCE INCLUDED</span>
+                  </div>
+                  <p className="text-[10px] text-on-surface-variant dark:text-slate-400 leading-normal">
+                    Call our expert technicians at <span className="font-bold text-primary dark:text-sky-400">1-800-TECH-FIX</span> for any order support or technical questions.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </aside>
+
+        </div>
       </main>
-    </>
+    </div>
   );
 }

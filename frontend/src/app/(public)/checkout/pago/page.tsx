@@ -1,155 +1,400 @@
 "use client";
 
-import React from 'react';
-import Navbar from '@/components/layout/Navbar';
-import Input from '@/components/ui/Input';
-import Button from '@/components/ui/Button';
+import React, { useState, useEffect } from 'react';
+import { useCart } from '@/context/CartContext';
+import { Lock, ArrowRight, ArrowLeft, ShieldCheck, CreditCard, Wallet, Landmark, Check } from 'lucide-react';
 import Link from 'next/link';
-import { CreditCard, Wallet, Landmark, Lock, ChevronRight, ShieldCheck, ShieldAlert, CheckCircle, Info } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function CheckoutPago() {
+  const { items, subtotal, clearCart } = useCart();
+  const router = useRouter();
+
+  // Estados de pago
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal' | 'bank'>('card');
+  const [cardData, setCardData] = useState({
+    cardName: '',
+    cardNumber: '',
+    cardExpiry: '',
+    cardCvv: '',
+    saveCard: false
+  });
+
+  // Datos guardados del paso anterior
+  const [contact, setContact] = useState({ firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' });
+  const [shipping, setShipping] = useState({ address: '123 Science Lab Way', city: 'Silicon Valley', state: 'CA', zipCode: '94025' });
+
+  useEffect(() => {
+    const contactData = localStorage.getItem('checkout_contact');
+    const shippingData = localStorage.getItem('checkout_shipping');
+    if (contactData) {
+      try {
+        setContact(JSON.parse(contactData));
+      } catch (e) {
+        console.error("Error parsing contact", e);
+      }
+    }
+    if (shippingData) {
+      try {
+        setShipping(JSON.parse(shippingData));
+      } catch (e) {
+        console.error("Error parsing shipping", e);
+      }
+    }
+  }, []);
+
+  const tax = subtotal * 0.08;
+  const total = subtotal + tax;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value, type, checked } = e.target;
+    setCardData(prev => ({
+      ...prev,
+      [id]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleCompletePurchase = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (paymentMethod === 'card') {
+      if (!cardData.cardName || !cardData.cardNumber || !cardData.cardExpiry || !cardData.cardCvv) {
+        alert("Please fill in all credit card details.");
+        return;
+      }
+    }
+    
+    // Guardar total y número de orden simulado en localStorage para la confirmación
+    const orderNumber = `TF-${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(10000 + Math.random() * 90000)}X`;
+    localStorage.setItem('checkout_order', JSON.stringify({
+      orderNumber,
+      total: subtotal > 0 ? total : 140.39,
+      subtotal: subtotal > 0 ? subtotal : 129.99,
+      tax: subtotal > 0 ? tax : 10.40,
+      paymentMethod
+    }));
+
+    // Vaciar el carrito
+    clearCart();
+    
+    // Navegar a la página de confirmación
+    router.push('/checkout/confirmacion');
+  };
+
   return (
-    <>
-      <Navbar />
-      <main className="pt-18 min-h-screen bg-background text-on-background font-body-md">
-        <div className="max-w-container-max mx-auto px-gutter py-stack-lg">
-          {/* Breadcrumbs / Progress */}
-          <nav className="mb-stack-lg flex items-center gap-2 text-on-surface-variant text-[12px] font-bold uppercase tracking-wider">
-            <span className="text-secondary">01 Envío</span>
-            <ChevronRight className="w-4 h-4" />
-            <span className="text-primary">02 Pago</span>
-            <ChevronRight className="w-4 h-4 opacity-50" />
-            <span className="opacity-50">03 Revisión</span>
-          </nav>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-stack-lg">
-            {/* Main Checkout Section */}
-            <div className="lg:col-span-8">
-              <h1 className="text-[48px] font-bold text-primary mb-stack-md leading-tight">Pago Seguro</h1>
-              
-              {/* Payment Method Selection */}
-              <section className="mb-stack-lg">
-                <h2 className="text-[24px] font-bold text-on-surface mb-stack-sm">Elige el método de pago</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-stack-sm">
-                  {/* Credit Card Option (Active) */}
-                  <div className="border-2 border-secondary bg-surface-container-low rounded-xl p-6 flex flex-col items-center gap-2 cursor-pointer shadow-sm transition-all scale-[1.02]">
-                    <CreditCard className="text-secondary w-10 h-10" />
-                    <span className="font-bold text-on-surface">Tarjeta</span>
-                  </div>
-                  {/* PayPal Option */}
-                  <div className="border border-outline-variant hover:border-secondary bg-white rounded-xl p-6 flex flex-col items-center gap-2 cursor-pointer transition-all">
-                    <Wallet className="text-on-surface-variant w-10 h-10" />
-                    <span className="font-bold text-on-surface-variant">PayPal</span>
-                  </div>
-                  {/* Bank Transfer Option */}
-                  <div className="border border-outline-variant hover:border-secondary bg-white rounded-xl p-6 flex flex-col items-center gap-2 cursor-pointer transition-all">
-                    <Landmark className="text-on-surface-variant w-10 h-10" />
-                    <span className="font-bold text-on-surface-variant">Transferencia</span>
-                  </div>
-                </div>
-              </section>
-
-              {/* Credit Card Form */}
-              <div className="bg-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30 p-8">
-                <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-2xl font-bold text-primary">Información de la Tarjeta</h3>
-                  <div className="flex gap-2">
-                    <div className="h-8 w-12 bg-surface-container rounded flex items-center justify-center font-bold text-[10px] text-on-surface-variant">VISA</div>
-                    <div className="h-8 w-12 bg-surface-container rounded flex items-center justify-center font-bold text-[10px] text-on-surface-variant">MC</div>
-                  </div>
-                </div>
-                
-                <form className="space-y-6">
-                  <div>
-                    <Input label="NOMBRE DEL TITULAR" placeholder="Ej: Juan Pérez" />
-                  </div>
-                  <div>
-                    <Input label="NÚMERO DE TARJETA" placeholder="0000 0000 0000 0000" icon={Lock} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-6">
-                    <Input label="FECHA DE EXPIRACIÓN" placeholder="MM / YY" />
-                    <Input label="CVV / CVC" placeholder="***" type="password" icon={Info} />
-                  </div>
-                  
-                  <div className="flex items-center gap-3 py-4">
-                    <input type="checkbox" className="w-5 h-5 text-secondary border-outline-variant rounded focus:ring-secondary cursor-pointer" id="save_card" />
-                    <label htmlFor="save_card" className="text-sm text-on-surface-variant cursor-pointer">Guardar detalles para futuras compras técnicas</label>
-                  </div>
-                  
-                  <Link href="/checkout/confirmacion">
-                    <Button variant="secondary" className="w-full py-5 text-xl flex justify-center items-center gap-2 shadow-lg">
-                      <CheckCircle className="w-6 h-6" />
-                      COMPLETAR COMPRA — $1,429.98
-                    </Button>
-                  </Link>
-                </form>
-              </div>
-
-              {/* Security Badges */}
-              <div className="mt-stack-lg flex flex-wrap justify-center items-center gap-stack-lg opacity-60 grayscale hover:grayscale-0 transition-all">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-8 h-8" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">ENCRIPTACIÓN SSL 256-BIT</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-8 h-8" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">CUMPLIMIENTO PCI-DSS</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ShieldAlert className="w-8 h-8" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">PROTECCIÓN CONTRA FRAUDE</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Order Summary Sidebar */}
-            <aside className="lg:col-span-4">
-              <div className="bg-surface-container-low p-8 rounded-xl sticky top-25 border border-outline-variant/20">
-                <h3 className="text-2xl font-bold mb-6 text-primary">Resumen del Pedido</h3>
-                
-                {/* Item List */}
-                <div className="space-y-4 mb-6 border-b border-outline-variant/30 pb-6">
-                  <div className="flex gap-4">
-                    <div className="w-16 h-16 bg-white rounded-lg border border-outline-variant/20 overflow-hidden shrink-0 p-1">
-                      <img className="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5VDF1iqgHHiirSy34phQ6vlgZACGME4HIvoTFX0EvWaPA6uSQGrnHPeZJ0lkjl43I3ivvu3fmgLw4rH0vGseXm-UN-QsSdvLHFf3tmoRZbum_6FqaSo85p0497gzY4obB2CwbeYI16wtMTQEgjb6t9Mmb5rQbdwlGBIKbr-cRauQVVugWFQQcNMzSHVku74bF3urcY6Gw5gid6n0x0SdhnJ_hQyv2lGGfleZ2IeInObENS1m-l0mHAP-ccVtowJNNsm6hyWaGLXM" alt="GPU" />
-                    </div>
-                    <div className="grow">
-                      <p className="font-bold text-on-surface leading-tight line-clamp-1">NVIDIA RTX 4080 Super</p>
-                      <p className="text-[10px] font-bold text-on-surface-variant uppercase">CANT: 1</p>
-                      <p className="font-bold text-secondary mt-1">$1,199.99</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Totals */}
-                <div className="space-y-3 mb-6">
-                  <div className="flex justify-between text-on-surface-variant">
-                    <span>Subtotal</span>
-                    <span>$1,379.98</span>
-                  </div>
-                  <div className="flex justify-between text-on-surface-variant">
-                    <span>Envío (Express)</span>
-                    <span className="text-secondary font-bold">$25.00</span>
-                  </div>
-                  <div className="flex justify-between text-on-surface-variant">
-                    <span>Impuestos est.</span>
-                    <span>$25.00</span>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center border-t border-primary/10 pt-4 mb-6">
-                  <span className="text-xl font-bold text-primary">Total</span>
-                  <span className="text-3xl font-bold text-secondary">$1,429.98</span>
-                </div>
-                
-                <div className="bg-primary/5 rounded-lg p-4 text-center">
-                  <p className="text-[10px] font-bold text-primary uppercase tracking-widest">SOPORTE TÉCNICO GRATUITO INCLUIDO</p>
-                </div>
-              </div>
-            </aside>
+    <div className="bg-background dark:bg-slate-950 min-h-screen flex flex-col font-body-md antialiased transition-colors duration-300">
+      
+      {/* TopNavBar (Transactional mode - simplified) */}
+      <header className="bg-surface/80 dark:bg-slate-900/80 backdrop-blur-md fixed top-0 w-full z-50 border-b border-outline-variant dark:border-slate-800 shadow-sm h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop left-0 right-0">
+        <div className="max-w-container-max mx-auto w-full flex justify-between items-center px-4 md:px-8">
+          <div className="font-headline-md text-2xl font-bold text-primary dark:text-sky-400 select-none tracking-tight">
+            <Link href="/" className="hover:opacity-90 transition-opacity">
+              TechFix
+            </Link>
+          </div>
+          <div className="flex items-center gap-2 text-on-surface-variant dark:text-slate-400">
+            <Lock className="w-4 h-4 text-primary dark:text-sky-400" />
+            <span className="font-semibold text-xs uppercase tracking-wider">Secure Checkout</span>
           </div>
         </div>
+      </header>
+
+      {/* Main Layout */}
+      <main className="flex-grow pt-24 pb-16 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full px-4 md:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Left Column: Checkout Steps */}
+          <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
+            <h1 className="font-headline-lg text-3xl font-bold text-on-surface dark:text-white mb-2 tracking-tight">
+              Checkout
+            </h1>
+            
+            <form onSubmit={handleCompletePurchase} className="space-y-6">
+              
+              {/* Step 1: Contact Information (Completed) */}
+              <div className="bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-lg p-6 shadow-sm transition-all duration-200">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="font-headline-md text-lg font-bold text-on-surface dark:text-white flex items-center gap-3">
+                    <span className="bg-emerald-500 dark:bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-mono">
+                      <Check className="w-3.5 h-3.5" />
+                    </span>
+                    Contact Information
+                  </h2>
+                  <Link href="/checkout/envio" className="text-xs font-semibold text-primary dark:text-sky-400 hover:underline">
+                    Edit
+                  </Link>
+                </div>
+                <p className="text-xs text-on-surface-variant dark:text-slate-400 ml-9">
+                  {contact.firstName} {contact.lastName} — {contact.email}
+                </p>
+              </div>
+
+              {/* Step 2: Shipping Details (Completed) */}
+              <div className="bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-lg p-6 shadow-sm transition-all duration-200">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="font-headline-md text-lg font-bold text-on-surface dark:text-white flex items-center gap-3">
+                    <span className="bg-emerald-500 dark:bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-mono">
+                      <Check className="w-3.5 h-3.5" />
+                    </span>
+                    Shipping Details
+                  </h2>
+                  <Link href="/checkout/envio" className="text-xs font-semibold text-primary dark:text-sky-400 hover:underline">
+                    Edit
+                  </Link>
+                </div>
+                <p className="text-xs text-on-surface-variant dark:text-slate-400 ml-9">
+                  {shipping.address}, {shipping.city}, {shipping.state} {shipping.zipCode}
+                </p>
+              </div>
+
+              {/* Step 3: Payment Method (Active) */}
+              <div className="bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-lg p-6 shadow-sm transition-colors">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-headline-md text-xl font-bold text-on-surface dark:text-white flex items-center gap-3">
+                    <span className="bg-primary dark:bg-sky-500 text-on-primary dark:text-slate-950 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-mono">3</span>
+                    Payment Method
+                  </h2>
+                </div>
+
+                {/* Tab Selectors */}
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div 
+                    onClick={() => setPaymentMethod('card')}
+                    className={`border rounded-lg p-4 flex flex-col items-center gap-2 cursor-pointer transition-all ${
+                      paymentMethod === 'card' 
+                        ? 'border-primary dark:border-sky-500 bg-primary/5 dark:bg-sky-500/5 ring-1 ring-primary dark:ring-sky-500' 
+                        : 'border-outline-variant dark:border-slate-800 hover:border-primary dark:hover:border-sky-500 bg-surface dark:bg-slate-950'
+                    }`}
+                  >
+                    <CreditCard className={`w-6 h-6 ${paymentMethod === 'card' ? 'text-primary dark:text-sky-400' : 'text-on-surface-variant dark:text-slate-400'}`} />
+                    <span className={`text-xs font-semibold uppercase tracking-wider ${paymentMethod === 'card' ? 'text-primary dark:text-sky-400' : 'text-on-surface-variant dark:text-slate-400'}`}>Card</span>
+                  </div>
+
+                  <div 
+                    onClick={() => setPaymentMethod('paypal')}
+                    className={`border rounded-lg p-4 flex flex-col items-center gap-2 cursor-pointer transition-all ${
+                      paymentMethod === 'paypal' 
+                        ? 'border-primary dark:border-sky-500 bg-primary/5 dark:bg-sky-500/5 ring-1 ring-primary dark:ring-sky-500' 
+                        : 'border-outline-variant dark:border-slate-800 hover:border-primary dark:hover:border-sky-500 bg-surface dark:bg-slate-950'
+                    }`}
+                  >
+                    <Wallet className={`w-6 h-6 ${paymentMethod === 'paypal' ? 'text-primary dark:text-sky-400' : 'text-on-surface-variant dark:text-slate-400'}`} />
+                    <span className={`text-xs font-semibold uppercase tracking-wider ${paymentMethod === 'paypal' ? 'text-primary dark:text-sky-400' : 'text-on-surface-variant dark:text-slate-400'}`}>PayPal</span>
+                  </div>
+
+                  <div 
+                    onClick={() => setPaymentMethod('bank')}
+                    className={`border rounded-lg p-4 flex flex-col items-center gap-2 cursor-pointer transition-all ${
+                      paymentMethod === 'bank' 
+                        ? 'border-primary dark:border-sky-500 bg-primary/5 dark:bg-sky-500/5 ring-1 ring-primary dark:ring-sky-500' 
+                        : 'border-outline-variant dark:border-slate-800 hover:border-primary dark:hover:border-sky-500 bg-surface dark:bg-slate-950'
+                    }`}
+                  >
+                    <Landmark className={`w-6 h-6 ${paymentMethod === 'bank' ? 'text-primary dark:text-sky-400' : 'text-on-surface-variant dark:text-slate-400'}`} />
+                    <span className={`text-xs font-semibold uppercase tracking-wider ${paymentMethod === 'bank' ? 'text-primary dark:text-sky-400' : 'text-on-surface-variant dark:text-slate-400'}`}>Transfer</span>
+                  </div>
+                </div>
+
+                {/* Sub Forms */}
+                {paymentMethod === 'card' && (
+                  <div className="space-y-4 pt-2">
+                    <div className="space-y-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant dark:text-slate-400" htmlFor="cardName">Cardholder Name</label>
+                      <input 
+                        className="w-full bg-surface dark:bg-slate-950 border border-outline-variant dark:border-slate-800 rounded px-3 py-2 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/40 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-sky-500/20 transition-all duration-200"
+                        id="cardName" 
+                        placeholder="Jane Doe" 
+                        required 
+                        type="text"
+                        value={cardData.cardName}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant dark:text-slate-400" htmlFor="cardNumber">Card Number</label>
+                      <div className="relative">
+                        <input 
+                          className="w-full bg-surface dark:bg-slate-950 border border-outline-variant dark:border-slate-800 rounded pl-10 pr-3 py-2 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/40 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-sky-500/20 transition-all duration-200"
+                          id="cardNumber" 
+                          placeholder="0000 0000 0000 0000" 
+                          required 
+                          type="text"
+                          value={cardData.cardNumber}
+                          onChange={handleInputChange}
+                        />
+                        <Lock className="w-4 h-4 text-on-surface-variant/60 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant dark:text-slate-400" htmlFor="cardExpiry">Expiration Date</label>
+                        <input 
+                          className="w-full bg-surface dark:bg-slate-950 border border-outline-variant dark:border-slate-800 rounded px-3 py-2 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/40 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-sky-500/20 transition-all duration-200"
+                          id="cardExpiry" 
+                          placeholder="MM / YY" 
+                          required 
+                          type="text"
+                          value={cardData.cardExpiry}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant dark:text-slate-400" htmlFor="cardCvv">CVV / CVC</label>
+                        <input 
+                          className="w-full bg-surface dark:bg-slate-950 border border-outline-variant dark:border-slate-800 rounded px-3 py-2 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/40 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-sky-500/20 transition-all duration-200"
+                          id="cardCvv" 
+                          placeholder="***" 
+                          required 
+                          type="password"
+                          maxLength={4}
+                          value={cardData.cardCvv}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-outline-variant/30 dark:border-slate-800 flex items-center gap-3">
+                      <input 
+                        type="checkbox" 
+                        id="saveCard"
+                        checked={cardData.saveCard}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 rounded border-outline-variant dark:border-slate-700 text-primary dark:text-sky-500 bg-surface dark:bg-slate-950 focus:ring-primary dark:focus:ring-sky-500 cursor-pointer transition-colors" 
+                      />
+                      <label htmlFor="saveCard" className="text-xs text-on-surface-variant dark:text-slate-400 cursor-pointer select-none">
+                        Save card details for future technical purchases securely
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {paymentMethod === 'paypal' && (
+                  <div className="bg-surface dark:bg-slate-950 p-6 rounded-lg border border-outline-variant dark:border-slate-800 text-center space-y-3">
+                    <Wallet className="w-8 h-8 text-primary dark:text-sky-400 mx-auto" />
+                    <p className="text-xs text-on-surface dark:text-slate-300">You will be redirected to PayPal's secure gateway to log in and approve payment details.</p>
+                  </div>
+                )}
+
+                {paymentMethod === 'bank' && (
+                  <div className="bg-surface dark:bg-slate-950 p-6 rounded-lg border border-outline-variant dark:border-slate-800 text-center space-y-3">
+                    <Landmark className="w-8 h-8 text-primary dark:text-sky-400 mx-auto" />
+                    <p className="text-xs text-on-surface dark:text-slate-300">Transfer payment directly to TechFix Corporate bank accounts. Order will ship once verification is complete.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Button Row */}
+              <div className="flex justify-between items-center pt-4">
+                <Link href="/checkout/envio" className="flex items-center gap-1.5 text-xs font-semibold text-primary dark:text-sky-400 hover:text-secondary dark:hover:text-sky-300 transition-colors uppercase tracking-wider group">
+                  <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" /> Back to Shipping
+                </Link>
+                
+                <button 
+                  type="submit"
+                  className="px-6 py-2.5 bg-primary dark:bg-sky-600 hover:bg-primary-container dark:hover:bg-sky-500 text-on-primary dark:text-white rounded text-xs font-semibold flex items-center gap-2 transition-all active:scale-[0.98] cursor-pointer shadow-sm hover:shadow dark:hover:shadow-sky-500/20"
+                >
+                  Complete Purchase
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+
+            </form>
+          </div>
+
+          {/* Right Column: Order Summary */}
+          <aside className="lg:col-span-5 xl:col-span-4 sticky top-24">
+            <div className="bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-lg p-6 shadow-sm transition-colors">
+              <h3 className="font-headline-md text-xl font-bold text-on-surface dark:text-white mb-6 border-b border-outline-variant/30 dark:border-slate-800 pb-4">
+                Order Summary
+              </h3>
+              
+              {/* Order Items List */}
+              <div className="space-y-4 mb-6 max-h-64 overflow-y-auto pr-1">
+                {items.length > 0 ? (
+                  items.map((item) => (
+                    <div key={item.id} className="flex items-start gap-4 pb-2 border-b border-outline-variant/10 dark:border-slate-800/30 last:border-b-0">
+                      <div className="w-14 h-14 bg-surface dark:bg-slate-950 rounded border border-outline-variant/30 dark:border-slate-800 overflow-hidden flex-shrink-0 flex items-center justify-center p-1">
+                        <img 
+                          src={item.image} 
+                          alt={item.name} 
+                          className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal dark:filter dark:brightness-95" 
+                        />
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <h4 className="font-semibold text-xs text-on-surface dark:text-slate-200 line-clamp-1 leading-snug">
+                          {item.name}
+                        </h4>
+                        <p className="text-[10px] text-on-surface-variant/75 dark:text-slate-400 mt-0.5">
+                          Cant: {item.quantity}
+                        </p>
+                      </div>
+                      <div className="font-semibold text-xs text-on-surface dark:text-slate-200 shrink-0">
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 bg-surface-container-low dark:bg-slate-950 rounded border border-outline-variant overflow-hidden flex-shrink-0 flex items-center justify-center">
+                      <img 
+                        alt="Laptop repair parts" 
+                        className="w-full h-full object-cover" 
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGa-hV7dxmLQqQyGJPQrVSmvy0MLGhAvSQeoYMZ8MbiFz9uibnsjpwPreLHT2etDvJGOl4q8KKG4c4A5puiRO3aceZ5d_1XHjqVduF6VIqSTJfZeDPWoRET7cxyc_Zf8IwLwd-_sLeyqpyAy76oWq9QhY4_DzN88a32XCzRXr9ltQ49CExh42RRJIfIeNWeUFiD9gDi1MCEJlJWEuXn5eIMnHmzh-Y7USQdzH1NjOsc77c98ulv2VOMbXXsUD4wRSEsvIdz2MubFfX"
+                      />
+                    </div>
+                    <div className="flex-grow">
+                      <h4 className="font-label-md text-label-md text-on-surface dark:text-slate-200">Screen Replacement Kit</h4>
+                      <p className="font-label-sm text-label-sm text-on-surface-variant dark:text-slate-400">Model X Pro</p>
+                    </div>
+                    <div className="font-label-md text-label-md text-on-surface dark:text-slate-200">$129.99</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Price Breakdown */}
+              <div className="space-y-2 border-t border-outline-variant/30 dark:border-slate-800 pt-4 mb-6 text-xs text-on-surface-variant dark:text-slate-450">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span className="font-semibold text-on-surface dark:text-slate-200">${subtotal > 0 ? subtotal.toFixed(2) : "129.99"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Shipping</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider text-[10px]">Free</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Tax</span>
+                  <span className="font-semibold text-on-surface dark:text-slate-200">${subtotal > 0 ? tax.toFixed(2) : "10.40"}</span>
+                </div>
+              </div>
+
+              {/* Final Total */}
+              <div className="flex justify-between items-center border-t border-outline-variant/30 dark:border-slate-800 pt-4 mb-6">
+                <span className="font-bold text-sm text-on-surface dark:text-white">Total</span>
+                <span className="font-bold text-xl text-primary dark:text-sky-400">${subtotal > 0 ? total.toFixed(2) : "140.39"}</span>
+              </div>
+
+              {/* Transactional Security Badges */}
+              <div className="pt-2 border-t border-outline-variant/20 dark:border-slate-800/40 flex flex-col gap-3">
+                <div className="flex items-center justify-center gap-2 text-on-surface-variant/80 dark:text-slate-400 font-semibold text-[10px] uppercase tracking-wider">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" /> 256-bit SSL Encrypted
+                </div>
+                
+                <div className="bg-surface-container-low dark:bg-slate-950/60 p-4 rounded border border-primary/10 dark:border-slate-800 flex flex-col gap-1.5 transition-colors">
+                  <div className="flex items-center gap-1.5 text-primary dark:text-sky-400">
+                    <span className="font-bold text-[9px] uppercase tracking-widest">ASSISTANCE INCLUDED</span>
+                  </div>
+                  <p className="text-[10px] text-on-surface-variant dark:text-slate-400 leading-normal">
+                    Call our expert technicians at <span className="font-bold text-primary dark:text-sky-400">1-800-TECH-FIX</span> for any order support or technical questions.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </aside>
+
+        </div>
       </main>
-    </>
+    </div>
   );
 }
