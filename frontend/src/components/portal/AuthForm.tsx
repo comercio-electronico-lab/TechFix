@@ -52,19 +52,7 @@ export default function AuthForm() {
     }
   };
 
-  // Atajo de inicio de sesión rápido para revisar el proyecto
-  const handleQuickLogin = async (quickEmail: string) => {
-    setValidationError(null);
-    setError(null);
-    setIsSubmitting(true);
-    try {
-      await login(quickEmail, 'password123');
-    } catch (e) {
-      // Error handled by AuthContext
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+
 
   return (
     <div className="w-full min-h-[calc(100vh-72px)] flex bg-background dark:bg-slate-950 transition-colors duration-300 font-body-md">
@@ -249,36 +237,7 @@ export default function AuthForm() {
             </button>
           </form>
 
-          {/* Quick Login - Atajo Premium para Evaluadores */}
-          <div className="pt-6 border-t border-outline-variant/20 dark:border-slate-850">
-            <span className="block text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/50 dark:text-slate-500 text-center mb-3">Acceso Rápido de Prueba (Seed Data)</span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <button
-                onClick={() => handleQuickLogin('carlos@example.com')}
-                disabled={isSubmitting}
-                className="px-2.5 py-1.5 bg-surface dark:bg-slate-900 hover:bg-surface-container-high dark:hover:bg-slate-800 text-[10px] text-on-surface dark:text-slate-350 border border-outline-variant/40 dark:border-slate-800 rounded transition-all cursor-pointer text-left flex flex-col justify-center shadow-xs"
-              >
-                <span className="font-bold">Cliente</span>
-                <span className="text-[8px] text-on-surface-variant/75 dark:text-slate-400 truncate">carlos@example.com</span>
-              </button>
-              <button
-                onClick={() => handleQuickLogin('juan@techfix.com')}
-                disabled={isSubmitting}
-                className="px-2.5 py-1.5 bg-surface dark:bg-slate-900 hover:bg-surface-container-high dark:hover:bg-slate-800 text-[10px] text-on-surface dark:text-slate-350 border border-outline-variant/40 dark:border-slate-800 rounded transition-all cursor-pointer text-left flex flex-col justify-center shadow-xs"
-              >
-                <span className="font-bold">Técnico</span>
-                <span className="text-[8px] text-on-surface-variant/75 dark:text-slate-400 truncate">juan@techfix.com</span>
-              </button>
-              <button
-                onClick={() => handleQuickLogin('admin@techfix.com')}
-                disabled={isSubmitting}
-                className="px-2.5 py-1.5 bg-surface dark:bg-slate-900 hover:bg-surface-container-high dark:hover:bg-slate-800 text-[10px] text-on-surface dark:text-slate-350 border border-outline-variant/40 dark:border-slate-800 rounded transition-all cursor-pointer text-left flex flex-col justify-center shadow-xs"
-              >
-                <span className="font-bold">Admin</span>
-                <span className="text-[8px] text-on-surface-variant/75 dark:text-slate-400 truncate">admin@techfix.com</span>
-              </button>
-            </div>
-          </div>
+
 
         </div>
       </div>

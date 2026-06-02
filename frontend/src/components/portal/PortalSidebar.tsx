@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Laptop, ShoppingBag, Wrench, LogOut } from 'lucide-react';
+import { Laptop, ShoppingBag, Wrench, LogOut, ShieldCheck } from 'lucide-react';
 import { PortalTab } from '@/hooks/useCustomerPortal';
 import { useAuth } from '@/context/AuthContext';
 
@@ -61,6 +61,17 @@ export default function PortalSidebar({ activeTab, onTabChange }: PortalSidebarP
             </button>
           );
         })}
+
+        {/* Acceso directo al Panel de Administrador / Técnico */}
+        {(user?.rol?.toLowerCase() === 'admin' || user?.rol?.toLowerCase() === 'tecnico' || user?.rol?.toLowerCase() === 'técnico') && (
+          <Link
+            href="/admin/dashboard"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-left text-white bg-secondary dark:bg-sky-600 hover:opacity-90 font-bold shadow-md shadow-secondary/20 mt-6"
+          >
+            <ShieldCheck className="w-4 h-4 shrink-0 text-white" />
+            <span>Panel Admin</span>
+          </Link>
+        )}
       </nav>
 
       {/* Sign Out */}

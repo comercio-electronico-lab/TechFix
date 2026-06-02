@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Plus, Wrench, ShieldCheck, ArrowUpRight } from 'lucide-react';
 import { useCustomerPortal } from '@/hooks/useCustomerPortal';
 import { useAuth } from '@/context/AuthContext';
@@ -25,7 +26,8 @@ const TAB_DESCRIPTIONS: Record<string, string> = {
 };
 
 export default function CustomerPortal() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
+  const router = useRouter();
   const {
     devices,
     activeTab,
@@ -37,6 +39,16 @@ export default function CustomerPortal() {
     setNewDevice,
     handleRegisterDevice,
   } = useCustomerPortal();
+
+  // Redirección automática si el usuario es Admin o Técnico
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const userRole = user.rol?.toLowerCase();
+      if (userRole === 'admin' || userRole === 'tecnico' || userRole === 'técnico') {
+        router.push('/admin/dashboard');
+      }
+    }
+  }, [isAuthenticated, user, router]);
 
   // Leer tab desde query param en la URL
   useEffect(() => {
