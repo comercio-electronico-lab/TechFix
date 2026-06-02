@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { getAdminRepairsAction, updateRepairStatusAction, addPartToRepairAction } from '@/app/actions';
 
 export interface AdminRepairTicket {
   id: string;
@@ -33,8 +34,6 @@ export function useRepairQueue() {
     technician: 'Elena',
   });
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-
   const fetchQueue = useCallback(async () => {
     if (!isAuthenticated || !token) {
       setTickets([]);
@@ -45,40 +44,29 @@ export function useRepairQueue() {
     setError(null);
 
     try {
-      const res = await fetch(`${API_URL}/api/admin/repairs`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        // Mapear el formato GORM a lo esperado por las tarjetas
-        const mapped: AdminRepairTicket[] = (data || []).map((o: any) => ({
-          id: o.id,
-          customerName: o.user?.nombre || 'Cliente Invitado',
-          customerEmail: o.user?.email || 'N/A',
-          deviceName: o.device ? `${o.device.brand} ${o.device.model}` : 'Equipo de Laboratorio',
-          deviceSerial: o.device?.serial_number || 'N/A',
-          description: o.notes || 'Revisión y diagnóstico físico de hardware.',
-          status: o.status,
-          priority: o.status === 'waiting_parts' ? 'High' : o.status === 'repairing' ? 'Medium' : 'Low',
-          finalPrice: o.final_price || 0,
-          notes: o.diagnosis_final || '',
-          createdAt: o.created_at,
-        }));
-        setTickets(mapped);
-      } else {
-        const errData = await res.json();
-        setError(errData.error || 'Error al cargar la cola de reparaciones de taller.');
-      }
-    } catch (e) {
+      const data = await getAdminRepairsAction(token);
+      // Mapear el formato GORM a lo esperado por las tarjetas
+      const mapped: AdminRepairTicket[] = (data || []).map((o: any) => ({
+        id: o.id,
+        customerName: o.user?.nombre || 'Cliente Invitado',
+        customerEmail: o.user?.email || 'N/A',
+        deviceName: o.device ? `${o.device.brand} ${o.device.model}` : 'Equipo de Laboratorio',
+        deviceSerial: o.device?.serial_number || 'N/A',
+        description: o.notes || 'Revisión y diagnóstico físico de hardware.',
+        status: o.status,
+        priority: o.status === 'waiting_parts' ? 'High' : o.status === 'repairing' ? 'Medium' : 'Low',
+        finalPrice: o.final_price || 0,
+        notes: o.diagnosis_final || '',
+        createdAt: o.created_at,
+      }));
+      setTickets(mapped);
+    } catch (e: any) {
       console.error(e);
-      setError('Error de conexión con el servidor.');
+      setError(e.message || 'Error al cargar la cola de reparaciones de taller.');
     } finally {
       setLoading(false);
     }
-  }, [API_URL, token, isAuthenticated]);
+  }, [token, isAuthenticated]);
 
   useEffect(() => {
     fetchQueue();
@@ -101,26 +89,11 @@ export function useRepairQueue() {
     }
 
     try {
-      const res = await fetch(`${API_URL}/api/admin/repairs/${ticketId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          status: backendStatus,
-          notes: notes,
-        }),
-      });
-
-      if (res.ok) {
-        await fetchQueue(); // Refrescar cola
-      } else {
-        alert('Error al mover la reparación en el servidor.');
-      }
-    } catch (e) {
+      await updateRepairStatusAction(token, ticketId, backendStatus, notes);
+      await fetchQueue(); // Refrescar cola
+    } catch (e: any) {
       console.error(e);
-      alert('Error de conexión con el servidor.');
+      alert(e.message || 'Error de conexión con el servidor.');
     }
   };
 
@@ -129,29 +102,12 @@ export function useRepairQueue() {
     if (!token) return false;
 
     try {
-      const res = await fetch(`${API_URL}/api/admin/repairs/${ticketId}/parts`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          producto_id: productId,
-          cantidad: quantity,
-        }),
-      });
-
-      if (res.ok) {
-        await fetchQueue(); // Refrescar precio final y logs
-        return true;
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Error al vincular el repuesto en el taller.');
-        return false;
-      }
-    } catch (e) {
+      await addPartToRepairAction(token, ticketId, productId, quantity);
+      await fetchQueue(); // Refrescar precio final y logs
+      return true;
+    } catch (e: any) {
       console.error(e);
-      alert('Error de conexión con el servidor.');
+      alert(e.message || 'Error de conexión con el servidor.');
       return false;
     }
   };

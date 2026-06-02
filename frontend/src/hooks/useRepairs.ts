@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { getClientRepairsAction, getClientWarrantiesAction, scheduleRepairAction } from '@/app/actions';
 
 export interface RepairOrder {
   id: string;
@@ -56,8 +57,6 @@ export function useRepairs() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-
   const fetchRepairsAndWarranties = useCallback(async () => {
     if (!isAuthenticated || !token) {
       setRepairs([]);
@@ -69,35 +68,20 @@ export function useRepairs() {
     setError(null);
 
     try {
-      // Fetch repairs
-      const repairsRes = await fetch(`${API_URL}/api/repairs`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Fetch repairs via Server Action
+      const repairsData = await getClientRepairsAction(token);
+      // Fetch warranties via Server Action
+      const warrantiesData = await getClientWarrantiesAction(token);
 
-      // Fetch warranties
-      const warrantiesRes = await fetch(`${API_URL}/api/warranties`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (repairsRes.ok && warrantiesRes.ok) {
-        const repairsData = await repairsRes.json();
-        const warrantiesData = await warrantiesRes.json();
-        setRepairs(repairsData || []);
-        setWarranties(warrantiesData || []);
-      } else {
-        setError('Error al recuperar tus reparaciones o certificados.');
-      }
-    } catch (e) {
+      setRepairs(repairsData || []);
+      setWarranties(warrantiesData || []);
+    } catch (e: any) {
       console.error(e);
-      setError('Error de conexión con el servidor.');
+      setError(e.message || 'Error al recuperar tus reparaciones o certificados.');
     } finally {
       setLoading(false);
     }
-  }, [API_URL, token, isAuthenticated]);
+  }, [token, isAuthenticated]);
 
   useEffect(() => {
     fetchRepairsAndWarranties();
@@ -107,25 +91,12 @@ export function useRepairs() {
     if (!token) return { success: false, error: 'No autenticado' };
 
     try {
-      const res = await fetch(`${API_URL}/api/repairs`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(input),
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        await fetchRepairsAndWarranties(); // Recargar datos
-        return { success: true, data };
-      } else {
-        return { success: false, error: data.error || 'Error al agendar la reparación' };
-      }
-    } catch (e) {
+      const data = await scheduleRepairAction(token, input);
+      await fetchRepairsAndWarranties(); // Recargar datos
+      return { success: true, data };
+    } catch (e: any) {
       console.error(e);
-      return { success: false, error: 'Error de conexión con el servidor.' };
+      return { success: false, error: e.message || 'Error al agendar la reparación' };
     }
   };
 
