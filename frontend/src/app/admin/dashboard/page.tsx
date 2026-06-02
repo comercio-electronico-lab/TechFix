@@ -11,7 +11,6 @@ export default function WorkshopDashboard() {
     searchQuery,
     isModalOpen,
     pendingTickets,
-    diagnosisTickets,
     repairingTickets,
     completedTickets,
     newTicket,
@@ -63,7 +62,6 @@ export default function WorkshopDashboard() {
       {/* Kanban Board */}
       <KanbanBoard
         pendingTickets={pendingTickets}
-        diagnosisTickets={diagnosisTickets}
         repairingTickets={repairingTickets}
         completedTickets={completedTickets}
         onMoveTicket={moveTicket}

@@ -1,45 +1,40 @@
 'use client';
 
 import React from 'react';
-import { RepairTicket } from '@/types';
 import KanbanTicketCard from './KanbanTicketCard';
 import { Plus } from 'lucide-react';
 
 interface KanbanColumnConfig {
-  status: RepairTicket['status'];
+  status: string;
   label: string;
   dotClass: string;
   count: number;
-  tickets: RepairTicket[];
+  tickets: any[];
 }
 
 interface KanbanBoardProps {
-  pendingTickets: RepairTicket[];
-  diagnosisTickets: RepairTicket[];
-  repairingTickets: RepairTicket[];
-  completedTickets: RepairTicket[];
-  onMoveTicket: (ticketId: string, nextStatus: RepairTicket['status']) => void;
+  pendingTickets: any[];
+  repairingTickets: any[];
+  completedTickets: any[];
+  onMoveTicket: (ticketId: string, nextStatus: string) => void;
 }
 
 export default function KanbanBoard({
   pendingTickets,
-  diagnosisTickets,
   repairingTickets,
   completedTickets,
   onMoveTicket,
 }: KanbanBoardProps) {
   const columns: KanbanColumnConfig[] = [
-    { status: 'Pending', label: 'Pending', dotClass: 'bg-outline dark:bg-slate-500', count: pendingTickets.length, tickets: pendingTickets },
-    { status: 'Diagnosis', label: 'In Diagnosis', dotClass: 'bg-tertiary-fixed-dim', count: diagnosisTickets.length, tickets: diagnosisTickets },
-    { status: 'Repairing', label: 'Repairing', dotClass: 'bg-primary', count: repairingTickets.length, tickets: repairingTickets },
-    { status: 'Completed', label: 'Completed', dotClass: 'bg-emerald-500', count: completedTickets.length, tickets: completedTickets },
+    { status: 'Por diagnosticar', label: 'Por diagnosticar', dotClass: 'bg-amber-500', count: pendingTickets.length, tickets: pendingTickets },
+    { status: 'En reparación', label: 'En reparación', dotClass: 'bg-primary', count: repairingTickets.length, tickets: repairingTickets },
+    { status: 'Terminado', label: 'Terminado', dotClass: 'bg-emerald-500', count: completedTickets.length, tickets: completedTickets },
   ];
 
-  const emptyMessages: Record<RepairTicket['status'], string> = {
-    Pending: 'No pending tickets',
-    Diagnosis: 'No tickets in diagnosis',
-    Repairing: 'No active repairs',
-    Completed: 'No completed tickets',
+  const emptyMessages: Record<string, string> = {
+    'Por diagnosticar': 'No hay equipos por diagnosticar',
+    'En reparación': 'No hay equipos en reparación activa',
+    'Terminado': 'No hay equipos terminados',
   };
 
   return (
@@ -48,13 +43,13 @@ export default function KanbanBoard({
         {columns.map((col) => (
           <div
             key={col.status}
-            className={`w-80 flex-shrink-0 flex flex-col max-h-[calc(100vh-220px)] bg-surface dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-850 rounded-xl shadow-sm overflow-hidden transition-colors ${col.status === 'Completed' ? 'opacity-90 hover:opacity-100' : ''}`}
+            className={`w-80 flex-shrink-0 flex flex-col max-h-[calc(100vh-220px)] bg-white dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden transition-colors ${col.status === 'Terminado' ? 'opacity-90 hover:opacity-100' : ''}`}
           >
             {/* Column Header */}
             <div className="p-4 border-b border-outline-variant/30 dark:border-slate-800 flex items-center justify-between bg-surface-container-low dark:bg-slate-950/40">
               <h3 className="font-bold text-xs text-on-surface dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                {col.status === 'Completed' ? (
-                  <span className="material-symbols-outlined text-[16px] text-emerald-500">check_circle</span>
+                {col.status === 'Terminado' ? (
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                 ) : (
                   <span className={`w-2.5 h-2.5 rounded-full ${col.dotClass}`} />
                 )}

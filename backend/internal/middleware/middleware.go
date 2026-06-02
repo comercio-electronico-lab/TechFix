@@ -55,3 +55,38 @@ func AuthMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func RoleMiddleware(allowedRoles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		roleVal, exists := c.Get("userRol")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Rol no verificado en sesión"})
+			c.Abort()
+			return
+		}
+
+		role, ok := roleVal.(string)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interno al verificar privilegios"})
+			c.Abort()
+			return
+		}
+
+		// Validar si el rol del token coincide con alguno permitido
+		isAllowed := false
+		for _, r := range allowedRoles {
+			if strings.EqualFold(role, r) {
+				isAllowed = true
+				break
+			}
+		}
+
+		if !isAllowed {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado. No posees los privilegios administrativos requeridos."})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}

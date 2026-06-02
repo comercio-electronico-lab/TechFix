@@ -1,17 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import { InventoryItem } from '@/types';
-
-const INITIAL_INVENTORY: InventoryItem[] = [
-  { id: '1', sku: 'DP-OLED-IP13', name: 'OLED Display Assembly', category: 'Displays', stock: 145, maxStock: 200, price: 129, status: 'In Stock', supplier: 'TechParts Global', compatibility: 'iPhone 13 Pro' },
-  { id: '2', sku: 'BAT-LIION-S22', name: 'Lithium-Ion Battery 3700mAh', category: 'Batteries', stock: 12, maxStock: 50, price: 35, status: 'Low Stock', supplier: 'PowerCell Inc.', compatibility: 'Samsung S22' },
-  { id: '3', sku: 'BRD-MAC-M1-256', name: 'Logic Board M1 8-Core 256GB', category: 'Motherboards', stock: 0, maxStock: 15, price: 649, status: 'Out of Stock', supplier: 'Cupertino OEM', compatibility: 'MacBook Air 2020' },
-  { id: '4', sku: 'CNS-THRM-TGK', name: 'Thermal Grizzly Kryonaut', category: 'Consumables', stock: 42, maxStock: 50, price: 15, status: 'In Stock', supplier: 'Cooling Direct', compatibility: 'Consumable 1g' },
-  { id: '5', sku: 'SSD-NVME-1TB-GEN4', name: '1TB M.2 NVMe SSD Gen4', category: 'Storage', stock: 28, maxStock: 30, price: 119, status: 'In Stock', supplier: 'Silicon Valley Dist.', compatibility: 'PCIe 4.0 Systems' },
-  { id: '6', sku: 'LAP-001', name: 'ProBook X15 G9 Panel', category: 'Laptops', stock: 8, maxStock: 20, price: 1499, status: 'Low Stock', supplier: 'TechParts Global', compatibility: 'ProBook X15' },
-  { id: '7', sku: 'PHN-042', name: 'Nexus Ultra 5G Glass', category: 'Smartphones', stock: 3, maxStock: 15, price: 999, status: 'Low Stock', supplier: 'Cupertino OEM', compatibility: 'Nexus Ultra' },
-];
 
 export interface UseInventoryReturn {
   inventory: InventoryItem[];
@@ -19,6 +10,8 @@ export interface UseInventoryReturn {
   selectedCategory: string;
   selectedStatus: string;
   isModalOpen: boolean;
+  isEditModalOpen: boolean;
+  editingItem: InventoryItem | null;
   currentPage: number;
   totalPages: number;
   filteredInventory: InventoryItem[];
@@ -34,27 +27,89 @@ export interface UseInventoryReturn {
   setSelectedCategory: (c: string) => void;
   setSelectedStatus: (s: string) => void;
   setIsModalOpen: (open: boolean) => void;
+  setIsEditModalOpen: (open: boolean) => void;
+  setEditingItem: (item: InventoryItem | null) => void;
   setNewItem: React.Dispatch<React.SetStateAction<UseInventoryReturn['newItem']>>;
   handlePageChange: (page: number) => void;
-  handleRequestPart: (itemId: string) => void;
-  handleCreateItem: (e: React.FormEvent) => void;
+  handleRequestPart: (itemId: string) => Promise<void>;
+  handleCreateItem: (e: React.FormEvent) => Promise<void>;
+  handleUpdateItem: (e: React.FormEvent) => Promise<void>;
   handleClearFilters: () => void;
+  refetch: () => Promise<void>;
+  loading: boolean;
+  error: string | null;
 }
 
 const ITEMS_PER_PAGE = 5;
 
 export function useInventory(): UseInventoryReturn {
-  const [inventory, setInventory] = useState<InventoryItem[]>(INITIAL_INVENTORY);
+  const { token, isAuthenticated } = useAuth();
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [searchQuery, setSearchQueryState] = useState('');
   const [selectedCategory, setSelectedCategoryState] = useState('Todas');
   const [selectedStatus, setSelectedStatusState] = useState('Todos');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [newItem, setNewItem] = useState({
     sku: '', name: '', compatibility: '',
     category: 'Displays', supplier: 'TechParts Global',
     stock: 20, maxStock: 50, price: 49.99
   });
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+
+  const fetchInventory = useCallback(async () => {
+    if (!isAuthenticated || !token) {
+      setInventory([]);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`${API_URL}/api/admin/products`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        // Mapear GORM Producto a formato de UI InventoryItem
+        const mapped: InventoryItem[] = (data || []).map((p: any) => ({
+          id: p.id,
+          sku: p.sku || `SKU-${p.id.slice(0, 6).toUpperCase()}`,
+          name: p.nombre,
+          category: p.categoria || 'Generales',
+          stock: p.stock_actual,
+          maxStock: p.stock_minimo * 4 || 100,
+          price: p.precio_venta,
+          status: (p.stock_actual === 0 ? 'Out of Stock' : p.stock_actual <= p.stock_minimo ? 'Low Stock' : 'In Stock') as any,
+          supplier: 'Importaciones TechParts S.A.', // Proveedor principal
+          compatibility: p.descripcion || 'Universal / OEM',
+        }));
+        setInventory(mapped);
+      } else {
+        const errData = await res.json();
+        setError(errData.error || 'Error al obtener inventario del taller.');
+      }
+    } catch (e) {
+      console.error(e);
+      setError('Error de conexión con el servidor.');
+    } finally {
+      setLoading(false);
+    }
+  }, [API_URL, token, isAuthenticated]);
+
+  useEffect(() => {
+    fetchInventory();
+  }, [fetchInventory]);
 
   const categories = useMemo(() =>
     ['Todas', ...Array.from(new Set(inventory.map(item => item.category)))], [inventory]);
@@ -63,9 +118,9 @@ export function useInventory(): UseInventoryReturn {
 
   const stats = useMemo(() => ({
     totalSKUs: inventory.length,
-    lowStockAlerts: inventory.filter(item => item.stock < 15 && item.stock > 0).length,
-    outOfStock: inventory.filter(item => item.stock === 0).length,
-    pendingOrders: inventory.filter(item => item.status === 'Out of Stock').length,
+    lowStockAlerts: inventory.filter(item => item.status === 'Low Stock').length,
+    outOfStock: inventory.filter(item => item.status === 'Out of Stock').length,
+    pendingOrders: inventory.filter(item => item.status === 'Out of Stock').length, // Representativo
   }), [inventory]);
 
   const filteredInventory = useMemo(() =>
@@ -96,39 +151,148 @@ export function useInventory(): UseInventoryReturn {
   const setSelectedCategory = (c: string) => { setSelectedCategoryState(c); setCurrentPage(1); };
   const setSelectedStatus = (s: string) => { setSelectedStatusState(s); setCurrentPage(1); };
 
-  const handleRequestPart = (itemId: string) => {
-    setInventory(prev => prev.map(item => {
-      if (item.id !== itemId) return item;
-      const newStock = Math.min(item.stock + 15, item.maxStock);
-      return { ...item, stock: newStock, status: newStock >= 15 ? 'In Stock' : 'Low Stock' };
-    }));
+  // Reabastecimiento a través de mayorista seeded
+  const handleRequestPart = async (itemId: string) => {
+    if (!token) return;
+
+    try {
+      // 1. Obtener lista de proveedores semilla en Go
+      const supRes = await fetch(`${API_URL}/api/admin/suppliers`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!supRes.ok) {
+        alert('Error al obtener la lista de proveedores mayoristas.');
+        return;
+      }
+
+      const suppliers = await supRes.json();
+      if (!suppliers || suppliers.length === 0) {
+        alert('No hay proveedores mayoristas registrados en el sistema.');
+        return;
+      }
+
+      // Tomar primer proveedor (Importaciones TechParts S.A.)
+      const mainSupplier = suppliers[0];
+
+      // 2. Colocar pedido de repuesto
+      const orderRes = await fetch(`${API_URL}/api/admin/supplier-orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          proveedor_id: mainSupplier.id,
+          producto_id: itemId,
+          cantidad: 20, // Cantidad estándar de reabastecimiento
+        }),
+      });
+
+      if (orderRes.ok) {
+        alert(`¡Orden de compra mayorista enviada con éxito a "${mainSupplier.nombre}" por 20 unidades!`);
+        // Actualizar localmente el stock para simular el arribo express
+        // En una app real, el arribo se marca como "entregado" en backoffice
+        // Haremos una llamada PUT para reabastecer el stock local en vivo de forma integrada.
+        const itemToUpdate = inventory.find(i => i.id === itemId);
+        if (itemToUpdate) {
+          const newStockVal = itemToUpdate.stock + 20;
+          await fetch(`${API_URL}/api/admin/products/${itemId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              stock_actual: newStockVal,
+              stock_minimo: Math.round(newStockVal / 4) || 5,
+            }),
+          });
+          await fetchInventory();
+        }
+      } else {
+        const err = await orderRes.json();
+        alert(err.error || 'Error al emitir el pedido al mayorista.');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error de red al procesar el reabastecimiento.');
+    }
   };
 
-  const handleCreateItem = (e: React.FormEvent) => {
+  // Crear nuevo repuesto en catálogo
+  const handleCreateItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newItem.sku || !newItem.name || !newItem.compatibility) return;
 
-    const itemStock = Number(newItem.stock);
-    const itemMax = Number(newItem.maxStock);
-    const itemStatus: InventoryItem['status'] = itemStock === 0 ? 'Out of Stock' : itemStock < 15 ? 'Low Stock' : 'In Stock';
+    try {
+      const res = await fetch(`${API_URL}/api/admin/products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          nombre: newItem.name,
+          descripcion: newItem.compatibility, // mapped to compatibility in ui
+          sku: newItem.sku.toUpperCase(),
+          precio_venta: Number(newItem.price),
+          precio_costo: Math.round(Number(newItem.price) * 0.6 * 100) / 100, // costo simulado
+          stock_actual: Number(newItem.stock),
+          stock_minimo: Math.round(Number(newItem.maxStock) / 4) || 5,
+          categoria: newItem.category,
+        }),
+      });
 
-    const item: InventoryItem = {
-      id: `${inventory.length + 1}`,
-      sku: newItem.sku.toUpperCase(),
-      name: newItem.name,
-      compatibility: newItem.compatibility,
-      category: newItem.category,
-      supplier: newItem.supplier,
-      stock: itemStock,
-      maxStock: itemMax,
-      price: Number(newItem.price),
-      status: itemStatus
-    };
+      if (res.ok) {
+        alert('¡Repuesto registrado con éxito en el catálogo de TechFix!');
+        setIsModalOpen(false);
+        setNewItem({ sku: '', name: '', compatibility: '', category: 'Displays', supplier: 'TechParts Global', stock: 20, maxStock: 50, price: 49.99 });
+        await fetchInventory();
+        setCurrentPage(1);
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Error al registrar el repuesto.');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error de red al crear el producto.');
+    }
+  };
 
-    setInventory(prev => [item, ...prev]);
-    setIsModalOpen(false);
-    setNewItem({ sku: '', name: '', compatibility: '', category: 'Displays', supplier: 'TechParts Global', stock: 20, maxStock: 50, price: 49.99 });
-    setCurrentPage(1);
+  // Modificar repuesto existente
+  const handleUpdateItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingItem) return;
+
+    try {
+      const res = await fetch(`${API_URL}/api/admin/products/${editingItem.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          nombre: editingItem.name,
+          descripcion: editingItem.compatibility,
+          precio_venta: Number(editingItem.price),
+          stock_actual: Number(editingItem.stock),
+        }),
+      });
+
+      if (res.ok) {
+        alert('¡Repuesto actualizado correctamente!');
+        setIsEditModalOpen(false);
+        setEditingItem(null);
+        await fetchInventory();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Error al actualizar el repuesto.');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error de conexión.');
+    }
   };
 
   const handleClearFilters = () => {
@@ -140,10 +304,11 @@ export function useInventory(): UseInventoryReturn {
 
   return {
     inventory, searchQuery, selectedCategory, selectedStatus,
-    isModalOpen, currentPage, totalPages, filteredInventory, paginatedInventory,
+    isModalOpen, isEditModalOpen, editingItem, currentPage, totalPages, filteredInventory, paginatedInventory,
     categories, statuses, stats, newItem,
     setSearchQuery, setSelectedCategory, setSelectedStatus,
-    setIsModalOpen, setNewItem, handlePageChange,
-    handleRequestPart, handleCreateItem, handleClearFilters,
+    setIsModalOpen, setIsEditModalOpen, setEditingItem, setNewItem, handlePageChange,
+    handleRequestPart, handleCreateItem, handleUpdateItem, handleClearFilters,
+    refetch: fetchInventory, loading, error
   };
 }

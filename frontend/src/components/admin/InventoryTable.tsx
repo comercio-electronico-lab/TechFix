@@ -8,12 +8,14 @@ interface InventoryTableProps {
   paginatedInventory: InventoryItem[];
   filteredInventory: InventoryItem[];
   onRequestPart: (itemId: string) => void;
+  onEditItem?: (item: InventoryItem) => void;
 }
 
 export default function InventoryTable({
   paginatedInventory,
   filteredInventory,
   onRequestPart,
+  onEditItem,
 }: InventoryTableProps) {
   return (
     <div className="overflow-x-auto">
@@ -108,7 +110,10 @@ export default function InventoryTable({
                         <RefreshCw className="w-3 h-3" /> Reorder OEM
                       </button>
                     )}
-                    <button className="p-1 text-on-surface-variant/60 dark:text-slate-500 hover:text-primary dark:hover:text-sky-400 hover:bg-surface-container-low dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer">
+                    <button 
+                      onClick={() => onEditItem?.(item)}
+                      className="p-1 text-on-surface-variant/60 dark:text-slate-500 hover:text-primary dark:hover:text-sky-400 hover:bg-surface-container-low dark:hover:bg-slate-800 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                    >
                       <Edit className="w-4 h-4" />
                     </button>
                   </div>

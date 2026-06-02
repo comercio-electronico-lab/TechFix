@@ -12,7 +12,8 @@ import {
   Users, 
   Settings, 
   Ticket,
-  ChevronRight
+  ChevronRight,
+  Truck
 } from 'lucide-react';
 
 const AdminSidebar = () => {
@@ -22,6 +23,7 @@ const AdminSidebar = () => {
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'Órdenes', href: '/admin/ordenes', icon: ShoppingCart },
     { name: 'Inventario', href: '/admin/inventario', icon: Package },
+    { name: 'Proveedores', href: '/admin/proveedores', icon: Truck },
     { name: 'Citas', href: '/admin/citas', icon: Calendar },
     { name: 'Reportes', href: '/admin/reportes', icon: BarChart3 },
     { name: 'Usuarios', href: '/admin/usuarios', icon: Users },

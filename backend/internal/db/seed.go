@@ -253,6 +253,26 @@ func loadPigNodes(filePath string) error {
 }
 
 func seedRepairAndWarranties() {
+	// Sembrar proveedores mayoristas
+	suppliers := []models.Proveedor{
+		{
+			Nombre:   "Importaciones TechParts S.A.",
+			Contacto: "José Miguel",
+			Telefono: "+51 987 123 456",
+			Email:    "ventas@techparts.com",
+		},
+		{
+			Nombre:   "Mayorista OEM Mobile",
+			Contacto: "Andrea Rojas",
+			Telefono: "+51 999 888 777",
+			Email:    "pedidos@oemmobile.com",
+		},
+	}
+	for _, s := range suppliers {
+		DB.Where(models.Proveedor{Nombre: s.Nombre}).FirstOrCreate(&s)
+	}
+	fmt.Printf("✓ proveedores mayoristas sembrados\n")
+
 	var carlos models.Usuario
 	if err := DB.Where("email = ?", "carlos@example.com").First(&carlos).Error; err != nil {
 		log.Printf("Advertencia: No se encontró a Carlos Pérez para sembrar reparaciones.")

@@ -81,7 +81,21 @@ func startServer() {
 			protected.GET("/repairs", handlers.GetClientRepairOrders)
 			protected.GET("/repairs/:id", handlers.GetRepairDetails)
 			protected.GET("/warranties", handlers.GetClientWarranties)
-			protected.PUT("/admin/repairs/:id/status", handlers.UpdateRepairStatus)
+
+			// Panel administrativo y Taller (Flujo 5 - Securizado por roles)
+			adminGroup := protected.Group("/admin")
+			adminGroup.Use(middleware.RoleMiddleware("admin", "tecnico"))
+			{
+				adminGroup.GET("/repairs", handlers.GetAdminRepairs)
+				adminGroup.POST("/repairs/:id/parts", handlers.AddRepairProduct)
+				adminGroup.PUT("/repairs/:id/status", handlers.UpdateRepairStatus)
+				adminGroup.GET("/products", handlers.GetAdminProducts)
+				adminGroup.POST("/products", handlers.CreateProduct)
+				adminGroup.PUT("/products/:id", handlers.UpdateProduct)
+				adminGroup.GET("/suppliers", handlers.GetSuppliers)
+				adminGroup.GET("/supplier-orders", handlers.GetSupplierOrders)
+				adminGroup.POST("/supplier-orders", handlers.CreateSupplierOrder)
+			}
 		}
 	}
 
