@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Search, ShoppingCart, User } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -55,6 +56,7 @@ const Navbar = () => {
             <Search className="absolute right-3 top-2.5 w-5 h-5 text-white/60" />
           </div>
           <div className="flex items-center gap-4 text-white">
+            <ThemeToggle />
             <Link href="/carrito" className="hover:text-secondary-container transition-colors relative">
               <ShoppingCart className="w-6 h-6" />
               {totalItems > 0 && (
@@ -63,9 +65,9 @@ const Navbar = () => {
                 </span>
               )}
             </Link>
-            <button className="hover:text-secondary-container transition-colors">
+            <Link href="/portal" className="hover:text-secondary-container transition-colors">
               <User className="w-6 h-6" />
-            </button>
+            </Link>
           </div>
         </div>
       </div>
