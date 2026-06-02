@@ -1,157 +1,175 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export interface User {
+interface User {
   id: string;
   nombre: string;
-  email: string;
   login: string;
+  email: string;
   rol: string;
+  estado: string;
+  joined_date: string;
 }
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
-  register: (nombre: string, email: string, login: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
-  updateProfile: (nombre: string, login: string) => Promise<{ success: boolean; error?: string }>;
   isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<User>;
+  register: (nombre: string, login: string, email: string, password: string) => Promise<User>;
+  logout: () => void;
+  error: string | null;
+  setError: (err: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-
-  // Cargar sesión del localStorage al montar el componente
+  // Inicializar auth desde localStorage
   useEffect(() => {
-    const savedToken = localStorage.getItem('techfix_token');
-    const savedUser = localStorage.getItem('techfix_user');
-    
-    if (savedToken && savedUser) {
+    async function loadStoredAuth() {
       try {
-        setToken(savedToken);
-        setUser(JSON.parse(savedUser));
+        const storedToken = localStorage.getItem('techfix_token');
+        const storedUser = localStorage.getItem('techfix_user');
+
+        if (storedToken && storedUser) {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+
+          // Verificar si el token sigue siendo válido
+          try {
+            const res = await fetch(`${API_URL}/api/auth/me`, {
+              headers: {
+                Authorization: `Bearer ${storedToken}`,
+              },
+            });
+
+            if (res.ok) {
+              const userData = await res.json();
+              setUser(userData);
+              localStorage.setItem('techfix_user', JSON.stringify(userData));
+            } else {
+              // Token vencido o inválido
+              handleLogout();
+            }
+          } catch (e) {
+            console.error('Error al verificar sesión con el servidor:', e);
+            // Si hay un error de red, mantenemos la sesión local por ahora
+          }
+        }
       } catch (e) {
-        console.error("Error parsing saved user", e);
-        // Limpiar en caso de datos corruptos
-        localStorage.removeItem('techfix_token');
-        localStorage.removeItem('techfix_user');
+        console.error('Error al cargar sesión desde almacenamiento local:', e);
+      } finally {
+        setLoading(false);
       }
     }
-    setLoading(false);
+
+    loadStoredAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const handleLogin = async (email: string, password: string): Promise<User> => {
+    setError(null);
     try {
       const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        return { success: false, error: data.error || 'Credenciales incorrectas' };
+        throw new Error(data.error || 'Credenciales de acceso incorrectas');
       }
 
       setToken(data.token);
-      setUser(data.usuario);
+      setUser(data.user);
       localStorage.setItem('techfix_token', data.token);
-      localStorage.setItem('techfix_user', JSON.stringify(data.usuario));
-      return { success: true, user: data.usuario };
-    } catch (err) {
-      console.error(err);
-      return { success: false, error: 'No se pudo conectar al servidor de la API' };
+      localStorage.setItem('techfix_user', JSON.stringify(data.user));
+
+      return data.user;
+    } catch (e: any) {
+      setError(e.message);
+      throw e;
     }
   };
 
-  const register = async (nombre: string, email: string, login: string, password: string) => {
+  const handleRegister = async (
+    nombre: string,
+    login: string,
+    email: string,
+    password: string
+  ): Promise<User> => {
+    setError(null);
     try {
       const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, email, login, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        return { success: false, error: data.error || 'Error al registrarse' };
-      }
-
-      return { success: true };
-    } catch (err) {
-      console.error(err);
-      return { success: false, error: 'No se pudo conectar al servidor de la API' };
-    }
-  };
-
-  const logout = () => {
-    setToken(null);
-    setUser(null);
-    localStorage.removeItem('techfix_token');
-    localStorage.removeItem('techfix_user');
-  };
-
-  const updateProfile = async (nombre: string, login: string) => {
-    if (!token) return { success: false, error: 'No has iniciado sesión' };
-    
-    try {
-      const res = await fetch(`${API_URL}/api/user/profile`, {
-        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ nombre, login }),
+        body: JSON.stringify({ nombre, login, email, password }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        return { success: false, error: data.error || 'Error al actualizar el perfil' };
+        throw new Error(data.error || 'Error al crear la cuenta. Por favor intente de nuevo.');
       }
 
-      // El backend retorna el objeto models.Usuario. Mapeamos a nuestro User struct
-      const updatedUser: User = {
-        id: data.id,
-        nombre: data.nombre,
-        email: data.email,
-        login: data.login,
-        rol: data.rol
-      };
+      setToken(data.token);
+      setUser(data.user);
+      localStorage.setItem('techfix_token', data.token);
+      localStorage.setItem('techfix_user', JSON.stringify(data.user));
 
-      setUser(updatedUser);
-      localStorage.setItem('techfix_user', JSON.stringify(updatedUser));
-      return { success: true };
-    } catch (err) {
-      console.error(err);
-      return { success: false, error: 'No se pudo conectar al servidor de la API' };
+      return data.user;
+    } catch (e: any) {
+      setError(e.message);
+      throw e;
     }
   };
 
-  const isAuthenticated = !!token;
+  const handleLogout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('techfix_token');
+    localStorage.removeItem('techfix_user');
+    setError(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateProfile, isAuthenticated }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        loading,
+        isAuthenticated: !!token,
+        login: handleLogin,
+        register: handleRegister,
+        logout: handleLogout,
+        error,
+        setError,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  if (context === undefined) {
+    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
   }
   return context;
-};
+}
