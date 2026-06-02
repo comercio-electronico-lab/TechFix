@@ -41,9 +41,9 @@ export default function CatalogFilterSidebar({
 
         {/* Búsqueda */}
         <div className="space-y-3">
-          <h2 className="font-label-sm text-label-sm text-on-surface-variant dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
+          <h4 className="text-xs font-bold text-on-surface-variant dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
             <Search className="w-4 h-4 text-primary dark:text-sky-400" /> Búsqueda
-          </h2>
+          </h4>
           <div className="relative">
             <input
               type="text"
@@ -59,9 +59,9 @@ export default function CatalogFilterSidebar({
 
         {/* Categorías */}
         <div className="space-y-4">
-          <h2 className="font-label-sm text-label-sm text-on-surface-variant dark:text-slate-400 uppercase tracking-widest">
+          <h4 className="text-xs font-bold text-on-surface-variant dark:text-slate-400 uppercase tracking-wider">
             Categorías
-          </h2>
+          </h4>
           <div className="space-y-3 font-body-md text-sm text-on-surface dark:text-slate-350">
             {categoriesList.map((category) => {
               const isChecked = selectedCategories.includes(category);
@@ -86,9 +86,9 @@ export default function CatalogFilterSidebar({
 
         {/* Rango de Precios */}
         <div className="space-y-4">
-          <h2 className="font-label-sm text-label-sm text-on-surface-variant dark:text-slate-400 uppercase tracking-widest">
+          <h4 className="text-xs font-bold text-on-surface-variant dark:text-slate-400 uppercase tracking-wider">
             Rango de Precio
-          </h2>
+          </h4>
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
@@ -129,9 +129,9 @@ export default function CatalogFilterSidebar({
 
         {/* Disponibilidad */}
         <div className="space-y-4">
-          <h2 className="font-label-sm text-label-sm text-on-surface-variant dark:text-slate-400 uppercase tracking-widest">
+          <h4 className="text-xs font-bold text-on-surface-variant dark:text-slate-400 uppercase tracking-wider">
             Disponibilidad
-          </h2>
+          </h4>
           <label className="flex items-center gap-3 cursor-pointer group font-body-md text-sm text-on-surface dark:text-slate-330 select-none">
             <input
               type="checkbox"

@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Search, ArrowUpDown } from 'lucide-react';
 import { useCatalog, SortOption } from '@/hooks/useCatalog';
 import CatalogFilterSidebar from '@/components/catalog/CatalogFilterSidebar';
+import CatalogHeader from '@/components/catalog/CatalogHeader';
 import CatalogProductCard from '@/components/catalog/CatalogProductCard';
 import Pagination from '@/components/ui/Pagination';
 import EmptyState from '@/components/ui/EmptyState';
@@ -31,7 +31,7 @@ export default function Catalogo() {
   const hasActiveFilters = !!(minPrice || maxPrice || searchQuery || selectedCategories.length > 0 || inStockOnly);
 
   return (
-    <div className="flex flex-col lg:flex-row flex-1 pt-18 max-w-container-max mx-auto w-full px-margin-mobile md:px-margin-desktop bg-surface-bright dark:bg-slate-950 transition-colors duration-300">
+    <div className="flex flex-col lg:flex-row flex-1 max-w-container-max mx-auto w-full px-gutter bg-surface-bright dark:bg-slate-950 transition-colors duration-300">
 
       {/* Sidebar de Filtros */}
       <CatalogFilterSidebar
@@ -55,52 +55,14 @@ export default function Catalogo() {
         <div className="space-y-8">
 
           {/* Header y Ordenación */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-outline-variant/30 dark:border-slate-800 pb-4">
-            <div>
-              <h1 className="font-headline-lg text-3xl font-bold text-on-surface dark:text-white tracking-tight flex items-center gap-2.5">
-                Catálogo Técnico
-                {selectedCategories.length === 1 && (
-                  <span className="text-sm font-semibold px-3 py-1 bg-primary/10 dark:bg-sky-500/10 text-primary dark:text-sky-400 rounded-full border border-primary/20 dark:border-sky-500/20">
-                    {selectedCategories[0]}
-                  </span>
-                )}
-              </h1>
-              <p className="font-body-md text-sm text-on-surface-variant dark:text-slate-400 mt-1">
-                Visualizando <span className="font-bold text-primary dark:text-sky-400">{filteredProducts.length}</span> componentes de alta gama.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-              {/* Búsqueda en móvil */}
-              <div className="flex lg:hidden items-center w-full sm:w-auto relative mb-2 sm:mb-0 flex-1 sm:flex-initial">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Buscar componente..."
-                  className="w-full bg-white dark:bg-slate-800/80 border border-outline-variant/70 dark:border-slate-700 rounded px-3 py-1.5 text-xs text-on-surface dark:text-white focus:outline-none focus:ring-1 focus:ring-primary dark:focus:ring-sky-500"
-                />
-                <Search className="w-3.5 h-3.5 absolute right-3 text-outline-variant" />
-              </div>
-
-              {/* Ordenar */}
-              <div className="flex items-center gap-2 text-xs">
-                <span className="font-semibold text-on-surface-variant dark:text-slate-400 flex items-center gap-1">
-                  <ArrowUpDown className="w-3.5 h-3.5" /> Ordenar por:
-                </span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="bg-white dark:bg-slate-800 border border-outline-variant/70 dark:border-slate-700 rounded px-3 py-1.5 text-xs text-on-surface dark:text-white focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-1 focus:ring-primary cursor-pointer font-medium"
-                >
-                  <option>Relevance</option>
-                  <option>Price: Low to High</option>
-                  <option>Price: High to Low</option>
-                  <option>Newest Arrivals</option>
-                </select>
-              </div>
-            </div>
-          </div>
+          <CatalogHeader
+            totalCount={filteredProducts.length}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            selectedCategory={selectedCategories.length === 1 ? selectedCategories[0] : undefined}
+          />
 
           {/* Grid de Productos */}
           {paginatedProducts.length > 0 ? (
