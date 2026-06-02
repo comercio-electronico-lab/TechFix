@@ -7,9 +7,13 @@ import (
 
 	"backend/internal/db"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Cargar variables de entorno desde el archivo .env si existe
+	_ = godotenv.Load()
+
 	seedFlag := flag.Bool("seed", false, "Insertar datos iniciales")
 	migrateFlag := flag.Bool("migrate", false, "Ejecutar migraciones")
 	migrateDownFlag := flag.Bool("migrate-down", false, "Revertir migraciones")
