@@ -125,14 +125,14 @@ func (PedidoRepuesto) TableName() string {
 
 type Transaccion struct {
 	Base
-	RepairID   uuid.UUID `gorm:"type:uuid;not null" json:"repair_id" yaml:"repair_id"`
-	RepairOrder RepairOrder `gorm:"foreignKey:RepairID" json:"repair_order,omitempty"`
-	UsuarioID  uuid.UUID `gorm:"type:uuid;not null" json:"usuario_id" yaml:"usuario_id"`
-	Usuario    Usuario   `gorm:"foreignKey:UsuarioID" json:"usuario,omitempty"`
-	Monto      float64   `json:"monto" yaml:"monto"`
-	Metodo     string    `json:"metodo" yaml:"metodo"`
-	Estado     string    `json:"estado" yaml:"estado"`
-	Referencia string    `json:"referencia" yaml:"referencia"`
+	RepairID    *uuid.UUID   `gorm:"type:uuid" json:"repair_id,omitempty" yaml:"repair_id"`
+	RepairOrder *RepairOrder `gorm:"foreignKey:RepairID" json:"repair_order,omitempty"`
+	UsuarioID   *uuid.UUID   `gorm:"type:uuid" json:"usuario_id,omitempty" yaml:"usuario_id"`
+	Usuario     *Usuario     `gorm:"foreignKey:UsuarioID" json:"usuario,omitempty"`
+	Monto       float64      `json:"monto" yaml:"monto"`
+	Metodo      string       `json:"metodo" yaml:"metodo"`
+	Estado      string       `json:"estado" yaml:"estado"`
+	Referencia  string       `json:"referencia" yaml:"referencia"`
 }
 
 func (Transaccion) TableName() string {

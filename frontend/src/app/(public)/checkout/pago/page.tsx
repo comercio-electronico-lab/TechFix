@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
-import { Lock, ArrowRight, ArrowLeft, CreditCard, Wallet, Landmark, Check } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { Lock, ArrowRight, ArrowLeft, CreditCard, Wallet, Landmark, Check, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import CheckoutHeader from '@/components/checkout/CheckoutHeader';
@@ -10,10 +11,12 @@ import CheckoutOrderSummary from '@/components/checkout/CheckoutOrderSummary';
 
 export default function CheckoutPago() {
   const { items, subtotal, clearCart } = useCart();
+  const { token } = useAuth();
   const router = useRouter();
 
   // Estados de pago
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal' | 'bank'>('card');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [cardData, setCardData] = useState({
     cardName: '',
     cardNumber: '',
@@ -56,30 +59,79 @@ export default function CheckoutPago() {
     }));
   };
 
-  const handleCompletePurchase = (e: React.FormEvent) => {
+  const handleCompletePurchase = async (e: React.FormEvent) => {
     e.preventDefault();
     if (paymentMethod === 'card') {
       if (!cardData.cardName || !cardData.cardNumber || !cardData.cardExpiry || !cardData.cardCvv) {
-        alert("Please fill in all credit card details.");
+        alert("Por favor completa los detalles de tu tarjeta de crédito.");
         return;
       }
     }
     
-    // Guardar total y número de orden simulado en localStorage para la confirmación
-    const orderNumber = `TF-${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(10000 + Math.random() * 90000)}X`;
-    localStorage.setItem('checkout_order', JSON.stringify({
-      orderNumber,
-      total: subtotal > 0 ? total : 140.39,
-      subtotal: subtotal > 0 ? subtotal : 129.99,
-      tax: subtotal > 0 ? tax : 10.40,
-      paymentMethod
-    }));
+    setIsSubmitting(true);
 
-    // Vaciar el carrito
-    clearCart();
-    
-    // Navegar a la página de confirmación
-    router.push('/checkout/confirmacion');
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const body = {
+        contact: {
+          firstName: contact.firstName,
+          lastName: contact.lastName,
+          email: contact.email,
+        },
+        shipping: {
+          address: shipping.address,
+          city: shipping.city,
+          state: shipping.state,
+          zipCode: shipping.zipCode,
+        },
+        payment_method: paymentMethod,
+        items: items.map(item => ({
+          id: item.id,
+          quantity: item.quantity,
+        })),
+      };
+
+      const res = await fetch(`${API_URL}/api/checkout`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Guardar total y número de orden real en localStorage
+        localStorage.setItem('checkout_order', JSON.stringify({
+          orderNumber: data.orderNumber,
+          total: data.total,
+          subtotal: data.subtotal,
+          tax: data.tax,
+          paymentMethod: paymentMethod,
+          reference: data.reference,
+        }));
+
+        // Vaciar el carrito
+        clearCart();
+        
+        // Navegar a la página de confirmación
+        router.push('/checkout/confirmacion');
+      } else {
+        alert(data.error || 'Error al procesar el pago. Por favor intente de nuevo.');
+      }
+    } catch (error) {
+      console.error('Error durante el checkout:', error);
+      alert('Error de conexión con el servidor de pagos.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -281,10 +333,14 @@ export default function CheckoutPago() {
                 
                 <button 
                   type="submit"
-                  className="px-6 py-2.5 bg-primary dark:bg-sky-600 hover:bg-primary-container dark:hover:bg-sky-500 text-on-primary dark:text-white rounded text-xs font-semibold flex items-center gap-2 transition-all active:scale-[0.98] cursor-pointer shadow-sm hover:shadow dark:hover:shadow-sky-500/20"
+                  disabled={isSubmitting}
+                  className="px-6 py-2.5 bg-primary dark:bg-sky-600 hover:bg-primary-container dark:hover:bg-sky-500 text-on-primary dark:text-white rounded text-xs font-semibold flex items-center gap-2 transition-all active:scale-[0.98] cursor-pointer shadow-sm hover:shadow dark:hover:shadow-sky-500/20 disabled:opacity-50"
                 >
-                  Complete Purchase
-                  <ArrowRight className="w-4 h-4" />
+                  {isSubmitting ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
+                  ) : (
+                    <>Complete Purchase <ArrowRight className="w-4 h-4" /></>
+                  )}
                 </button>
               </div>
 

@@ -56,6 +56,13 @@ func startServer() {
 		api.POST("/auth/register", handlers.Register)
 		api.POST("/auth/login", handlers.Login)
 
+		// Catálogo e-commerce
+		api.GET("/products", handlers.GetProducts)
+		api.GET("/products/:id", handlers.GetProductByID)
+
+		// Pasarela de pago / Checkout
+		api.POST("/checkout", handlers.ProcessCheckout)
+
 		// Rutas protegidas por JWT
 		protected := api.Group("")
 		protected.Use(middleware.AuthMiddleware())

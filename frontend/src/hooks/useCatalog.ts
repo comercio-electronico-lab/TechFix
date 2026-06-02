@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Product } from '@/types';
-import { catalogProducts } from '@/mock/catalog';
 
 export type SortOption = 'Relevance' | 'Price: Low to High' | 'Price: High to Low' | 'Newest Arrivals';
 
@@ -35,6 +34,7 @@ export interface UseCatalogReturn {
 const ITEMS_PER_PAGE = 8;
 
 export function useCatalog(): UseCatalogReturn {
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQueryState] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [minPrice, setMinPriceState] = useState('');
@@ -43,11 +43,39 @@ export function useCatalog(): UseCatalogReturn {
   const [sortBy, setSortByState] = useState<SortOption>('Relevance');
   const [currentPage, setCurrentPage] = useState(1);
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+
+  // Cargar catálogo real desde el backend Go
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const res = await fetch(`${API_URL}/api/products`);
+        if (res.ok) {
+          const data = await res.json();
+          const mapped = data.map((p: any) => ({
+            id: p.id,
+            sku: p.sku || 'N/A',
+            name: p.nombre,
+            description: p.descripcion || '',
+            price: p.precio_venta,
+            category: p.categoria,
+            image: p.imagen_url || 'https://via.placeholder.com/300',
+            status: p.status || 'In Stock',
+          }));
+          setProducts(mapped);
+        }
+      } catch (e) {
+        console.error('Error al cargar productos del servidor:', e);
+      }
+    }
+    fetchProducts();
+  }, [API_URL]);
+
   const categoriesList = useMemo(() =>
-    Array.from(new Set(catalogProducts.map(p => p.category))), []);
+    Array.from(new Set(products.map(p => p.category))), [products]);
 
   const filteredProducts = useMemo(() => {
-    let result = [...catalogProducts];
+    let result = [...products];
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -86,7 +114,7 @@ export function useCatalog(): UseCatalogReturn {
     }
 
     return result;
-  }, [searchQuery, selectedCategories, minPrice, maxPrice, inStockOnly, sortBy]);
+  }, [products, searchQuery, selectedCategories, minPrice, maxPrice, inStockOnly, sortBy]);
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE) || 1;
 
