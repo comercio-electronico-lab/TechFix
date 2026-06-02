@@ -1,12 +1,18 @@
 "use client";
 
+import React, { useState } from 'react';
 import Table from '@/components/ui/Table';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import { mockAppointments, Appointment } from '@/mock/admin';
 import { Eye, Edit, Calendar, Plus, Clock, Monitor } from 'lucide-react';
+import AdminHeader from '@/components/admin/AdminHeader';
+import AppointmentTabsFilter from '@/components/admin/AppointmentTabsFilter';
+import CalendarSyncFooter from '@/components/admin/CalendarSyncFooter';
 
 export default function AdminCitas() {
+  const [activeTab, setActiveTab] = useState('Todas');
+
   const columns = [
     { 
       header: 'Ticket ID', 
@@ -82,51 +88,42 @@ export default function AdminCitas() {
 
   const tabs = ['Todas', 'Hoy', 'Esta Semana', 'Pendientes', 'Completadas'];
 
+  const handlePrevPage = () => {
+    alert("Navegando a la página anterior de citas (Demostración)...");
+  };
+
+  const handleNextPage = () => {
+    alert("Navegando a la siguiente página de citas (Demostración)...");
+  };
+
   return (
     <div className="space-y-stack-lg">
-      <header className="flex justify-between items-end">
-        <div>
-          <h1 className="text-primary text-[32px] font-bold">Calendario de Citas</h1>
-          <p className="text-on-surface-variant mt-2">Gestión centralizada de reparaciones y servicios técnicos programados.</p>
-        </div>
-        <div className="flex gap-4">
-          <Button variant="outline" icon={Calendar} className="border-outline-variant/30">Vista Mensual</Button>
-          <Button variant="secondary" icon={Plus} className="shadow-lg shadow-secondary/20">Nueva Cita</Button>
-        </div>
-      </header>
+      <AdminHeader
+        title="Calendario de Citas"
+        description="Gestión centralizada de reparaciones y servicios técnicos programados."
+      >
+        <Button variant="outline" icon={Calendar} className="border-outline-variant/30">Vista Mensual</Button>
+        <Button variant="secondary" icon={Plus} className="shadow-lg shadow-secondary/20">Nueva Cita</Button>
+      </AdminHeader>
 
       <div className="bg-white rounded-2xl shadow-sm border border-outline-variant/10 overflow-hidden">
         <div className="p-6 border-b border-outline-variant/10 bg-surface-container-lowest">
-          <div className="flex gap-6 border-b border-outline-variant/10">
-            {tabs.map((tab, i) => (
-              <button 
-                key={tab}
-                className={`pb-4 text-sm font-bold transition-all relative ${
-                  i === 0 ? 'text-secondary border-b-2 border-secondary' : 'text-on-surface-variant hover:text-primary'
-                }`}
-              >
-                {tab}
-                {i === 3 && (
-                  <span className="ml-2 bg-error text-white text-[10px] px-1.5 rounded-full">4</span>
-                )}
-              </button>
-            ))}
-          </div>
+          <AppointmentTabsFilter
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            pendingCount={4}
+          />
         </div>
         
         <div className="p-2">
           <Table columns={columns} data={mockAppointments} />
         </div>
         
-        <div className="p-4 bg-surface-container-lowest border-t border-outline-variant/10">
-          <div className="flex justify-between items-center px-4">
-            <p className="text-xs text-on-surface-variant">Sincronizado con el calendario de Google for Work</p>
-            <div className="flex gap-2">
-              <button className="px-4 py-2 text-xs font-bold text-primary hover:bg-surface-container-low rounded-lg transition-colors">Anterior</button>
-              <button className="px-4 py-2 text-xs font-bold text-primary hover:bg-surface-container-low rounded-lg transition-colors border border-outline-variant/20">Siguiente</button>
-            </div>
-          </div>
-        </div>
+        <CalendarSyncFooter
+          onPrev={handlePrevPage}
+          onNext={handleNextPage}
+        />
       </div>
     </div>
   );

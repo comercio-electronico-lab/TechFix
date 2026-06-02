@@ -1,26 +1,43 @@
 "use client";
 
+import { useState } from 'react';
 import Table from '@/components/ui/Table';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
+import AdminHeader from '@/components/admin/AdminHeader';
+import UserFiltersBar from '@/components/admin/UserFiltersBar';
 import { mockUsers, User } from '@/mock/users';
-import { Edit, UserPlus, Search, ShieldCheck, Mail, Calendar } from 'lucide-react';
+import { Edit, UserPlus, ShieldCheck, Mail, Calendar } from 'lucide-react';
 
 export default function AdminUsuarios() {
+  const [searchValue, setSearchValue] = useState('');
+  const [selectedRole, setSelectedRole] = useState('Todos los roles');
+
+  const filteredUsers = mockUsers.filter(user => {
+    const matchesSearch = 
+      user.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchValue.toLowerCase()) ||
+      user.id.toLowerCase().includes(searchValue.toLowerCase());
+    
+    const matchesRole = 
+      selectedRole === 'Todos los roles' || user.role === selectedRole;
+
+    return matchesSearch && matchesRole;
+  });
+
   const columns = [
     { 
       header: 'Usuario', 
       key: 'name',
       render: (item: User) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary/5 rounded-full flex items-center justify-center text-primary font-bold">
+          <div className="w-10 h-10 bg-primary/5 rounded-full flex items-center justify-center text-primary dark:text-sky-400 font-bold">
             {item.name.charAt(0)}
           </div>
           <div>
-            <p className="font-bold text-primary">{item.name}</p>
-            <p className="text-xs text-on-surface-variant flex items-center gap-1">
-              <Mail className="w-3 h-3" /> {item.email}
+            <p className="font-bold text-primary dark:text-white transition-colors">{item.name}</p>
+            <p className="text-xs text-on-surface-variant dark:text-slate-400 flex items-center gap-1 transition-colors">
+              <Mail className="w-3 h-3 text-on-surface-variant/70 dark:text-slate-500" /> {item.email}
             </p>
           </div>
         </div>
@@ -31,8 +48,8 @@ export default function AdminUsuarios() {
       key: 'role',
       render: (item: User) => (
         <div className="flex items-center gap-2">
-          <ShieldCheck className={`w-4 h-4 ${item.role === 'Admin' ? 'text-secondary' : 'text-on-surface-variant/40'}`} />
-          <span className={`text-sm font-bold ${item.role === 'Admin' ? 'text-secondary' : 'text-on-surface-variant'}`}>
+          <ShieldCheck className={`w-4 h-4 transition-colors ${item.role === 'Admin' ? 'text-secondary dark:text-sky-400' : 'text-on-surface-variant/40 dark:text-slate-600'}`} />
+          <span className={`text-sm font-bold transition-colors ${item.role === 'Admin' ? 'text-secondary dark:text-sky-400' : 'text-on-surface-variant dark:text-slate-300'}`}>
             {item.role}
           </span>
         </div>
@@ -42,7 +59,7 @@ export default function AdminUsuarios() {
       header: 'Fecha Registro', 
       key: 'joinedDate',
       render: (item: any) => (
-        <div className="flex items-center gap-2 text-on-surface-variant text-sm">
+        <div className="flex items-center gap-2 text-on-surface-variant dark:text-slate-400 text-sm transition-colors">
           <Calendar className="w-4 h-4 opacity-50" />
           {item.joinedDate || '24 May, 2026'}
         </div>
@@ -60,10 +77,10 @@ export default function AdminUsuarios() {
       key: 'actions',
       render: (item: User) => (
         <div className="flex gap-2">
-          <button className="p-2 hover:bg-surface-container-high rounded-lg text-secondary transition-colors">
+          <button className="p-2 hover:bg-surface-container-high dark:hover:bg-slate-800 rounded-lg text-secondary dark:text-sky-400 transition-colors">
             <Edit className="w-5 h-5" />
           </button>
-          <button className="p-2 hover:bg-primary/5 rounded-lg text-primary transition-colors">
+          <button className="p-2 hover:bg-primary/5 dark:hover:bg-sky-500/10 rounded-lg text-primary dark:text-sky-400 transition-colors">
             <ShieldCheck className="w-5 h-5" />
           </button>
         </div>
@@ -73,37 +90,27 @@ export default function AdminUsuarios() {
 
   return (
     <div className="space-y-stack-lg">
-      <header className="flex justify-between items-end">
-        <div>
-          <h1 className="text-primary text-[32px] font-bold">Gestión de Usuarios</h1>
-          <p className="text-on-surface-variant mt-2">Administra roles de personal técnico y accesos de clientes premium.</p>
-        </div>
+      <AdminHeader
+        title="Gestión de Usuarios"
+        description="Administra roles de personal técnico y accesos de clientes premium."
+      >
         <Button variant="accent" icon={UserPlus}>Nuevo Usuario</Button>
-      </header>
+      </AdminHeader>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-outline-variant/10 overflow-hidden">
-        <div className="p-6 border-b border-outline-variant/10 bg-surface-container-lowest">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <Input icon={Search} placeholder="Buscar por nombre, email o ID..." />
-            </div>
-            <div className="w-full md:w-48">
-              <select className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-secondary font-bold text-sm text-primary">
-                <option>Todos los roles</option>
-                <option>Admin</option>
-                <option>Técnico</option>
-                <option>Cliente</option>
-              </select>
-            </div>
-          </div>
-        </div>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-outline-variant/10 dark:border-slate-800/80 overflow-hidden transition-colors duration-300">
+        <UserFiltersBar
+          searchValue={searchValue}
+          onSearchChange={setSearchValue}
+          selectedRole={selectedRole}
+          onRoleChange={setSelectedRole}
+        />
 
-        <div className="p-2">
-          <Table columns={columns} data={mockUsers} />
+        <div className="p-2 dark:bg-slate-900/50 transition-colors">
+          <Table columns={columns} data={filteredUsers} />
         </div>
         
-        <div className="p-4 bg-surface-container-lowest border-t border-outline-variant/10">
-          <p className="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest text-center">
+        <div className="p-4 bg-surface-container-lowest dark:bg-slate-950/40 border-t border-outline-variant/10 dark:border-slate-800/80 transition-colors">
+          <p className="text-[10px] font-bold text-on-surface-variant/60 dark:text-slate-500 uppercase tracking-widest text-center transition-colors">
             Seguridad de nivel empresarial activada para la gestión de usuarios
           </p>
         </div>

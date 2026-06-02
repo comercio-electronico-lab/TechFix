@@ -1,5 +1,6 @@
 "use client";
 
+import AdminHeader from '@/components/admin/AdminHeader';
 import AdminMetricCard from '@/components/admin/AdminMetricCard';
 import AdminChartCard from '@/components/admin/AdminChartCard';
 import SalesBarChart from '@/components/admin/SalesBarChart';
@@ -63,22 +64,17 @@ export default function AdminReportes() {
   return (
     <div className="space-y-stack-lg">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-stack-md">
-        <div>
-          <h1 className="text-[32px] font-bold text-primary leading-tight">Reportes y Analíticas</h1>
-          <p className="text-on-surface-variant mt-2 max-w-2xl">
-            Monitorea el rendimiento de ventas, tiempos de respuesta y métricas de productividad técnica.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <button className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl font-bold text-sm text-primary border border-outline-variant/30 hover:bg-surface-container-low transition-all">
-            <FileText className="w-4 h-4" /> Exportar Excel
-          </button>
-          <button className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-md">
-            <FileDown className="w-4 h-4" /> Exportar PDF
-          </button>
-        </div>
-      </div>
+      <AdminHeader
+        title="Reportes y Analíticas"
+        description="Monitorea el rendimiento de ventas, tiempos de respuesta y métricas de productividad técnica."
+      >
+        <button className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl font-bold text-sm text-primary border border-outline-variant/30 hover:bg-surface-container-low transition-all cursor-pointer">
+          <FileText className="w-4 h-4" /> Exportar Excel
+        </button>
+        <button className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-md cursor-pointer">
+          <FileDown className="w-4 h-4" /> Exportar PDF
+        </button>
+      </AdminHeader>
 
       {/* Filter Bar */}
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-outline-variant/20 flex flex-wrap items-center gap-6">

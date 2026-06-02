@@ -6,6 +6,7 @@ import { useInventory } from '@/hooks/useInventory';
 import InventoryStatCard from '@/components/admin/InventoryStatCard';
 import InventoryTable from '@/components/admin/InventoryTable';
 import NewInventoryItemModal from '@/components/admin/NewInventoryItemModal';
+import AdminHeader from '@/components/admin/AdminHeader';
 
 export default function AdminInventario() {
   const {
@@ -38,17 +39,11 @@ export default function AdminInventario() {
     <div className="space-y-6 bg-surface dark:bg-slate-900/30 rounded-2xl border border-outline-variant/30 dark:border-slate-800 p-6 transition-colors duration-300 shadow-sm min-h-[calc(100vh-140px)]">
 
       {/* Cabecera */}
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-outline-variant/30 dark:border-slate-850">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-on-surface dark:text-white tracking-tight flex items-center gap-2.5">
-            <Package2 className="w-5 h-5 text-primary dark:text-sky-400" />
-            Inventory Management
-          </h1>
-          <p className="text-xs text-on-surface-variant dark:text-slate-400 mt-1">
-            Manage components, track stock levels, and coordinate supplier orders.
-          </p>
-        </div>
-      </header>
+      <AdminHeader
+        title="Inventory Management"
+        description="Manage components, track stock levels, and coordinate supplier orders."
+        icon={Package2}
+      />
 
       {/* Stats Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
