@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"backend/internal/models"
+	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/yaml.v3"
 )
 
@@ -61,6 +62,14 @@ func loadUsers(filePath string) error {
 	}
 
 	for _, u := range seedData.Usuarios {
+		if u.PasswordHash == "" {
+			// Asignar contraseña por defecto "123456" de forma segura cifrada con bcrypt
+			bytes, err := bcrypt.GenerateFromPassword([]byte("123456"), bcrypt.DefaultCost)
+			if err != nil {
+				return fmt.Errorf("error hashing password: %w", err)
+			}
+			u.PasswordHash = string(bytes)
+		}
 		DB.Where(models.Usuario{Email: u.Email}).FirstOrCreate(&u)
 	}
 	fmt.Printf("✓ usuarios cargados\n")

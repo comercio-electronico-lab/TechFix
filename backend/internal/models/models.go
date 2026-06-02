@@ -23,12 +23,13 @@ func (b *Base) BeforeCreate(tx *gorm.DB) error {
 
 type Usuario struct {
 	Base
-	Login      string    `gorm:"size:60;not null" json:"login" yaml:"login"`
-	Nombre     string    `gorm:"size:255;not null" json:"nombre" yaml:"nombre"`
-	Email      string    `gorm:"size:100;uniqueIndex;not null" json:"email" yaml:"email"`
-	Rol        string    `gorm:"size:20;default:'Cliente'" json:"rol" yaml:"rol"`
-	Estado     string    `gorm:"size:20;default:'Activo'" json:"estado" yaml:"estado"`
-	JoinedDate time.Time `json:"joined_date" yaml:"joined_date"`
+	Login        string    `gorm:"size:60;not null" json:"login" yaml:"login"`
+	Nombre       string    `gorm:"size:255;not null" json:"nombre" yaml:"nombre"`
+	Email        string    `gorm:"size:100;uniqueIndex;not null" json:"email" yaml:"email"`
+	PasswordHash string    `gorm:"size:255;not null" json:"-" yaml:"password_hash,omitempty"`
+	Rol          string    `gorm:"size:20;default:'Cliente'" json:"rol" yaml:"rol"`
+	Estado       string    `gorm:"size:20;default:'Activo'" json:"estado" yaml:"estado"`
+	JoinedDate   time.Time `json:"joined_date" yaml:"joined_date"`
 }
 
 func (Usuario) TableName() string {

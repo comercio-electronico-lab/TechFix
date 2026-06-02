@@ -6,11 +6,13 @@ import { usePathname } from 'next/navigation';
 import { Search, ShoppingCart, User, Sun, Moon } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useTheme } from 'next-themes';
+import { useAuth } from '@/context/AuthContext';
 
 const Navbar = () => {
   const pathname = usePathname();
   const { totalItems } = useCart();
   const { theme, setTheme } = useTheme();
+  const { isAuthenticated, user } = useAuth();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -86,9 +88,18 @@ const Navbar = () => {
                 </span>
               )}
             </Link>
-            <button className="hover:text-secondary-container transition-colors">
+            <Link 
+              href={isAuthenticated ? "/perfil" : "/login"} 
+              className="hover:text-secondary-container transition-colors flex items-center gap-1.5"
+              title={isAuthenticated ? `Mi Perfil: ${user?.nombre}` : "Iniciar Sesión"}
+            >
               <User className="w-6 h-6" />
-            </button>
+              {isAuthenticated && user && (
+                <span className="hidden sm:inline text-xs font-bold bg-white/10 px-2 py-0.5 rounded-full">
+                  {user.nombre.split(' ')[0]}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
       </div>
