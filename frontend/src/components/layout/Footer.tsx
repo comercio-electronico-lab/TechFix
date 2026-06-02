@@ -6,7 +6,7 @@ import { Globe, Mail, Phone, ShieldCheck } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-white py-16 border-t border-outline-variant/20 mt-auto">
+    <footer className="bg-white dark:bg-slate-950 py-16 border-t border-outline-variant/20 dark:border-slate-850 mt-auto transition-colors duration-300">
       <div className="max-w-container-max mx-auto px-gutter grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 text-left">
         <div className="space-y-6">
           <h3 className="text-2xl font-h2 font-bold text-primary">TechFix</h3>

@@ -19,7 +19,7 @@ const Navbar = () => {
   ];
 
   return (
-    <header className="fixed top-0 w-full h-18 bg-primary border-b border-outline-variant/20 shadow-sm z-50">
+    <header className="fixed top-0 w-full h-18 bg-primary dark:bg-slate-950/90 dark:backdrop-blur-md border-b border-outline-variant/20 dark:border-slate-800/80 shadow-sm z-50 transition-colors duration-300">
       <div className="flex justify-between items-center px-gutter max-w-container-max mx-auto h-full">
         <div className="flex items-center gap-stack-md">
           <Link href="/" className="font-h2 text-[32px] text-white">
