@@ -374,7 +374,7 @@ export default function ClienteDashboard() {
             <div className="flex justify-between items-center bg-white/70 dark:bg-white/5 backdrop-blur-xl border border-outline-variant/10 dark:border-outline/20 p-6 rounded-2xl shadow-sm">
               <div>
                 <h3 className="text-primary dark:text-white mb-1 font-h3 font-bold">Mis Dispositivos</h3>
-                <p className="text-xs text-on-surface-variant">Registra tus equipos para agilizar tus cotizaciones y reparaciones futuras.</p>
+                <p className="text-xs text-on-surface-variant">Registra tus equipos para agilizar tus reparaciones y servicio futuro.</p>
               </div>
               <button 
                 onClick={handleOpenCreateModal}

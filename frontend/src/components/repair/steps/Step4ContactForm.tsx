@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { ShieldCheck, Calendar, Clock, MapPin, Upload, X, Camera, ArrowRight } from 'lucide-react';
+import { MOCK_DEVICE_IMAGE } from '@/data/mock/mockDeviceImage';
 
 interface Step4Props {
   clientName: string;
@@ -12,6 +13,7 @@ interface Step4Props {
   appointmentTime: string;
   selectedBranch: string;
   failurePhoto: string | null;
+  isAuthenticated?: boolean;
   onChange: (field: 'clientName' | 'clientEmail' | 'clientPhone' | 'serialNumber' | 'deviceModel' | 'appointmentDate' | 'appointmentTime' | 'selectedBranch', value: string) => void;
   setFailurePhoto: (photo: string | null) => void;
   onSubmit: (e: React.FormEvent) => void;
@@ -23,20 +25,31 @@ const inputClass =
 const selectClass = 
   'w-full bg-slate-50 dark:bg-slate-950 border border-outline-variant/70 dark:border-slate-700 rounded-lg px-4 py-2.5 pl-10 text-sm text-on-surface dark:text-white focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-sky-500/20 transition-colors';
 
-export function DiagnosticStep4({ 
-  clientName, 
-  clientEmail, 
-  clientPhone, 
-  isSubmitting, 
+export function DiagnosticStep4({
+  clientName,
+  clientEmail,
+  clientPhone,
+  isSubmitting,
   appointmentDate,
   appointmentTime,
   selectedBranch,
   failurePhoto,
-  onChange, 
+  isAuthenticated = false,
+  onChange,
   setFailurePhoto,
-  onSubmit 
+  onSubmit
 }: Step4Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [loadedPhoto, setLoadedPhoto] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!failurePhoto && !loadedPhoto) {
+      setFailurePhoto(MOCK_DEVICE_IMAGE);
+      setLoadedPhoto(MOCK_DEVICE_IMAGE);
+    } else if (failurePhoto) {
+      setLoadedPhoto(failurePhoto);
+    }
+  }, [failurePhoto, loadedPhoto, setFailurePhoto]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -59,23 +72,22 @@ export function DiagnosticStep4({
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-350">
       <div className="text-center space-y-3">
-        <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold px-3 py-1 rounded-full border border-emerald-500/20 uppercase tracking-widest">
-          <ShieldCheck className="w-3 h-3" /> Falla Identificada
-        </span>
         <h1 className="text-3xl md:text-[40px] font-bold text-on-surface dark:text-white tracking-tight leading-tight">
           Programa tu cita en laboratorio
         </h1>
         <p className="text-base md:text-lg text-on-surface-variant dark:text-slate-400 max-w-xl mx-auto leading-relaxed">
-          Selecciona tu sucursal más cercana, el día y hora de tu cita técnica para programar la entrega o revisión prioritaria de tu dispositivo.
+          Completa la información para agendar tu cita de reparación en el laboratorio.
         </p>
       </div>
 
       <form onSubmit={onSubmit} className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl border border-outline-variant/60 dark:border-slate-800 shadow-xl max-w-2xl mx-auto space-y-6">
         
-        <h3 className="text-sm font-black text-primary dark:text-sky-400 uppercase tracking-wider border-b border-outline-variant/20 dark:border-slate-800/80 pb-2">
-          1. Datos de Contacto
-        </h3>
-        
+        <div className="mb-4">
+          <h3 className="text-sm font-black text-primary dark:text-sky-400 uppercase tracking-wider">
+            1. Datos de Contacto
+          </h3>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Nombre */}
           <div className="space-y-2">
@@ -83,13 +95,14 @@ export function DiagnosticStep4({
               Nombre Completo
             </label>
             <div className="relative">
-              <input 
-                type="text" 
-                required 
+              <input
+                type="text"
+                required
                 placeholder="Juan Pérez"
-                value={clientName} 
-                onChange={(e) => onChange('clientName', e.target.value)}
-                className={inputClass} 
+                value={clientName}
+                onChange={(e) => !isAuthenticated && onChange('clientName', e.target.value)}
+                readOnly={isAuthenticated}
+                className={`${inputClass} ${isAuthenticated ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50 cursor-not-allowed opacity-75' : ''}`}
               />
               <svg className="w-4 h-4 text-on-surface-variant/65 absolute left-3.5 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -103,13 +116,13 @@ export function DiagnosticStep4({
               Número de Celular / WhatsApp
             </label>
             <div className="relative">
-              <input 
-                type="tel" 
-                required 
+              <input
+                type="tel"
+                required
                 placeholder="+51 987 654 321"
-                value={clientPhone} 
+                value={clientPhone}
                 onChange={(e) => onChange('clientPhone', e.target.value)}
-                className={inputClass} 
+                className={inputClass}
               />
               <svg className="w-4 h-4 text-on-surface-variant/65 absolute left-3.5 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -124,13 +137,14 @@ export function DiagnosticStep4({
             Correo Electrónico
           </label>
           <div className="relative">
-            <input 
-              type="email" 
-              required 
+            <input
+              type="email"
+              required
               placeholder="juan.perez@example.com"
-              value={clientEmail} 
-              onChange={(e) => onChange('clientEmail', e.target.value)}
-              className={inputClass} 
+              value={clientEmail}
+              onChange={(e) => !isAuthenticated && onChange('clientEmail', e.target.value)}
+              readOnly={isAuthenticated}
+              className={`${inputClass} ${isAuthenticated ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50 cursor-not-allowed opacity-75' : ''}`}
             />
             <svg className="w-4 h-4 text-on-surface-variant/65 absolute left-3.5 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -138,9 +152,11 @@ export function DiagnosticStep4({
           </div>
         </div>
 
-        <h3 className="text-sm font-black text-primary dark:text-sky-400 uppercase tracking-wider border-b border-outline-variant/20 dark:border-slate-800/80 pt-4 pb-2">
-          2. Agendamiento de la Cita
-        </h3>
+        <div className="mt-6 mb-4">
+          <h3 className="text-sm font-black text-primary dark:text-sky-400 uppercase tracking-wider">
+            2. Agendamiento de la Cita
+          </h3>
+        </div>
 
         {/* Sucursal */}
         <div className="space-y-2">
@@ -213,11 +229,11 @@ export function DiagnosticStep4({
             Evidencia Física del Fallo
           </label>
           
-          {failurePhoto ? (
+          {loadedPhoto ? (
             <div className="relative rounded-xl overflow-hidden border border-outline-variant dark:border-slate-800 h-44 bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-              <img 
-                src={failurePhoto} 
-                alt="Falla de dispositivo" 
+              <img
+                src={loadedPhoto}
+                alt="Falla de dispositivo"
                 className="h-full object-contain"
               />
               <button

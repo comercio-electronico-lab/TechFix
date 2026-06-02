@@ -17,8 +17,8 @@ const ClienteSidebar = () => {
 
   const links = [
     { name: 'Mi Dashboard', href: '/cliente/dashboard', icon: LayoutDashboard },
-    { name: 'Mis Dispositivos', href: '/cliente/dashboard', icon: Smartphone }, // Will focus on devices tab
-    { name: 'Solicitar Servicio', href: '/cotizacion', icon: Wrench },
+    { name: 'Mis Dispositivos', href: '/cliente/dashboard', icon: Smartphone },
+    { name: 'Solicitar Reparación', href: '/reparaciones', icon: Wrench },
   ];
 
   return (
@@ -59,10 +59,10 @@ const ClienteSidebar = () => {
       </nav>
 
       <div className="mt-auto pt-6 border-t border-outline-variant/30 dark:border-outline/10">
-        <Link href="/cotizacion">
+        <Link href="/reparaciones">
           <button className="w-full bg-secondary hover:bg-secondary/95 text-white py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:opacity-95 transition-all shadow-md active:scale-95 font-bold text-sm cursor-pointer">
-            <Ticket className="w-4 h-4" />
-            Nueva Cotización
+            <Wrench className="w-4 h-4" />
+            Nueva Reparación
           </button>
         </Link>
       </div>
