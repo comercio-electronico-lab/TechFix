@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useDiagnosticFlow, REPAIR_COST_ESTIMATES } from '@/hooks/useDiagnosticFlow';
-import DiagnosticHeader from '@/components/repair/DiagnosticHeader';
+import DiagnosticStepper from '@/components/repair/DiagnosticStepper';
 import {
   DiagnosticStep1,
   DiagnosticStep2,
@@ -16,7 +16,6 @@ export default function AsistenteDiagnostico() {
     state,
     isSubmitting,
     ticketId,
-    progressPercentage,
     detailsList,
     handleBack,
     handleSubmit,
@@ -31,17 +30,15 @@ export default function AsistenteDiagnostico() {
     : '$39.00 - $220.00';
 
   return (
-    <div className="bg-surface dark:bg-slate-950 min-h-screen flex flex-col transition-colors duration-300 font-sans antialiased">
+    <div className="min-h-[calc(100vh-140px)] py-12 px-gutter bg-surface-bright dark:bg-slate-950 transition-colors duration-300 flex justify-center">
+      <div className="max-w-4xl w-full space-y-12 animate-in fade-in slide-in-from-bottom-5 duration-500">
+        
+        <DiagnosticStepper
+          currentStep={state.step}
+          onBack={handleBack}
+        />
 
-      <DiagnosticHeader
-        step={state.step}
-        onBack={handleBack}
-        progressPercentage={progressPercentage}
-      />
-
-      <main className="flex-grow flex items-center justify-center pt-28 pb-16 px-4 md:px-8 w-full">
-        <div className="max-w-3xl w-full flex flex-col gap-10 animate-in fade-in slide-in-from-bottom-5 duration-500">
-
+        <div className="w-full">
           {state.step === 1 && (
             <DiagnosticStep1
               currentDevice={state.deviceType}
@@ -86,9 +83,9 @@ export default function AsistenteDiagnostico() {
               costEstimate={costEstimate}
             />
           )}
-
         </div>
-      </main>
+
+      </div>
     </div>
   );
 }
