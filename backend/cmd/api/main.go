@@ -75,6 +75,13 @@ func startServer() {
 			protected.GET("/auth/me", handlers.Me)
 			protected.GET("/devices", handlers.GetDevices)
 			protected.POST("/devices", handlers.CreateDevice)
+
+			// Trazabilidad de Reparación y Garantías (Flujo 4)
+			protected.POST("/repairs", handlers.CreateRepairOrder)
+			protected.GET("/repairs", handlers.GetClientRepairOrders)
+			protected.GET("/repairs/:id", handlers.GetRepairDetails)
+			protected.GET("/warranties", handlers.GetClientWarranties)
+			protected.PUT("/admin/repairs/:id/status", handlers.UpdateRepairStatus)
 		}
 	}
 

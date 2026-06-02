@@ -9,6 +9,7 @@ import PortalSidebar from '@/components/portal/PortalSidebar';
 import DevicesTab from '@/components/portal/DevicesTab';
 import RegisterDeviceModal from '@/components/portal/RegisterDeviceModal';
 import AuthForm from '@/components/portal/AuthForm';
+import RepairsTab from '@/components/portal/RepairsTab';
 
 const TAB_LABELS: Record<string, string> = {
   Devices: 'Equipos Registrados',
@@ -114,44 +115,7 @@ export default function CustomerPortal() {
           )}
 
           {activeTab === 'Repairs' && (
-            <div className="max-w-3xl mx-auto space-y-6">
-              <div className="bg-surface dark:bg-slate-900 border border-outline-variant/40 dark:border-slate-800 p-6 rounded-xl shadow-sm">
-                <div className="flex items-center gap-3 border-b border-outline-variant/20 dark:border-slate-800 pb-4 mb-4">
-                  <Wrench className="w-5 h-5 text-amber-500" />
-                  <h3 className="font-bold text-sm uppercase tracking-wider text-on-surface dark:text-white">
-                    Servicio Activo: #TKT-1002
-                  </h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-xs">
-                    <div>
-                      <span className="text-on-surface-variant dark:text-slate-500 block mb-0.5 uppercase tracking-wider text-[9px] font-bold">DISPOSITIVO</span>
-                      <span className="font-bold text-on-surface dark:text-slate-200">iPhone 14 Pro</span>
-                    </div>
-                    <div>
-                      <span className="text-on-surface-variant dark:text-slate-500 block mb-0.5 uppercase tracking-wider text-[9px] font-bold">ETAPA</span>
-                      <span className="font-bold text-amber-600 dark:text-amber-400">En Diagnóstico</span>
-                    </div>
-                  </div>
-                  <div className="bg-surface dark:bg-slate-950 p-4 rounded border border-outline-variant/10 dark:border-slate-850 flex flex-col gap-2 text-xs">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-primary dark:text-sky-400 font-bold uppercase tracking-widest text-[9px]">REPORTE DE DIAGNÓSTICO DE LABORATORIO</span>
-                      <p className="text-on-surface-variant dark:text-slate-400 leading-normal">
-                        El dispositivo ha sido ingresado exitosamente a nuestros bancos de diagnóstico. Los ingenieros de hardware están revisando los flex del display y el módulo táctil.
-                      </p>
-                    </div>
-                    <div className="pt-2 border-t border-outline-variant/20 dark:border-slate-800 mt-1 flex justify-between items-center">
-                      <Link
-                        href="/reparaciones/seguimiento?ticket=TFX-8924-M&brand=Apple&device=iPhone 14 Pro&specs=256GB&serial=F18L3J8K0W2Q"
-                        className="inline-flex items-center gap-1 text-xs font-bold text-primary dark:text-sky-400 hover:underline uppercase tracking-wider"
-                      >
-                        Monitorear en Tiempo Real <ArrowUpRight className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <RepairsTab />
           )}
 
         </div>

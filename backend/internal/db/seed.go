@@ -81,6 +81,9 @@ func Seed() {
 		log.Printf("Advertencia: %v\n", err)
 	}
 
+	// Reparaciones y Garantías de prueba
+	seedRepairAndWarranties()
+
 	fmt.Println("✓ Siembra base completada.")
 }
 
@@ -247,4 +250,137 @@ func loadPigNodes(filePath string) error {
 
 	fmt.Printf("✓ nodos y recomendaciones PIG cargados\n")
 	return nil
+}
+
+func seedRepairAndWarranties() {
+	var carlos models.Usuario
+	if err := DB.Where("email = ?", "carlos@example.com").First(&carlos).Error; err != nil {
+		log.Printf("Advertencia: No se encontró a Carlos Pérez para sembrar reparaciones.")
+		return
+	}
+
+	// 1. iPhone 14 Pro
+	var iphone models.Device
+	if err := DB.Where("user_id = ? AND brand = ? AND model = ?", carlos.ID, "Apple", "iPhone 14 Pro").First(&iphone).Error; err == nil {
+		var count int64
+		DB.Model(&models.RepairOrder{}).Where("device_id = ?", iphone.ID).Count(&count)
+		if count == 0 {
+			order := models.RepairOrder{
+				UserID:              carlos.ID,
+				DeviceID:            iphone.ID,
+				AppointmentDatetime: time.Now().AddDate(0, 0, -3),
+				Status:              "repairing",
+				Notes:               "Falla de puerto de carga parpadeante. Diagnóstico del PIG adjuntado.",
+			}
+			if err := DB.Create(&order).Error; err == nil {
+				trackingLogs := []models.RepairTracking{
+					{
+						RepairID:       order.ID,
+						PreviousStatus: "",
+						NewStatus:      "pending",
+						ChangedBy:      carlos.ID,
+						Notes:          "Solicitud de asistencia técnica agendada en línea por el cliente.",
+					},
+					{
+						RepairID:       order.ID,
+						PreviousStatus: "pending",
+						NewStatus:      "in_review",
+						ChangedBy:      carlos.ID,
+						Notes:          "Dispositivo recibido físicamente en el laboratorio central. Se inicia el diagnóstico microscópico en banco de trabajo.",
+					},
+					{
+						RepairID:       order.ID,
+						PreviousStatus: "in_review",
+						NewStatus:      "waiting_parts",
+						ChangedBy:      carlos.ID,
+						Notes:          "Diagnóstico finalizado. Microchip OEM controlador U2 de carga eléctrica agotado temporalmente en stock local. Solicitando importación express.",
+					},
+					{
+						RepairID:       order.ID,
+						PreviousStatus: "waiting_parts",
+						NewStatus:      "repairing",
+						ChangedBy:      carlos.ID,
+						Notes:          "Repuestos OEM arribados a laboratorio. El ingeniero a cargo inicia la microsoldadura SMD bajo microscopio estereoscópico.",
+					},
+				}
+				for _, logItem := range trackingLogs {
+					DB.Create(&logItem)
+				}
+			}
+		}
+	}
+
+	// 2. Dell XPS 13
+	var dell models.Device
+	if err := DB.Where("user_id = ? AND brand = ? AND model = ?", carlos.ID, "Dell", "XPS 13").First(&dell).Error; err == nil {
+		var count int64
+		DB.Model(&models.RepairOrder{}).Where("device_id = ?", dell.ID).Count(&count)
+		if count == 0 {
+			order := models.RepairOrder{
+				UserID:              carlos.ID,
+				DeviceID:            dell.ID,
+				AppointmentDatetime: time.Now().AddDate(0, 0, -15),
+				Status:              "delivered",
+				DiagnosisFinal:      "Reemplazo de batería de litio OEM de 56Wh degradada por vida útil.",
+				FinalPrice:          89.99,
+				Notes:               "Servicio concluido exitosamente y entregado a su titular en oficina principal.",
+			}
+			if err := DB.Create(&order).Error; err == nil {
+				trackingLogs := []models.RepairTracking{
+					{
+						RepairID:       order.ID,
+						PreviousStatus: "",
+						NewStatus:      "pending",
+						ChangedBy:      carlos.ID,
+						Notes:          "Solicitud agendada vía web por el cliente.",
+					},
+					{
+						RepairID:       order.ID,
+						PreviousStatus: "pending",
+						NewStatus:      "in_review",
+						ChangedBy:      carlos.ID,
+						Notes:          "Dispositivo ingresado físicamente a banco de pruebas.",
+					},
+					{
+						RepairID:       order.ID,
+						PreviousStatus: "in_review",
+						NewStatus:      "repairing",
+						ChangedBy:      carlos.ID,
+						Notes:          "Extracción de batería inflada e instalación de acumulador original de celdas OEM.",
+					},
+					{
+						RepairID:       order.ID,
+						PreviousStatus: "repairing",
+						NewStatus:      "ready",
+						ChangedBy:      carlos.ID,
+						Notes:          "Calibración de ciclos finalizada al 100%. Equipo listo para entrega.",
+					},
+					{
+						RepairID:       order.ID,
+						PreviousStatus: "ready",
+						NewStatus:      "delivered",
+						ChangedBy:      carlos.ID,
+						Notes:          "Equipo retirado por su titular. Se emite certificado de garantía digital por 90 días.",
+					},
+				}
+				for _, logItem := range trackingLogs {
+					DB.Create(&logItem)
+				}
+
+				now := time.Now()
+				warranty := models.Warranty{
+					RepairID:      order.ID,
+					UserID:        carlos.ID,
+					DeviceID:      dell.ID,
+					WarrantyDays:  90,
+					StartDate:     now.AddDate(0, 0, -10),
+					EndDate:       now.AddDate(0, 0, 80),
+					IsActive:      true,
+					WarrantyToken: "WARR-DELL-XPS-9821",
+				}
+				DB.Create(&warranty)
+			}
+		}
+	}
+	fmt.Printf("✓ reparaciones y garantías de prueba sembradas para Carlos Pérez\n")
 }
