@@ -23,12 +23,17 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Mock Users for simulation
+const MOCK_USERS: User[] = [
+  { id: 'USR-001', nombre: 'Marcos Rodriguez', email: 'admin@techfix.com', login: 'admin', rol: 'Admin' },
+  { id: 'USR-002', nombre: 'Laura Martinez', email: 'tecnico@techfix.com', login: 'tecnico', rol: 'Técnico' },
+  { id: 'USR-003', nombre: 'Juan Perez', email: 'juan.perez@gmail.com', login: 'juanperez', rol: 'Cliente' },
+];
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
   // Cargar sesión del localStorage al montar el componente
   useEffect(() => {
@@ -41,7 +46,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(JSON.parse(savedUser));
       } catch (e) {
         console.error("Error parsing saved user", e);
-        // Limpiar en caso de datos corruptos
         localStorage.removeItem('techfix_token');
         localStorage.removeItem('techfix_user');
       }
@@ -50,49 +54,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        return { success: false, error: data.error || 'Credenciales incorrectas' };
-      }
-
-      setToken(data.token);
-      setUser(data.usuario);
-      localStorage.setItem('techfix_token', data.token);
-      localStorage.setItem('techfix_user', JSON.stringify(data.usuario));
-      return { success: true, user: data.usuario };
-    } catch (err) {
-      console.error(err);
-      return { success: false, error: 'No se pudo conectar al servidor de la API' };
-    }
+    // Simular retraso de red
+    return new Promise<{ success: boolean; error?: string; user?: User }>((resolve) => {
+      setTimeout(() => {
+        const foundUser = MOCK_USERS.find(u => u.email === email);
+        
+        // Simular que cualquier contraseña funciona para el mock si el usuario existe
+        if (foundUser && password.length >= 4) {
+          const mockToken = `mock-jwt-token-${foundUser.id}`;
+          setToken(mockToken);
+          setUser(foundUser);
+          localStorage.setItem('techfix_token', mockToken);
+          localStorage.setItem('techfix_user', JSON.stringify(foundUser));
+          resolve({ success: true, user: foundUser });
+        } else {
+          resolve({ success: false, error: 'Credenciales incorrectas (Usa admin@techfix.com, tecnico@techfix.com o juan.perez@gmail.com)' });
+        }
+      }, 1000);
+    });
   };
 
   const register = async (nombre: string, email: string, login: string, password: string) => {
-    try {
-      const res = await fetch(`${API_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, email, login, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        return { success: false, error: data.error || 'Error al registrarse' };
-      }
-
-      return { success: true };
-    } catch (err) {
-      console.error(err);
-      return { success: false, error: 'No se pudo conectar al servidor de la API' };
-    }
+    return new Promise<{ success: boolean; error?: string }>((resolve) => {
+      setTimeout(() => {
+        // En un mock, siempre aceptamos el registro
+        console.log("Mock Register:", { nombre, email, login, password });
+        resolve({ success: true });
+      }, 1000);
+    });
   };
 
   const logout = () => {
@@ -103,40 +92,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateProfile = async (nombre: string, login: string) => {
-    if (!token) return { success: false, error: 'No has iniciado sesión' };
+    if (!user) return { success: false, error: 'No has iniciado sesión' };
     
-    try {
-      const res = await fetch(`${API_URL}/api/user/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ nombre, login }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        return { success: false, error: data.error || 'Error al actualizar el perfil' };
-      }
-
-      // El backend retorna el objeto models.Usuario. Mapeamos a nuestro User struct
-      const updatedUser: User = {
-        id: data.id,
-        nombre: data.nombre,
-        email: data.email,
-        login: data.login,
-        rol: data.rol
-      };
-
-      setUser(updatedUser);
-      localStorage.setItem('techfix_user', JSON.stringify(updatedUser));
-      return { success: true };
-    } catch (err) {
-      console.error(err);
-      return { success: false, error: 'No se pudo conectar al servidor de la API' };
-    }
+    return new Promise<{ success: boolean; error?: string }>((resolve) => {
+      setTimeout(() => {
+        const updatedUser = { ...user, nombre, login };
+        setUser(updatedUser);
+        localStorage.setItem('techfix_user', JSON.stringify(updatedUser));
+        resolve({ success: true });
+      }, 800);
+    });
   };
 
   const isAuthenticated = !!token;

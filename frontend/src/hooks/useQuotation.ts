@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { PigNode } from '@/components/cotizacion/QuotationWizard';
+import { mockPigNodes } from '@/mock/quotation';
 
 export const useQuotation = () => {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-
   const [deviceType, setDeviceType] = useState<'Laptop' | 'Smartphone' | null>(null);
   
   // Wizard state
@@ -31,32 +30,21 @@ export const useQuotation = () => {
 
   const fetchRootNode = async (type: string) => {
     setLoading(true);
-    try {
-      const res = await fetch(`${API_URL}/api/pig/nodes?device_type=${type}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.length > 0) {
-          setCurrentNode(data[0]);
-          // Fetch child options for this root question
-          fetchOptions(type, data[0].id);
-        }
+    // Simular retraso de red
+    setTimeout(() => {
+      const rootNode = mockPigNodes.find(n => n.device_type === type && n.parent_node_id === null);
+      if (rootNode) {
+        setCurrentNode(rootNode);
+        fetchOptions(type, rootNode.id);
       }
-    } catch (e) {
-      console.error("Error fetching root node", e);
-    }
-    setLoading(false);
+      setLoading(false);
+    }, 600);
   };
 
   const fetchOptions = async (type: string, parentId: string) => {
-    try {
-      const res = await fetch(`${API_URL}/api/pig/nodes?device_type=${type}&parent_id=${parentId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setOptions(data || []);
-      }
-    } catch (e) {
-      console.error("Error fetching options", e);
-    }
+    // Simular retraso de red
+    const childOptions = mockPigNodes.filter(n => n.device_type === type && n.parent_node_id === parentId);
+    setOptions(childOptions);
   };
 
   const handleSelectOption = async (selectedNode: PigNode) => {
@@ -69,8 +57,10 @@ export const useQuotation = () => {
     } else {
       setCurrentNode(selectedNode);
       setLoading(true);
-      await fetchOptions(selectedNode.device_type, selectedNode.id);
-      setLoading(false);
+      setTimeout(() => {
+        fetchOptions(selectedNode.device_type, selectedNode.id);
+        setLoading(false);
+      }, 500);
     }
   };
 
@@ -89,8 +79,10 @@ export const useQuotation = () => {
     if (prevNode) {
       setCurrentNode(prevNode);
       setLoading(true);
-      await fetchOptions(prevNode.device_type, prevNode.id);
-      setLoading(false);
+      setTimeout(() => {
+        fetchOptions(prevNode.device_type, prevNode.id);
+        setLoading(false);
+      }, 400);
     }
   };
 

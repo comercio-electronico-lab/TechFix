@@ -12,19 +12,10 @@ import {
 } from 'lucide-react';
 import DeviceCard from '@/components/cards/DeviceCard';
 import DeviceModal from '@/components/ui/DeviceModal';
-
-interface Device {
-  id: string;
-  brand: string;
-  model: string;
-  serial_number: string;
-  device_type: string;
-  purchase_date: string | null;
-}
+import { Device, mockDevices } from '@/mock/devices';
 
 export default function ClienteDashboard() {
   const { user, token, updateProfile } = useAuth();
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
   // Tabs: 'equipos' | 'perfil'
   const [activeTab, setActiveTab] = useState<'equipos' | 'perfil'>('equipos');
@@ -52,29 +43,22 @@ export default function ClienteDashboard() {
     }
   }, [user]);
 
-  // Load user devices
+  // Load user devices (Mock)
   const fetchDevices = async () => {
-    if (!token) return;
     setDevicesLoading(true);
-    try {
-      const res = await fetch(`${API_URL}/api/user/devices`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setDevices(data || []);
+    // Simular retraso de red
+    setTimeout(() => {
+      // Si no hay dispositivos en el estado local, cargamos los mocks
+      if (devices.length === 0) {
+        setDevices(mockDevices);
       }
-    } catch (e) {
-      console.error("Error loading devices", e);
-    }
-    setDevicesLoading(false);
+      setDevicesLoading(false);
+    }, 800);
   };
 
   useEffect(() => {
-    if (token) {
-      fetchDevices();
-    }
-  }, [token]);
+    fetchDevices();
+  }, []);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,66 +97,27 @@ export default function ClienteDashboard() {
     setDeviceError('');
     setDeviceSubmitting(true);
 
-    const payload = {
-      brand: formData.brand,
-      model: formData.model,
-      serial_number: formData.serial_number,
-      device_type: formData.device_type,
-      purchase_date: formData.purchase_date || undefined
-    };
-
-    try {
-      let res;
+    // Simular retraso de red
+    setTimeout(() => {
       if (editingDevice) {
-        res = await fetch(`${API_URL}/api/user/devices/${editingDevice.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(payload)
-        });
+        setDevices(prev => prev.map(d => d.id === editingDevice.id ? { ...d, ...formData } : d));
       } else {
-        res = await fetch(`${API_URL}/api/user/devices`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(payload)
-        });
+        const newDevice: Device = {
+          id: `DEV-00${devices.length + 1}`,
+          ...formData
+        };
+        setDevices(prev => [...prev, newDevice]);
       }
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setDeviceError(data.error || 'Error al registrar el dispositivo');
-      } else {
-        setShowModal(false);
-        fetchDevices();
-      }
-    } catch (e) {
-      setDeviceError('Error al conectar con la API');
-    }
-    setDeviceSubmitting(false);
+      setShowModal(false);
+      setDeviceSubmitting(false);
+    }, 600);
   };
 
   const handleDeleteDevice = async (id: string) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar este dispositivo?')) return;
 
-    try {
-      const res = await fetch(`${API_URL}/api/user/devices/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        fetchDevices();
-      } else {
-        alert('No se pudo eliminar el equipo');
-      }
-    } catch (e) {
-      console.error("Error deleting device", e);
-    }
+    // Simular retraso
+    setDevices(prev => prev.filter(d => d.id !== id));
   };
 
   return (
