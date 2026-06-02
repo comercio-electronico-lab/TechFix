@@ -10,6 +10,7 @@ import DevicesTab from '@/components/portal/DevicesTab';
 import RegisterDeviceModal from '@/components/portal/RegisterDeviceModal';
 import AuthForm from '@/components/portal/AuthForm';
 import RepairsTab from '@/components/portal/RepairsTab';
+import PurchasesTab from '@/components/portal/PurchasesTab';
 
 const TAB_LABELS: Record<string, string> = {
   Devices: 'Equipos Registrados',
@@ -101,17 +102,7 @@ export default function CustomerPortal() {
           )}
 
           {activeTab === 'Purchases' && (
-            <div className="max-w-3xl mx-auto space-y-6">
-              <div className="bg-surface dark:bg-slate-900 border border-outline-variant/40 dark:border-slate-800 p-6 rounded-xl shadow-sm text-center py-12">
-                <div className="p-4 bg-primary/5 dark:bg-sky-500/5 rounded-full inline-block mb-3 border border-outline-variant/10">
-                  <ShieldCheck className="w-8 h-8 text-primary dark:text-sky-400" />
-                </div>
-                <h3 className="font-bold text-base text-on-surface dark:text-white">Historial de Pedidos</h3>
-                <p className="text-xs text-on-surface-variant dark:text-slate-400 max-w-sm mx-auto mt-2 leading-relaxed">
-                  Tu historial de compras de repuestos OEM y componentes de hardware. Actualmente no registras pedidos.
-                </p>
-              </div>
-            </div>
+            <PurchasesTab />
           )}
 
           {activeTab === 'Repairs' && (
