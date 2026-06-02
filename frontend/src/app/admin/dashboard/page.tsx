@@ -1,84 +1,83 @@
-"use client";
+'use client';
 
-import AdminMetricCard from '@/components/admin/AdminMetricCard';
-import Table from '@/components/ui/Table';
-import Badge from '@/components/ui/Badge';
-import { mockAppointments, Appointment } from '@/mock/admin';
-import { CircleDollarSign, Wrench, UserPlus, Package, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import React from 'react';
+import { Search, Plus, Wrench } from 'lucide-react';
+import { useRepairQueue } from '@/hooks/useRepairQueue';
+import KanbanBoard from '@/components/admin/KanbanBoard';
+import NewTicketModal from '@/components/admin/NewTicketModal';
 
-export default function AdminDashboard() {
-  const columns = [
-    { header: 'ID Ticket', key: 'id', render: (item: any) => <span className="font-bold text-primary">{item.id}</span> },
-    { header: 'Cliente', key: 'customer' },
-    { header: 'Dispositivo', key: 'device' },
-    { header: 'Servicio', key: 'service' },
-    { 
-      header: 'Estado', 
-      key: 'status',
-      render: (item: Appointment) => {
-        const variants = {
-          'Pending': 'warning',
-          'In Progress': 'info',
-          'Completed': 'success',
-          'Cancelled': 'error',
-        } as const;
-        return <Badge variant={variants[item.status]}>{item.status}</Badge>;
-      }
-    },
-  ];
+export default function WorkshopDashboard() {
+  const {
+    searchQuery,
+    isModalOpen,
+    pendingTickets,
+    diagnosisTickets,
+    repairingTickets,
+    completedTickets,
+    newTicket,
+    setSearchQuery,
+    setIsModalOpen,
+    setNewTicket,
+    moveTicket,
+    handleCreateTicket,
+  } = useRepairQueue();
 
   return (
-    <div className="space-y-stack-lg">
-      <header>
-        <h1 className="text-primary text-[32px] font-bold">Resumen General</h1>
-        <p className="text-on-surface-variant">Bienvenido de nuevo al centro de comando técnico.</p>
+    <div className="flex flex-col flex-1 min-h-[calc(100vh-140px)] bg-surface dark:bg-slate-900/30 rounded-2xl border border-outline-variant/30 dark:border-slate-800 overflow-hidden transition-colors duration-300 shadow-sm">
+
+      {/* Top Toolbar */}
+      <header className="h-16 flex-shrink-0 bg-surface-container-low dark:bg-slate-950/40 border-b border-outline-variant/30 dark:border-slate-800 flex items-center justify-between px-6 z-10 transition-colors">
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-bold text-on-surface dark:text-white tracking-tight flex items-center gap-2.5">
+            <Wrench className="w-5 h-5 text-primary dark:text-sky-400" />
+            Active Repair Queue
+          </h2>
+          <div className="h-4 w-px bg-outline-variant/50 dark:bg-slate-800 mx-2" />
+          <span className="text-[10px] font-bold text-on-surface-variant/60 dark:text-slate-500 uppercase tracking-widest">
+            Last updated: Just now
+          </span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          {/* Barra de búsqueda */}
+          <div className="relative hidden md:block">
+            <Search className="w-4 h-4 text-outline absolute left-3 top-2.5 dark:text-slate-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search orders, devices, customers..."
+              className="pl-9 pr-4 py-1.5 bg-surface dark:bg-slate-950 border border-outline-variant/50 dark:border-slate-800 rounded-lg text-xs text-on-surface dark:text-white placeholder:text-outline/70 focus:outline-none focus:border-primary dark:focus:border-sky-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-sky-500/20 transition-all w-60"
+            />
+          </div>
+
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="h-9 px-4 bg-primary dark:bg-sky-600 hover:bg-surface-tint dark:hover:bg-sky-500 text-on-primary dark:text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" /> New Ticket
+          </button>
+        </div>
       </header>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
-        <AdminMetricCard 
-          label="Ventas Totales" 
-          value="$42,500" 
-          trend={{ value: 12, isUpward: true }} 
-          icon={CircleDollarSign} 
-          color="secondary"
-        />
-        <AdminMetricCard 
-          label="Reparaciones Activas" 
-          value="18" 
-          icon={Wrench} 
-          color="primary"
-          progress={65}
-        />
-        <AdminMetricCard 
-          label="Clientes Nuevos" 
-          value="125" 
-          trend={{ value: 8, isUpward: true }} 
-          icon={UserPlus} 
-          color="accent"
-        />
-        <AdminMetricCard 
-          label="Bajo Stock" 
-          value="4" 
-          icon={Package} 
-          color="accent"
-          description="Requiere atención inmediata"
-        />
-      </div>
+      {/* Kanban Board */}
+      <KanbanBoard
+        pendingTickets={pendingTickets}
+        diagnosisTickets={diagnosisTickets}
+        repairingTickets={repairingTickets}
+        completedTickets={completedTickets}
+        onMoveTicket={moveTicket}
+      />
 
-      {/* Recent Activity Section */}
-      <section className="bg-white rounded-2xl shadow-sm border border-outline-variant/10 overflow-hidden">
-        <div className="p-6 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-lowest">
-          <h2 className="text-xl font-bold text-primary">Citas Recientes</h2>
-          <Link href="/admin/citas" className="text-secondary font-bold text-sm flex items-center gap-2 hover:underline">
-            Ver todas <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-        <div className="p-2">
-          <Table columns={columns} data={mockAppointments.slice(0, 5)} />
-        </div>
-      </section>
+      {/* Modal de Nuevo Ticket */}
+      <NewTicketModal
+        isOpen={isModalOpen}
+        newTicket={newTicket}
+        onClose={() => setIsModalOpen(false)}
+        onChange={setNewTicket}
+        onSubmit={handleCreateTicket}
+      />
+
     </div>
   );
 }
