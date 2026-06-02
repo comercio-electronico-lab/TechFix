@@ -3,14 +3,17 @@
 import React from 'react';
 import { useDiagnosticFlow } from '@/hooks/useDiagnosticFlow';
 import DiagnosticStepper from '@/components/repair/DiagnosticStepper';
+import { useAuth } from '@/context/AuthContext';
 import {
   DiagnosticStep1,
   DiagnosticStep2,
+  Step3AuthGate,
   DiagnosticStep4,
   DiagnosticStep5,
 } from '@/components/repair/DiagnosticSteps';
 
 export default function AsistenteDiagnostico() {
+  const { isAuthenticated } = useAuth();
   const {
     step,
     deviceType,
@@ -23,12 +26,20 @@ export default function AsistenteDiagnostico() {
     clientPhone,
     isSubmitting,
     ticketId,
+    terminalNode,
+    // Nuevos campos premium
+    serialNumber,
+    deviceModel,
+    appointmentDate,
+    appointmentTime,
+    selectedBranch,
+    failurePhoto,
     handleBack,
     selectOption,
     handleSubmit,
     setDeviceType,
     setClientField,
-    terminalNode,
+    setFailurePhoto,
   } = useDiagnosticFlow();
 
   return (
@@ -44,7 +55,10 @@ export default function AsistenteDiagnostico() {
           {step === 1 && (
             <DiagnosticStep1
               currentDevice={deviceType}
+              serialNumber={serialNumber}
+              deviceModel={deviceModel}
               onSelect={setDeviceType}
+              onFieldChange={setClientField}
             />
           )}
 
@@ -58,14 +72,23 @@ export default function AsistenteDiagnostico() {
           )}
 
           {step === 4 && (
-            <DiagnosticStep4
-              clientName={clientName}
-              clientEmail={clientEmail}
-              clientPhone={clientPhone}
-              isSubmitting={isSubmitting}
-              onChange={setClientField}
-              onSubmit={handleSubmit}
-            />
+            !isAuthenticated ? (
+              <Step3AuthGate />
+            ) : (
+              <DiagnosticStep4
+                clientName={clientName}
+                clientEmail={clientEmail}
+                clientPhone={clientPhone}
+                isSubmitting={isSubmitting}
+                appointmentDate={appointmentDate}
+                appointmentTime={appointmentTime}
+                selectedBranch={selectedBranch}
+                failurePhoto={failurePhoto}
+                onChange={setClientField}
+                setFailurePhoto={setFailurePhoto}
+                onSubmit={handleSubmit}
+              />
+            )
           )}
 
           {step === 5 && ticketId && (
@@ -76,6 +99,12 @@ export default function AsistenteDiagnostico() {
               symptomPath={symptomPath}
               suggestedProducts={suggestedProducts}
               clientName={clientName}
+              serialNumber={serialNumber}
+              deviceModel={deviceModel}
+              appointmentDate={appointmentDate}
+              appointmentTime={appointmentTime}
+              selectedBranch={selectedBranch}
+              failurePhoto={failurePhoto}
             />
           )}
         </div>
@@ -84,3 +113,5 @@ export default function AsistenteDiagnostico() {
     </div>
   );
 }
+
+
