@@ -29,4 +29,6 @@ export const mockAppointments: Appointment[] = [
   { id: 'TKT-1001', customer: 'Carlos Perez', device: 'MacBook Pro 14"', service: 'Microsoldadura', date: '2026-05-26', status: 'In Progress' },
   { id: 'TKT-1002', customer: 'Ana Garcia', device: 'iPhone 15 Pro', service: 'Cambio de Pantalla', date: '2026-05-27', status: 'Pending' },
   { id: 'TKT-1003', customer: 'Roberto Diaz', device: 'Dell XPS 13', service: 'Recuperación de Datos', date: '2026-05-25', status: 'Completed' },
+  { id: 'TKT-1004', customer: 'Maria Lopez', device: 'Samsung S24', service: 'Batería', date: '2026-05-28', status: 'Pending' },
+  { id: 'TKT-1005', customer: 'Diego Ruiz', device: 'iPad Pro 11"', service: 'Pantalla', date: '2026-05-29', status: 'In Progress' },
 ];
