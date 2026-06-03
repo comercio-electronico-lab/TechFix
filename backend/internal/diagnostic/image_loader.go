@@ -4,64 +4,110 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"gopkg.in/yaml.v3"
 )
 
 type ProductImageConfig struct {
-	Products map[string][]CategoryImages `yaml:"products"`
+	Category   string              `yaml:"category"`
+	DeviceType string              `yaml:"device_type"`
+	Components map[string][]ComponentImages `yaml:"components"`
 }
 
-type CategoryImages struct {
+type ComponentImages struct {
 	Keywords []string `yaml:"keywords"`
 	Images   []string `yaml:"images"`
 }
 
-var productImages *ProductImageConfig
+var productImagesCache map[string]*ProductImageConfig
 
 func init() {
-	loadProductImages()
+	loadAllProductImages()
 }
 
-func loadProductImages() {
-	data, err := os.ReadFile("seeds/product_images.yaml")
+func loadAllProductImages() {
+	productImagesCache = make(map[string]*ProductImageConfig)
+
+	// Ruta de los YAMLs
+	yamelsPath := "seeds/yamls"
+
+	// Leer todos los archivos YAML en la carpeta
+	files, err := os.ReadDir(yamelsPath)
 	if err != nil {
-		log.Printf("Warning: failed to load product images YAML: %v", err)
+		log.Printf("Warning: failed to read yamls directory: %v", err)
 		return
 	}
 
-	productImages = &ProductImageConfig{}
-	if err := yaml.Unmarshal(data, productImages); err != nil {
-		log.Printf("Warning: failed to parse product images YAML: %v", err)
-		return
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".yaml") {
+			filePath := filepath.Join(yamelsPath, file.Name())
+			data, err := os.ReadFile(filePath)
+			if err != nil {
+				log.Printf("Warning: failed to load %s: %v", file.Name(), err)
+				continue
+			}
+
+			config := &ProductImageConfig{}
+			if err := yaml.Unmarshal(data, config); err != nil {
+				log.Printf("Warning: failed to parse %s: %v", file.Name(), err)
+				continue
+			}
+
+			// Guardar con la categoría o device_type como clave
+			key := strings.ToLower(config.Category)
+			if key == "" {
+				key = strings.ToLower(config.DeviceType)
+			}
+			productImagesCache[key] = config
+
+			log.Printf("✓ Loaded image config: %s (%s)", file.Name(), key)
+		}
 	}
 
-	log.Println("✓ Product images loaded successfully")
+	log.Printf("✓ Total image configs loaded: %d", len(productImagesCache))
 }
 
 // GetImageURLForProduct busca una URL de imagen apropiada para un producto
-func GetImageURLForProduct(productName string) string {
-	if productImages == nil || len(productImages.Products) == 0 {
+// deviceType: "smartphone", "laptop", "tablet", etc.
+// productName: nombre del producto a buscar imagen
+func GetImageURLForProduct(deviceType, productName string) string {
+	if len(productImagesCache) == 0 {
 		return ""
 	}
 
+	deviceKey := strings.ToLower(strings.TrimSpace(deviceType))
 	productNameLower := strings.ToLower(productName)
 
-	// Buscar coincidencia de keywords
-	for _, categories := range productImages.Products {
-		for _, category := range categories {
-			for _, keyword := range category.Keywords {
+	// Intentar obtener configuración específica del dispositivo
+	config, ok := productImagesCache[deviceKey]
+	if !ok {
+		// Fallback a genérico
+		config, ok = productImagesCache["generic"]
+		if !ok {
+			return ""
+		}
+	}
+
+	// Buscar coincidencia de keywords en los componentes
+	for _, componentList := range config.Components {
+		for _, component := range componentList {
+			for _, keyword := range component.Keywords {
 				if strings.Contains(productNameLower, strings.ToLower(keyword)) {
-					return getRandomImage(category.Images)
+					return getRandomImage(component.Images)
 				}
 			}
 		}
 	}
 
-	// Fallback a genérico si no hay coincidencia
-	if genericImages, ok := productImages.Products["generic"]; ok && len(genericImages) > 0 {
-		return getRandomImage(genericImages[0].Images)
+	// Fallback a primer componente si no hay coincidencia
+	for _, componentList := range config.Components {
+		for _, component := range componentList {
+			if len(component.Images) > 0 {
+				return getRandomImage(component.Images)
+			}
+		}
 	}
 
 	return ""

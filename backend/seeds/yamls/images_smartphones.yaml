@@ -1,0 +1,131 @@
+# Product Images for Smartphones
+# Imágenes específicas para componentes y reparaciones de teléfonos inteligentes
+
+category: smartphones
+device_type: "Smartphone/Celular"
+
+components:
+  # ====== PANTALLAS / DISPLAYS PARA SMARTPHONES ======
+  display:
+    keywords: ["pantalla", "display", "screen", "lcd", "oled", "amoled", "vidrio"]
+    images:
+      - "https://images.unsplash.com/photo-1511707267537-b85faf00021e?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== BATERÍAS PARA SMARTPHONES ======
+  battery:
+    keywords: ["batería", "battery", "acumulador", "pila"]
+    images:
+      - "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1556742208-999815fca738?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1581092162562-40038f46eaa6?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515573-a808e45fad26?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1622181451923-24a88e6b4ffd?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&h=300&fit=crop"
+
+  # ====== CARGADORES / PUERTOS DE CARGA ======
+  charger:
+    keywords: ["cargador", "charger", "cable", "usb", "puerto de carga", "conector"]
+    images:
+      - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515573-a808e45fad26?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1622181451923-24a88e6b4ffd?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515573-a808e45fad26?w=400&h=300&fit=crop"
+
+  # ====== BOTONES / FLEX ======
+  buttons:
+    keywords: ["botón", "button", "flex", "botones laterales", "power button"]
+    images:
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== CÁMARAS ======
+  camera:
+    keywords: ["cámara", "camera", "lente", "lens", "frontal", "trasera"]
+    images:
+      - "https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1606986628025-35d57e735ae0?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1500231546519-d1f2c3ba4e0d?w=400&h=300&fit=crop"
+
+  # ====== ALTAVOCES / AUDIO ======
+  speaker:
+    keywords: ["parlante", "speaker", "altavoz", "audio", "micrófono"]
+    images:
+      - "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+
+  # ====== PLACA BASE / MOTHERBOARD ======
+  motherboard:
+    keywords: ["placa base", "motherboard", "placa madre", "circuito"]
+    images:
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1531492746076-161ca9bcad58?w=400&h=300&fit=crop"
+
+  # ====== CARCASA / BODY ======
+  housing:
+    keywords: ["carcasa", "body", "chasis", "frame", "back panel"]
+    images:
+      - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+
+  # ====== CONECTORES / PUERTOS ======
+  connectors:
+    keywords: ["conector", "puerto", "jack", "usb", "hdmi", "3.5mm"]
+    images:
+      - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1622181451923-24a88e6b4ffd?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515573-a808e45fad26?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+
+  # ====== SENSOR DE PROXIMIDAD / SENSORES ======
+  sensors:
+    keywords: ["sensor", "proximidad", "giroscopio", "acelerómetro"]
+    images:
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== ANTENA / CONECTIVIDAD ======
+  antenna:
+    keywords: ["antena", "wifi", "bluetooth", "nfc", "gsm"]
+    images:
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+
+  # ====== PROTECTOR / VIDRIO TEMPLADO ======
+  protector:
+    keywords: ["protector", "cristal", "vidrio templado", "screen protector"]
+    images:
+      - "https://images.unsplash.com/photo-1511707267537-b85faf00021e?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"

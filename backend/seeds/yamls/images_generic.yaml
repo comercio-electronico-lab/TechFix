@@ -1,0 +1,26 @@
+# Generic Product Images
+# Imágenes genéricas para componentes que se usan en múltiples dispositivos
+
+category: generic
+device_type: "Genérico"
+
+components:
+  # ====== COMPONENTES GENÉRICOS ======
+  generic:
+    keywords: ["componente", "part", "pieza", "repuesto"]
+    images:
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1531492746076-161ca9bcad58?w=400&h=300&fit=crop"
+
+  # ====== CABLES ======
+  cables:
+    keywords: ["cable", "wire", "conector"]
+    images:
+      - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515573-a808e45fad26?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1622181451923-24a88e6b4ffd?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&h=300&fit=crop"

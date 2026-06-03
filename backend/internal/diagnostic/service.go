@@ -179,8 +179,8 @@ func (s *DiagnosticService) AnswerDiagnostic(req AnswerDiagnosticRequest) (*Diag
 
 		// Guardar productos recomendados con imágenes automáticas
 		for _, part := range aiResp.RecommendedParts {
-			// Generar URL de imagen automáticamente
-			imageURL := GetImageURLForProduct(part.Name)
+			// Generar URL de imagen automáticamente (basada en device_type y nombre del producto)
+			imageURL := GetImageURLForProduct(session.DeviceType, part.Name)
 
 			product := models.AIRecommendedProduct{
 				ID:                  uuid.New(),
@@ -208,7 +208,7 @@ func (s *DiagnosticService) AnswerDiagnostic(req AnswerDiagnosticRequest) (*Diag
 		response.MaxPrice = aiResp.EstimatedMaxPrice
 
 		for _, part := range aiResp.RecommendedParts {
-			imageURL := GetImageURLForProduct(part.Name)
+			imageURL := GetImageURLForProduct(session.DeviceType, part.Name)
 			response.Products = append(response.Products, RecommendedProductDTO{
 				Name:      part.Name,
 				Category:  part.Category,
