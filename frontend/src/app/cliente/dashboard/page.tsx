@@ -1,41 +1,43 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { 
-  User as UserIcon, 
-  Smartphone, 
-  Plus, 
-  Check, 
-  AlertTriangle,
-  FolderOpen,
-  Calendar,
-  ShoppingBag,
-  ShieldCheck,
-  ArrowRight,
-  Sparkles
-} from 'lucide-react';
-import DeviceCard from '@/components/cards/DeviceCard';
 import DeviceModal from '@/components/ui/DeviceModal';
 import { Device, mockDevices } from '@/mock/devices';
-import { 
-  getClientRepairsAction, 
-  getClientWarrantiesAction, 
-  scheduleRepairAction 
+import {
+  getClientRepairsAction,
+  getClientWarrantiesAction,
+  scheduleRepairAction
 } from '@/app/actions';
-import RepairTimeline, { TimelineStep } from '@/components/repair/RepairTimeline';
-import WarrantyCertificateCard from '@/components/repair/WarrantyCertificateCard';
-import Link from 'next/link';
-
-// Unified UI Components
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import DashboardTabs from '@/components/dashboard/DashboardTabs';
+import DevicesSection from '@/components/dashboard/DevicesSection';
+import RepairsSection from '@/components/dashboard/RepairsSection';
+import PurchasesSection from '@/components/dashboard/PurchasesSection';
+import WarrantiesSection from '@/components/dashboard/WarrantiesSection';
+import ProfileSection from '@/components/dashboard/ProfileSection';
 
 export default function ClienteDashboard() {
   const { user, token, updateProfile } = useAuth();
+  const searchParams = useSearchParams();
+  const sectionParam = searchParams.get('section') as 'dispositivos' | 'reparaciones' | 'compras' | 'garantias' | 'informacion' | null;
 
-  // Tabs: 'equipos' | 'reparaciones' | 'compras' | 'garantias' | 'perfil'
-  const [activeTab, setActiveTab] = useState<'equipos' | 'reparaciones' | 'compras' | 'garantias' | 'perfil'>('equipos');
+  // Map section query param to tab key
+  const getTabFromSection = (section: string | null): 'equipos' | 'reparaciones' | 'compras' | 'garantias' | 'perfil' => {
+    switch (section) {
+      case 'dispositivos': return 'equipos';
+      case 'reparaciones': return 'reparaciones';
+      case 'compras': return 'compras';
+      case 'garantias': return 'garantias';
+      case 'informacion': return 'perfil';
+      default: return 'equipos';
+    }
+  };
+
+  const [activeTab, setActiveTab] = useState<'equipos' | 'reparaciones' | 'compras' | 'garantias' | 'perfil'>(
+    getTabFromSection(sectionParam)
+  );
 
   // Perfil state
   const [nombre, setNombre] = useState('');
@@ -47,22 +49,27 @@ export default function ClienteDashboard() {
   const [profileError, setProfileError] = useState('');
   const [profileSubmitting, setProfileSubmitting] = useState(false);
 
-  // Devices CRUD state
+  // Devices state
   const [devices, setDevices] = useState<Device[]>([]);
   const [devicesLoading, setDevicesLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingDevice, setEditingDevice] = useState<Device | null>(null);
-  const [deviceError, setDeviceError] = useState('');
   const [deviceSubmitting, setDeviceSubmitting] = useState(false);
 
-  // Dynamic States
+  // Repairs, warranties, orders state
   const [repairs, setRepairs] = useState<any[]>([]);
   const [repairsLoading, setRepairsLoading] = useState(false);
   const [warranties, setWarranties] = useState<any[]>([]);
   const [warrantiesLoading, setWarrantiesLoading] = useState(false);
   const [lastOrder, setLastOrder] = useState<any>(null);
 
-  // Sync profile values & process pending repairs
+  // Sync activeTab with query parameter
+  useEffect(() => {
+    if (sectionParam) {
+      setActiveTab(getTabFromSection(sectionParam));
+    }
+  }, [sectionParam]);
+
   useEffect(() => {
     if (user) {
       setNombre(user.nombre);
@@ -73,11 +80,10 @@ export default function ClienteDashboard() {
     }
   }, [user]);
 
-  // Procesa reservas pendientes de diagnóstico e inicializa carga
   useEffect(() => {
     const checkPendingRepair = async () => {
       if (!token) return;
-      
+
       const pendingRepair = localStorage.getItem('techfix_pending_repair');
       if (pendingRepair) {
         try {
@@ -85,7 +91,6 @@ export default function ClienteDashboard() {
           await scheduleRepairAction(token, parsed);
           alert('¡Tu pre-diagnóstico pendiente ha sido reservado y agendado automáticamente en nuestro taller con tus datos de cliente!');
           localStorage.removeItem('techfix_pending_repair');
-          // Cambiar a la pestaña de reparaciones para ver el ticket
           setActiveTab('reparaciones');
         } catch (e) {
           console.error("Error al procesar reserva automática:", e);
@@ -98,7 +103,6 @@ export default function ClienteDashboard() {
     loadLastOrder();
   }, [token]);
 
-  // Trigger data loading depending on active tab
   useEffect(() => {
     if (activeTab === 'reparaciones') {
       fetchRepairs();
@@ -118,7 +122,6 @@ export default function ClienteDashboard() {
     }
   };
 
-  // Load user devices (Mock)
   const fetchDevices = async () => {
     setDevicesLoading(true);
     setTimeout(() => {
@@ -170,15 +173,33 @@ export default function ClienteDashboard() {
     setProfileSubmitting(false);
   };
 
+  const handleProfileChange = (field: string, value: string) => {
+    switch (field) {
+      case 'nombre':
+        setNombre(value);
+        break;
+      case 'teléfono':
+        setTeléfono(value);
+        break;
+      case 'dirección':
+        setDirección(value);
+        break;
+      case 'ciudad':
+        setCiudad(value);
+        break;
+      case 'documentId':
+        setDocumentId(value);
+        break;
+    }
+  };
+
   const handleOpenCreateModal = () => {
     setEditingDevice(null);
-    setDeviceError('');
     setShowModal(true);
   };
 
   const handleOpenEditModal = (device: Device) => {
     setEditingDevice(device);
-    setDeviceError('');
     setShowModal(true);
   };
 
@@ -189,7 +210,6 @@ export default function ClienteDashboard() {
     device_type: string;
     purchase_date: string;
   }) => {
-    setDeviceError('');
     setDeviceSubmitting(true);
 
     setTimeout(() => {
@@ -212,412 +232,63 @@ export default function ClienteDashboard() {
     setDevices(prev => prev.filter(d => d.id !== id));
   };
 
-  // Mapeador de estados para el timeline de taller
-  const getTimelineSteps = (status: string, notes: string, date: string): TimelineStep[] => {
-    const baseSteps: TimelineStep[] = [
-      { id: 1, title: 'Orden Recibida', description: 'El pre-diagnóstico ha sido recibido y el dispositivo está en cola para inspección.', status: 'completed', date },
-      { id: 2, title: 'En Revisión y Diagnóstico', description: 'Nuestros técnicos están revisando la placa base y probando componentes OEM.', status: 'pending' },
-      { id: 3, title: 'Reparaciones en Curso', description: 'Se realiza la microsoldadura o recambio de piezas aprobadas.', status: 'pending' },
-      { id: 4, title: 'Listo para Entrega', description: 'El equipo superó las pruebas de rendimiento y está listo para ser recogido.', status: 'pending' },
-    ];
-
-    if (status === 'in_review' || status === 'repairing') {
-      baseSteps[1].status = 'active';
-      baseSteps[1].detailedInfo = notes || 'Se están verificando fallas de corriente y componentes de energía.';
-    } else if (status === 'waiting_parts') {
-      baseSteps[1].status = 'completed';
-      baseSteps[2].status = 'active';
-      baseSteps[2].detailedInfo = 'Orden pausada temporalmente en espera de componentes de importación.';
-    } else if (status === 'ready') {
-      baseSteps[1].status = 'completed';
-      baseSteps[2].status = 'completed';
-      baseSteps[3].status = 'active';
-      baseSteps[3].detailedInfo = 'Reparación completada con éxito. Se iniciaron pruebas de calibración y estrés de 24 horas.';
-    } else if (status === 'delivered') {
-      baseSteps[1].status = 'completed';
-      baseSteps[2].status = 'completed';
-      baseSteps[3].status = 'completed';
-    }
-
-    return baseSteps;
-  };
-
   return (
     <div className="space-y-8 pb-16">
-      {/* Title */}
-      <div>
-        <h1 className="text-primary dark:text-white font-h1 font-bold">Panel Personal</h1>
-        <p className="text-sm text-on-surface-variant mt-1">Bienvenido de nuevo a tu centro de control TechFix.</p>
-      </div>
+      <DashboardHeader
+        userName={user?.nombre || ''}
+        deviceCount={devices.length}
+        activeRepairsCount={repairs.filter(r => r.status !== 'delivered').length}
+        warrantiesCount={warranties.length}
+      />
 
-      {/* Welcome Banner & Overview Stats Card */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Banner */}
-        <div className="lg:col-span-2 relative overflow-hidden bg-slate-950 text-white rounded-3xl p-6 md:p-8 border border-slate-850 flex flex-col justify-between min-h-[160px] shadow-lg">
-          {/* Subtle Glows */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-40 h-40 bg-sky-500/10 rounded-full blur-2xl pointer-events-none" />
-          
-          <div className="space-y-2 relative z-10">
-            <span className="text-[10px] font-bold text-sky-400 uppercase tracking-widest inline-flex items-center gap-1 bg-sky-500/10 px-3 py-1 rounded-full w-max">
-              <Sparkles className="w-3 h-3" /> Acceso Cliente
-            </span>
-            <h2 className="text-2xl md:text-3xl font-black tracking-tight text-white mt-2">
-              ¡Hola de nuevo, {user?.nombre}! 👋
-            </h2>
-            <p className="text-xs md:text-sm text-slate-350 leading-relaxed max-w-xl">
-              Administra tus equipos registrados, monitorea el progreso de calibración, soldadura de tus reparaciones en tiempo real y gestiona tus garantías oficiales.
-            </p>
-          </div>
-        </div>
+      <DashboardTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {/* Quick Stats Summary */}
-        <div className="bg-white/70 dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 rounded-3xl p-6 shadow-md flex flex-col justify-between">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant dark:text-slate-400">Resumen Rápido</h4>
-          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-            <div className="text-center space-y-1">
-              <span className="block text-2xl font-black text-primary dark:text-sky-400">{devices.length}</span>
-              <span className="block text-[10px] text-on-surface-variant font-medium">Equipos</span>
-            </div>
-            <div className="text-center space-y-1 border-x border-slate-150 dark:border-slate-800">
-              <span className="block text-2xl font-black text-primary dark:text-sky-400">
-                {repairs.filter(r => r.status !== 'delivered').length}
-              </span>
-              <span className="block text-[10px] text-on-surface-variant font-medium">Activos</span>
-            </div>
-            <div className="text-center space-y-1">
-              <span className="block text-2xl font-black text-primary dark:text-sky-400">{warranties.length}</span>
-              <span className="block text-[10px] text-on-surface-variant font-medium">Garantías</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs Segmented Switcher */}
-      <div className="bg-surface-container-low dark:bg-slate-900/60 p-1.5 rounded-2xl flex flex-wrap gap-1.5 border border-outline-variant/10 shadow-sm max-w-max">
-        {([
-          { key: 'equipos', label: 'Mis Dispositivos', icon: Smartphone },
-          { key: 'reparaciones', label: 'Mis Reparaciones', icon: Calendar },
-          { key: 'compras', label: 'Mis Compras', icon: ShoppingBag },
-          { key: 'garantias', label: 'Garantías', icon: ShieldCheck },
-          { key: 'perfil', label: 'Mi Información', icon: UserIcon }
-        ] as const).map((tab) => {
-          const isActive = activeTab === tab.key;
-          const TabIcon = tab.icon;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold transition-all duration-300 text-xs md:text-sm cursor-pointer ${
-                isActive 
-                  ? 'bg-secondary text-white shadow-md scale-[1.02]' 
-                  : 'text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-white/5 hover:text-primary dark:hover:text-white'
-              }`}
-            >
-              <TabIcon className="w-4.5 h-4.5" />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Content */}
       <div className="grid grid-cols-1 gap-6">
-        
-        {/* Pestaña: Mi Información */}
-        {activeTab === 'perfil' && (
-          <div className="bg-white/70 dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 p-8 rounded-3xl shadow-md">
-            <h3 className="text-primary dark:text-white mb-6 font-h3 font-bold">Detalles de Mi Perfil</h3>
-            
-            {profileSuccess && (
-              <div className="bg-secondary-container/20 border border-secondary/30 text-secondary dark:text-secondary-container rounded-xl p-4 mb-6 text-sm flex items-center gap-2">
-                <Check className="w-5 h-5 shrink-0" />
-                {profileSuccess}
-              </div>
-            )}
-            
-            {profileError && (
-              <div className="bg-error-container/20 border border-error/30 text-error rounded-xl p-4 mb-6 text-sm flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 shrink-0" />
-                {profileError}
-              </div>
-            )}
-
-            <form onSubmit={handleUpdateProfile} className="space-y-6 max-w-xl">
-              <Input
-                label="Nombre Completo"
-                type="text"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                placeholder="Tu nombre completo"
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="Documento"
-                  type="text"
-                  value={documentId}
-                  onChange={(e) => setDocumentId(e.target.value)}
-                  placeholder="12345678"
-                />
-                <Input
-                  label="Teléfono"
-                  type="tel"
-                  value={teléfono}
-                  onChange={(e) => setTeléfono(e.target.value)}
-                  placeholder="+51 999 888 777"
-                />
-              </div>
-
-              <Input
-                label="Dirección"
-                type="text"
-                value={dirección}
-                onChange={(e) => setDirección(e.target.value)}
-                placeholder="Av. Principal 123"
-              />
-
-              <Input
-                label="Ciudad"
-                type="text"
-                value={ciudad}
-                onChange={(e) => setCiudad(e.target.value)}
-                placeholder="Lima"
-              />
-
-              <div>
-                <Input
-                  label="Correo Electrónico"
-                  type="email"
-                  disabled
-                  value={user?.email || ''}
-                  className="cursor-not-allowed opacity-80"
-                />
-                <span className="text-[11px] text-on-surface-variant/70 mt-1 block">
-                  El correo electrónico no puede ser modificado por seguridad.
-                </span>
-              </div>
-
-              <Button
-                type="submit"
-                isLoading={profileSubmitting}
-                variant="primary"
-                className="w-full sm:w-auto"
-              >
-                Guardar Cambios
-              </Button>
-            </form>
-          </div>
-        )}
-
-        {/* Pestaña: Mis Equipos */}
         {activeTab === 'equipos' && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white/70 dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 p-6 rounded-3xl shadow-md gap-4">
-              <div>
-                <h3 className="text-primary dark:text-white mb-1 font-h3 font-bold">Mis Dispositivos</h3>
-                <p className="text-xs text-on-surface-variant">Registra tus equipos para agilizar tus reparaciones y servicio futuro.</p>
-              </div>
-              <Button 
-                onClick={handleOpenCreateModal}
-                variant="primary"
-                icon={Plus}
-                className="py-2.5 px-5 text-sm"
-              >
-                Registrar Equipo
-              </Button>
-            </div>
-
-            {devicesLoading ? (
-              <div className="bg-white/70 dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 p-12 text-center rounded-3xl flex flex-col items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-secondary mb-4"></div>
-                <p className="text-on-surface-variant font-bold text-sm">Cargando tus equipos...</p>
-              </div>
-            ) : devices.length === 0 ? (
-              <div className="bg-white/70 dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 p-16 text-center rounded-3xl flex flex-col items-center justify-center border-dashed border-outline-variant/40">
-                <FolderOpen className="w-16 h-16 text-on-surface-variant/40 mb-4" />
-                <h4 className="text-primary dark:text-white font-bold mb-1">Aún no tienes equipos registrados</h4>
-                <p className="text-xs text-on-surface-variant mb-6 max-w-sm">Registra tus laptops, PCs o smartphones para llevar un seguimiento de sus mantenimientos.</p>
-                <Button 
-                  onClick={handleOpenCreateModal}
-                  variant="primary"
-                  icon={Plus}
-                >
-                  Registrar Mi Primer Equipo
-                </Button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {devices.map((device) => (
-                  <DeviceCard 
-                    key={device.id} 
-                    device={device}
-                    onEdit={handleOpenEditModal}
-                    onDelete={handleDeleteDevice}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          <DevicesSection
+            devices={devices}
+            loading={devicesLoading}
+            onCreateClick={handleOpenCreateModal}
+            onEditClick={handleOpenEditModal}
+            onDeleteClick={handleDeleteDevice}
+          />
         )}
 
-        {/* Pestaña: Mis Reparaciones */}
         {activeTab === 'reparaciones' && (
-          <div className="space-y-6">
-            <div className="bg-white/70 dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 p-6 rounded-3xl shadow-md">
-              <h3 className="text-primary dark:text-white mb-1 font-h3 font-bold">Monitoreo de Reparaciones</h3>
-              <p className="text-xs text-on-surface-variant">Sigue en tiempo real el progreso de calibración, microsoldadura y recambio de piezas de tus equipos.</p>
-            </div>
-
-            {repairsLoading ? (
-              <div className="bg-white/70 dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 p-12 text-center rounded-3xl">
-                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-secondary mx-auto"></div>
-              </div>
-            ) : repairs.length === 0 ? (
-              <div className="bg-white/70 dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 p-16 text-center rounded-3xl flex flex-col items-center justify-center border-dashed border-outline-variant/40">
-                <FolderOpen className="w-14 h-14 text-on-surface-variant/40 mb-3" />
-                <h4 className="text-primary dark:text-white font-bold mb-1">No tienes órdenes de reparación activas</h4>
-                <p className="text-xs text-on-surface-variant max-w-sm mb-6">Si tu equipo está fallando, completa nuestro pre-diagnóstico interactivo.</p>
-                <Link href="/reparaciones">
-                  <Button variant="secondary" icon={ArrowRight}>
-                    Iniciar Diagnóstico
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-8">
-                {repairs.map((repair) => {
-                  const deviceLabel = repair.device ? `${repair.device.brand} ${repair.device.model}` : 'Dispositivo';
-                  const steps = getTimelineSteps(repair.status, repair.diagnosis_final, repair.created_at);
-                  
-                  return (
-                    <div key={repair.id} className="bg-white/70 dark:bg-slate-900 border border-outline-variant/15 dark:border-slate-800 rounded-3xl p-6 md:p-8 shadow-md space-y-6">
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-outline-variant/10 dark:border-slate-800/80 pb-4 gap-2">
-                        <div>
-                          <span className="text-[10px] font-bold text-secondary dark:text-sky-400 font-mono">ID DE TICKET: {repair.id}</span>
-                          <h4 className="text-base font-black text-on-background mt-1">{deviceLabel}</h4>
-                        </div>
-                        <div className="text-left sm:text-right">
-                          <span className="text-[10px] text-on-surface-variant block uppercase font-bold">Costo Final Estimado</span>
-                          <span className="text-sm font-mono font-black text-primary dark:text-sky-400">${(repair.final_price || 0).toFixed(2)} USD</span>
-                        </div>
-                      </div>
-
-                      <div className="pt-2">
-                        <RepairTimeline steps={steps} />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          <RepairsSection repairs={repairs} loading={repairsLoading} />
         )}
 
-        {/* Pestaña: Mis Compras */}
         {activeTab === 'compras' && (
-          <div className="space-y-6">
-            <div className="bg-white/70 dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 p-6 rounded-3xl shadow-md">
-              <h3 className="text-primary dark:text-white mb-1 font-h3 font-bold">Historial de Pedidos</h3>
-              <p className="text-xs text-on-surface-variant">Revisa los componentes de hardware y repuestos que has adquirido.</p>
-            </div>
-
-            {!lastOrder ? (
-              <div className="bg-white/70 dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 p-16 text-center rounded-3xl flex flex-col items-center justify-center border-dashed border-outline-variant/40">
-                <ShoppingBag className="w-14 h-14 text-on-surface-variant/40 mb-3" />
-                <h4 className="text-primary dark:text-white font-bold mb-1">Aún no tienes compras registradas</h4>
-                <p className="text-xs text-on-surface-variant mb-6">Visita nuestro catálogo de hardware premium OEM.</p>
-                <Link href="/catalogo">
-                  <Button variant="secondary" icon={ArrowRight}>
-                    Ver Catálogo de Componentes
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="bg-white/70 dark:bg-slate-900 border border-outline-variant/15 dark:border-slate-800 rounded-3xl p-6 md:p-8 shadow-md space-y-6">
-                <div className="flex justify-between items-center border-b border-outline-variant/10 dark:border-slate-800/80 pb-4">
-                  <div>
-                    <span className="text-[10px] font-bold text-emerald-650 dark:text-emerald-400 uppercase tracking-widest block mb-0.5 font-mono">COMPRA COMPLETA</span>
-                    <h4 className="text-base font-black text-on-background">Pedido #{lastOrder.orderId || 'ORD-9912'}</h4>
-                  </div>
-                  <span className="text-xs font-semibold text-on-surface-variant">Fecha: {lastOrder.fecha || new Date().toISOString().split('T')[0]}</span>
-                </div>
-
-                <div className="space-y-4">
-                  {lastOrder.items && lastOrder.items.map((item: any) => (
-                    <div key={item.id} className="flex justify-between items-center text-xs">
-                      <div>
-                        <span className="font-bold text-on-background">{item.name}</span>
-                        <span className="text-on-surface-variant ml-2">x{item.quantity}</span>
-                      </div>
-                      <span className="font-mono text-on-background font-bold">${(item.price * item.quantity).toFixed(2)} USD</span>
-                    </div>
-                  ))}
-                  
-                  <div className="border-t border-outline-variant/10 dark:border-slate-800 pt-4 flex justify-between items-center font-bold text-sm">
-                    <span className="text-on-surface-variant">Total Pagado:</span>
-                    <span className="text-primary dark:text-sky-400 font-mono text-base">${(lastOrder.total || lastOrder.subtotal || 0).toFixed(2)} USD</span>
-                  </div>
-                </div>
-
-                <div className="bg-emerald-500/5 border border-emerald-500/10 p-4 rounded-xl flex items-center gap-3">
-                  <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                  <div className="text-xs text-left">
-                    <p className="font-bold text-emerald-850 dark:text-emerald-400">Entrega y Facturación Procesada</p>
-                    <p className="text-on-surface-variant mt-0.5">El comprobante fiscal y los certificados de garantía correspondientes han sido emitidos.</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          <PurchasesSection lastOrder={lastOrder} />
         )}
 
-        {/* Pestaña: Mis Garantías */}
         {activeTab === 'garantias' && (
-          <div className="space-y-6">
-            <div className="bg-white/70 dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 p-6 rounded-3xl shadow-md">
-              <h3 className="text-primary dark:text-white mb-1 font-h3 font-bold">Certificados de Garantía Activos</h3>
-              <p className="text-xs text-on-surface-variant">Consulta la cobertura oficial de TechCare asociada a tus equipos reparados u ordenados.</p>
-            </div>
+          <WarrantiesSection warranties={warranties} loading={warrantiesLoading} />
+        )}
 
-            {warrantiesLoading ? (
-              <div className="bg-white/70 dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 p-12 text-center rounded-3xl">
-                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-secondary mx-auto"></div>
-              </div>
-            ) : warranties.length === 0 ? (
-              <div className="bg-white/70 dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 p-16 text-center rounded-3xl flex flex-col items-center justify-center border-dashed border-outline-variant/40">
-                <ShieldCheck className="w-14 h-14 text-on-surface-variant/40 mb-3 animate-pulse" />
-                <h4 className="text-primary dark:text-white font-bold mb-1">No hay certificados de garantía activos</h4>
-                <p className="text-xs text-on-surface-variant max-w-sm">Los certificados se generan automáticamente al entregar un equipo reparado o adquirir componentes seleccionados.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {warranties.map((warranty) => {
-                  const devLabel = warranty.device ? `${warranty.device.brand} ${warranty.device.model}` : 'Dispositivo';
-                  return (
-                    <div key={warranty.id} className="space-y-2">
-                      <div className="px-1 text-xs font-bold text-on-surface-variant">Equipo: {devLabel} (S/N: {warranty.device?.serial_number})</div>
-                      <WarrantyCertificateCard 
-                        token={warranty.warranty_token}
-                        startDate={warranty.start_date}
-                        endDate={warranty.end_date}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+        {activeTab === 'perfil' && (
+          <ProfileSection
+            nombre={nombre}
+            teléfono={teléfono}
+            dirección={dirección}
+            ciudad={ciudad}
+            documentId={documentId}
+            email={user?.email || ''}
+            success={profileSuccess}
+            error={profileError}
+            submitting={profileSubmitting}
+            onChange={handleProfileChange}
+            onSubmit={handleUpdateProfile}
+          />
         )}
       </div>
 
-      {/* Modal */}
-      <DeviceModal 
+      <DeviceModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onSave={handleSaveDevice}
         editingDevice={editingDevice}
-        error={deviceError}
+        error=""
         isLoading={deviceSubmitting}
       />
     </div>
