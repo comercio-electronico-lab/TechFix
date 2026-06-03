@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import { ShieldCheck, Calendar, Clock, MapPin, Upload, X, Camera, ArrowRight } from 'lucide-react';
-import { MOCK_DEVICE_IMAGE } from '@/data/mock/mockDeviceImage';
+import { MOCK_DEVICE_IMAGE } from '@/mock/mockDeviceImage';
 
 interface Step4Props {
   clientName: string;

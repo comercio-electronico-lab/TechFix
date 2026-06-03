@@ -7,7 +7,7 @@ import { Wrench, ShoppingCart } from 'lucide-react';
 
 const HeroContent = () => (
   <div className="z-10">
-    <Badge variant="secondary" className="mb-stack-md !px-4 !py-1 !text-[12px]">
+    <Badge variant="secondary" className="mb-stack-md px-4! py-1! text-[12px]!">
       Servicios de Reparación Premium
     </Badge>
     <h1 className="text-white mb-stack-md">
