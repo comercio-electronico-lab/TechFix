@@ -83,7 +83,7 @@ export default function CustomerPortal() {
       <PortalSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* Área principal */}
-      <main className="flex-grow overflow-y-auto bg-surface-bright dark:bg-slate-950 flex flex-col relative transition-colors">
+      <main className="grow overflow-y-auto bg-surface-bright dark:bg-slate-950 flex flex-col relative transition-colors">
 
         {/* Header de sección */}
         <header className="px-6 md:px-8 py-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-outline-variant/35 dark:border-slate-850 bg-surface/90 dark:bg-slate-950/90 sticky top-0 z-10 backdrop-blur-md transition-colors">
