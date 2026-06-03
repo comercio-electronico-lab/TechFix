@@ -6,8 +6,9 @@ import ProductFooter from '@/components/product/ProductFooter';
 import ProductActions from '@/components/product/ProductActions';
 import { getProductById } from '@/actions/products';
 
-export default async function ProductDetailPage({ params }: { params: { id: string } }) {
-  const product = await getProductById(params.id);
+export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const product = await getProductById(id);
 
   if (!product) {
     return <div>Producto no encontrado</div>;

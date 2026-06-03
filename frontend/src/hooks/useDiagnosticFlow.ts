@@ -12,6 +12,7 @@ export interface UseDiagnosticFlowReturn {
   options: any[];
   symptomPath: string[];
   suggestedProducts: any[];
+  history: { node: any; options: any[] }[];
   clientName: string;
   clientEmail: string;
   clientPhone: string;
@@ -51,6 +52,29 @@ const mapNode = (node: any) => {
   };
 };
 
+const STORAGE_KEY = 'diagnosticFlowState';
+
+function saveFlowStateForAuth(state: any) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+function restoreFlowState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      localStorage.removeItem(STORAGE_KEY);
+      return JSON.parse(saved);
+    }
+  } catch {
+    // Ignore storage errors
+  }
+  return null;
+}
+
 export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
   const { user } = useAuth();
 
@@ -78,6 +102,21 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
   const [appointmentTime, setAppointmentTime] = useState(getDefaultTimeSlot());
   const [selectedBranch, setSelectedBranch] = useState('Laboratorio Central - Miraflores');
   const [failurePhoto, setFailurePhoto] = useState<string | null>(null);
+
+  // Restore flow state after returning from auth
+  useEffect(() => {
+    const saved = restoreFlowState();
+    if (saved) {
+      setStep(saved.step || 1);
+      setDeviceTypeState(saved.deviceType || null);
+      setCurrentNode(saved.currentNode || null);
+      setOptions(saved.options || []);
+      setSymptomPath(saved.symptomPath || []);
+      setSuggestedProducts(saved.suggestedProducts || []);
+      setHistory(saved.history || []);
+      setTerminalNode(saved.terminalNode || null);
+    }
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -227,6 +266,7 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
     options,
     symptomPath,
     suggestedProducts,
+    history,
     clientName,
     clientEmail,
     clientPhone,

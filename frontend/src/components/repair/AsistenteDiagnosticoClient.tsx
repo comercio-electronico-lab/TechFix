@@ -21,6 +21,7 @@ export default function AsistenteDiagnosticoClient() {
     options,
     symptomPath,
     suggestedProducts,
+    history,
     clientName,
     clientEmail,
     clientPhone,
@@ -43,9 +44,25 @@ export default function AsistenteDiagnosticoClient() {
 
   useEffect(() => {
     if (!loading && step === 4 && !isAuthenticated) {
+      // Save complete flow state before redirecting to auth
+      try {
+        const flowState = {
+          step,
+          deviceType,
+          currentNode,
+          options,
+          symptomPath,
+          suggestedProducts,
+          history,
+          terminalNode,
+        };
+        localStorage.setItem('diagnosticFlowState', JSON.stringify(flowState));
+      } catch {
+        // Ignore storage errors
+      }
       router.push('/auth?redirect=/reparaciones');
     }
-  }, [step, isAuthenticated, loading, router]);
+  }, [step, isAuthenticated, loading, router, deviceType, currentNode, options, symptomPath, suggestedProducts, history, terminalNode]);
 
   return (
     <div className="w-full">
