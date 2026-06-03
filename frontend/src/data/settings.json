@@ -1,0 +1,14 @@
+{
+  "companyName": "TechFix Laboratorio L1",
+  "branches": [
+    "Laboratorio Central - Miraflores",
+    "Sucursal Norte - Independencia",
+    "Sucursal Sur - Chorrillos"
+  ],
+  "defaultTimeSlots": [
+    "09:00 AM - 11:00 AM",
+    "11:00 AM - 01:00 PM",
+    "02:00 PM - 04:00 PM",
+    "04:00 PM - 06:00 PM"
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "suppliers": [
+    {
+      "id": "SUP-001",
+      "name": "Importaciones TechParts S.A.",
+      "contact": "José Miguel",
+      "phone": "+51 987 123 456",
+      "email": "ventas@techparts.com",
+      "category": "Displays y Baterías"
+    },
+    {
+      "id": "SUP-002",
+      "name": "Mayorista OEM Mobile",
+      "contact": "Andrea Rojas",
+      "phone": "+51 999 888 777",
+      "email": "pedidos@oemmobile.com",
+      "category": "Microchips y Conectores"
+    },
+    {
+      "id": "SUP-003",
+      "name": "Global Screens & Glass LLC",
+      "contact": "Robert Chen",
+      "phone": "+1 305 555 0199",
+      "email": "distribution@globalscreens.com",
+      "category": "Pantallas Premium"
+    }
+  ],
+  "orders": [
+    {
+      "id": "SO-2026-001",
+      "supplierName": "Importaciones TechParts S.A.",
+      "partName": "Batería de litio para iPhone 14 Pro Max",
+      "quantity": 15,
+      "unitPrice": 22.5,
+      "totalPrice": 337.5,
+      "status": "delivered",
+      "orderDate": "2026-05-10",
+      "deliveryDate": "2026-05-15"
+    },
+    {
+      "id": "SO-2026-002",
+      "supplierName": "Mayorista OEM Mobile",
+      "partName": "Microchip controlador de carga U2 USB",
+      "quantity": 50,
+      "unitPrice": 4.8,
+      "totalPrice": 240.0,
+      "status": "shipped",
+      "orderDate": "2026-05-28"
+    },
+    {
+      "id": "SO-2026-003",
+      "supplierName": "Global Screens & Glass LLC",
+      "partName": "Módulo LCD Asus ROG Strix G15 144Hz",
+      "quantity": 5,
+      "unitPrice": 85.0,
+      "totalPrice": 425.0,
+      "status": "pending",
+      "orderDate": "2026-06-01"
+    },
+    {
+      "id": "SO-2026-004",
+      "supplierName": "Importaciones TechParts S.A.",
+      "partName": "Teclado original Dell XPS 13 Español",
+      "quantity": 3,
+      "unitPrice": 40.0,
+      "totalPrice": 120.0,
+      "status": "delivered",
+      "orderDate": "2026-05-20",
+      "deliveryDate": "2026-05-24"
+    }
+  ]
+}
