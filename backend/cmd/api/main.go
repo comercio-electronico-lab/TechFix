@@ -64,6 +64,8 @@ func startServer() {
 
 	// Crear router con logger personalizado
 	r := gin.New()
+	// Confiar en TODOS los proxies para obtener IP real
+	r.SetTrustedProxies(nil)
 	r.Use(customLogger())
 	r.Use(gin.Recovery())
 
@@ -85,6 +87,18 @@ func startServer() {
 	// Ruta de estado de salud
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
+	// Debug: mostrar headers y IP
+	r.GET("/debug/headers", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"client_ip":          c.ClientIP(),
+			"remote_addr":        c.Request.RemoteAddr,
+			"x-forwarded-for":    c.GetHeader("X-Forwarded-For"),
+			"x-real-ip":          c.GetHeader("X-Real-IP"),
+			"x-client-ip":        c.GetHeader("X-Client-IP"),
+			"trusted_proxies":    "nil (confía en todos)",
+		})
 	})
 
 	// Grupo de rutas de la API
@@ -179,6 +193,8 @@ func customLogger() gin.HandlerFunc {
 	return gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 		statusColor := getStatusColor(param.StatusCode)
 		methodColor := getMethodColor(param.Method)
+		// El ClientIP en param ya contiene la IP correcta del middleware
+		clientIP := param.ClientIP
 
 		return fmt.Sprintf("[%s] %s %s%s%s %s %s → %d %s\n",
 			param.TimeStamp.Format("15:04:05"),
@@ -186,7 +202,7 @@ func customLogger() gin.HandlerFunc {
 			statusColor,
 			param.Path,
 			"\033[0m",
-			param.ClientIP,
+			clientIP,
 			param.Latency,
 			param.StatusCode,
 			param.ErrorMessage,

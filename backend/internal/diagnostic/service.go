@@ -37,6 +37,7 @@ type StartDiagnosticRequest struct {
 	InitialIssue string `json:"initial_issue" binding:"required"`
 	Brand        string `json:"brand,omitempty"`
 	Model        string `json:"model,omitempty"`
+	ClientIP     string `json:"client_ip,omitempty"`
 }
 
 type StartDiagnosticResponse struct {
@@ -96,6 +97,7 @@ func (s *DiagnosticService) StartDiagnostic(req StartDiagnosticRequest) (*StartD
 		Brand:        req.Brand,
 		Model:        req.Model,
 		InitialIssue: req.InitialIssue,
+		ClientIP:     req.ClientIP,
 		Status:       "in_progress",
 		IsCompleted:  false,
 	}

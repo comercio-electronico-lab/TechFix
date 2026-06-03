@@ -313,6 +313,7 @@ type DiagnosticSession struct {
 	FinalDiagnosis    string     `gorm:"type:text" json:"final_diagnosis" yaml:"final_diagnosis"`
 	EstimatedMinPrice float64    `json:"estimated_min_price" yaml:"estimated_min_price"`
 	EstimatedMaxPrice float64    `json:"estimated_max_price" yaml:"estimated_max_price"`
+	ClientIP          string     `gorm:"size:45;index" json:"client_ip" yaml:"client_ip"`
 	Status            string     `gorm:"size:20;default:'in_progress'" json:"status" yaml:"status"`
 	IsCompleted       bool       `gorm:"default:false" json:"is_completed" yaml:"is_completed"`
 }

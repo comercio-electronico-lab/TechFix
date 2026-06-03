@@ -36,7 +36,6 @@ func loadAllProductImages() {
 	// Leer todos los archivos YAML en la carpeta
 	files, err := os.ReadDir(yamelsPath)
 	if err != nil {
-		log.Printf("Warning: failed to read yamls directory: %v", err)
 		return
 	}
 
@@ -45,13 +44,11 @@ func loadAllProductImages() {
 			filePath := filepath.Join(yamelsPath, file.Name())
 			data, err := os.ReadFile(filePath)
 			if err != nil {
-				log.Printf("Warning: failed to load %s: %v", file.Name(), err)
 				continue
 			}
 
 			config := &ProductImageConfig{}
 			if err := yaml.Unmarshal(data, config); err != nil {
-				log.Printf("Warning: failed to parse %s: %v", file.Name(), err)
 				continue
 			}
 
@@ -62,11 +59,9 @@ func loadAllProductImages() {
 			}
 			productImagesCache[key] = config
 
-			log.Printf("✓ Loaded image config: %s (%s)", file.Name(), key)
 		}
 	}
 
-	log.Printf("✓ Total image configs loaded: %d", len(productImagesCache))
 }
 
 // GetImageURLForProduct busca una URL de imagen apropiada para un producto

@@ -29,6 +29,9 @@ func (h *DiagnosticHandlers) StartDiagnostic(c *gin.Context) {
 		return
 	}
 
+	// Capturar IP del cliente
+	req.ClientIP = c.ClientIP()
+
 	resp, err := h.service.StartDiagnostic(req)
 	if err != nil {
 		log.Printf("Error starting diagnostic: %v", err)
