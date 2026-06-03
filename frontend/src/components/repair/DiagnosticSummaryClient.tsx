@@ -167,7 +167,10 @@ export default function DiagnosticSummaryClient() {
         </div>
 
         <div className="md:w-1/3 flex flex-col gap-6">
-          <RepairActionPanel />
+          <RepairActionPanel
+            costMin={diagnosticData.costMin}
+            costMax={diagnosticData.costMax}
+          />
         </div>
       </main>
     </div>

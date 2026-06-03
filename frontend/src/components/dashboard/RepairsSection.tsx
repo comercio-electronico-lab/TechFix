@@ -5,18 +5,10 @@ import RepairsHeader from './repairs/RepairsHeader';
 import RepairsLoading from './repairs/RepairsLoading';
 import RepairsEmpty from './repairs/RepairsEmpty';
 import RepairsList from './repairs/RepairsList';
-
-interface Repair {
-  id: string;
-  device?: { brand: string; model: string };
-  status: string;
-  diagnosis_final: string;
-  created_at: string;
-  final_price?: number;
-}
+import { ClientRepair } from '@/mock/repairs';
 
 interface RepairsSectionProps {
-  repairs: Repair[];
+  repairs: ClientRepair[];
   loading: boolean;
 }
 

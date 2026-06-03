@@ -9,6 +9,7 @@ import (
 
 	"backend/internal/auth"
 	"backend/internal/db"
+	"backend/internal/diagnostic"
 	"backend/internal/handlers"
 	"backend/internal/payment"
 	"github.com/gin-gonic/gin"
@@ -95,6 +96,16 @@ func startServer() {
 			pig.GET("/nodes", handlers.GetPigNodes)
 		}
 
+		// Rutas de Diagnóstico por IA (públicas, sin autenticación)
+		diagnosticHandlers := diagnostic.NewDiagnosticHandlers(db.DB)
+		{
+			api.POST("/diagnostic/start", diagnosticHandlers.StartDiagnostic)
+			api.POST("/diagnostic/answer", diagnosticHandlers.AnswerQuestion)
+			api.GET("/diagnostic/:sessionId", diagnosticHandlers.GetSession)
+			api.GET("/diagnostic/:sessionId/history", diagnosticHandlers.GetSessionHistory)
+			api.GET("/diagnostic/:sessionId/products", diagnosticHandlers.GetRecommendedProducts)
+		}
+
 		// Rutas públicas de Autenticación
 		authRoutes := api.Group("/auth")
 		{
@@ -114,6 +125,16 @@ func startServer() {
 			user.POST("/devices", handlers.CreateDevice)
 			user.PUT("/devices/:id", handlers.UpdateDevice)
 			user.DELETE("/devices/:id", handlers.DeleteDevice)
+		}
+
+		// Rutas de Reparaciones (protegidas por AuthMiddleware)
+		repairs := api.Group("/repairs")
+		repairs.Use(auth.AuthMiddleware())
+		{
+			repairs.GET("/user/:userId", handlers.GetRepairsByUser)
+			repairs.GET("/:id", handlers.GetRepairByID)
+			repairs.POST("/:id/confirm", handlers.ConfirmRepair)
+			repairs.PATCH("/:id/status", handlers.UpdateRepairStatus)
 		}
 
 		// Rutas de Pagos (protegidas por AuthMiddleware)

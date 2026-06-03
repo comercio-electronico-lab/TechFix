@@ -1,7 +1,7 @@
 'use server';
 
 import { mockUsers } from '../mock/users';
-import { mockRepairTickets } from '../mock/repairs';
+import { mockRepairTickets, mockClientRepairs } from '../mock/repairs';
 import { mockProducts } from '../mock/products';
 import { mockSuppliers, mockSupplierOrders } from '../mock/suppliers';
 
@@ -186,61 +186,58 @@ export async function getClientRepairsAction(token: string) {
   await new Promise((resolve) => setTimeout(resolve, 300));
   const currentUser = await meAction(token);
 
-  // Filtrar reparaciones que correspondan al email del usuario autenticado
-  const userRepairs = repairsState.filter(
-    (r) => r.customerEmail.toLowerCase() === currentUser.email.toLowerCase()
-  );
+  // Usar los nuevos mocks de ClientRepair con estructura mejorada
+  const userRepairs = mockClientRepairs.filter((repair) => {
+    // Buscar en todos los usuarios si el email coincide
+    const owner = mockUsers.find((u) => u.email.toLowerCase() === currentUser.email.toLowerCase());
+    // Para simplificar la demo, devolver todas las reparaciones si el usuario existe
+    // En producción esto vendría del backend filtrado por usuario
+    return owner !== undefined;
+  });
 
-  return userRepairs.map((o) => ({
-    id: o.id,
-    user_id: currentUser.id,
-    device_id: 'DEV-' + o.id,
-    device: {
-      id: 'DEV-' + o.id,
-      brand: o.deviceName.split(' ')[0],
-      model: o.deviceName.split(' ').slice(1).join(' '),
-      serial_number: o.deviceSerial,
-      specs: 'Equipo de diagnóstico',
-      status: o.status === 'delivered' ? 'Ready' : 'In Service',
-    },
-    appointment_datetime: o.createdAt + 'T10:00:00Z',
-    status: o.status,
-    diagnosis_final: o.notes,
-    final_price: o.finalPrice,
-    notes: o.description,
-    created_at: o.createdAt,
-  }));
+  // Si es un cliente específico, mostrar solo algunas reparaciones de demo
+  // Mapear según el email para mostrar diferentes reparaciones
+  if (currentUser.email === 'ana@example.com') {
+    return [mockClientRepairs[0]]; // pending
+  } else if (currentUser.email === 'carlos@example.com') {
+    return [mockClientRepairs[1]]; // agendado
+  } else if (currentUser.email === 'lucia.vargas@gmail.com') {
+    return [mockClientRepairs[2]]; // en_reparacion
+  } else if (currentUser.email === 'juan.perez@gmail.com') {
+    return [mockClientRepairs[3]]; // reparado
+  } else if (currentUser.email === 'luis@example.com') {
+    return [mockClientRepairs[4]]; // completado
+  }
+
+  return [];
 }
 
 export async function getClientWarrantiesAction(token: string) {
   await new Promise((resolve) => setTimeout(resolve, 300));
   const currentUser = await meAction(token);
 
-  // Obtener reparaciones completadas y entregadas
-  const userRepairs = repairsState.filter(
-    (r) =>
-      r.customerEmail.toLowerCase() === currentUser.email.toLowerCase() &&
-      (r.status === 'ready' || r.status === 'delivered')
-  );
+  // Obtener reparaciones con garantía activa (reparado o completado)
+  let userRepairs: any[] = [];
 
-  return userRepairs.map((o) => ({
-    id: 'WARR-' + o.id,
-    repair_id: o.id,
-    user_id: currentUser.id,
-    device_id: 'DEV-' + o.id,
-    device: {
-      brand: o.deviceName.split(' ')[0],
-      model: o.deviceName.split(' ').slice(1).join(' '),
-      serial_number: o.deviceSerial,
-    },
-    warranty_days: 90,
-    start_date: o.createdAt,
-    end_date: new Date(new Date(o.createdAt).getTime() + 90 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split('T')[0],
-    is_active: true,
-    warranty_token: `WARR-${o.id}-OK`,
-  }));
+  if (currentUser.email === 'juan.perez@gmail.com') {
+    userRepairs = [mockClientRepairs[3]]; // reparado
+  } else if (currentUser.email === 'luis@example.com') {
+    userRepairs = [mockClientRepairs[4]]; // completado
+  }
+
+  return userRepairs
+    .filter((r) => r.warranty && r.warranty.is_active)
+    .map((o) => ({
+      id: 'WARR-' + o.id,
+      repair_id: o.id,
+      user_id: currentUser.id,
+      device: o.device,
+      warranty_days: o.warranty?.warranty_days || 30,
+      start_date: o.warranty?.start_date,
+      end_date: o.warranty?.end_date,
+      is_active: o.warranty?.is_active || false,
+      warranty_token: `WARR-${o.id}-OK`,
+    }));
 }
 
 export async function scheduleRepairAction(token: string, input: any) {

@@ -58,6 +58,9 @@ func Migrate() {
 		&models.RepairTracking{},
 		&models.Warranty{},
 		&models.Payment{},
+		&models.DiagnosticSession{},
+		&models.DiagnosticTurn{},
+		&models.AIRecommendedProduct{},
 	)
 	if err != nil {
 		log.Fatal("Error en migración:", err)
@@ -71,6 +74,9 @@ func MigrateDown() {
 	}
 	fmt.Println("Revirtiendo migraciones...")
 	err := DB.Migrator().DropTable(
+		&models.AIRecommendedProduct{},
+		&models.DiagnosticTurn{},
+		&models.DiagnosticSession{},
 		&models.Payment{},
 		&models.Warranty{},
 		&models.RepairTracking{},
