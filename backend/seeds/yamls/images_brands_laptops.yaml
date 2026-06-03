@@ -1,0 +1,141 @@
+# Product Images for Laptop Brands
+# Imágenes específicas por marca de laptop
+
+category: laptops_brands
+device_type: "Laptop"
+
+brands:
+  # ====== APPLE MACBOOK ======
+  apple:
+    keywords: ["apple", "macbook", "mac", "imac"]
+    components:
+      display:
+        keywords: ["pantalla", "retina", "liquid retina"]
+        images:
+          - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1588872657840-218e412ee5ff?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería", "battery"]
+        images:
+          - "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1556742208-999815fca738?w=400&h=300&fit=crop"
+      keyboard:
+        keywords: ["teclado", "magic keyboard"]
+        images:
+          - "https://images.unsplash.com/photo-1587829191301-b65e2931e439?w=400&h=300&fit=crop"
+
+  # ====== DELL ======
+  dell:
+    keywords: ["dell", "inspiron", "xps", "alienware", "vostro"]
+    components:
+      display:
+        keywords: ["pantalla", "lcd", "ips"]
+        images:
+          - "https://images.unsplash.com/photo-1588872657840-218e412ee5ff?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería"]
+        images:
+          - "https://images.unsplash.com/photo-1581092162562-40038f46eaa6?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+      keyboard:
+        keywords: ["teclado"]
+        images:
+          - "https://images.unsplash.com/photo-1587829191294-a675e7ca4537?w=400&h=300&fit=crop"
+
+  # ====== HP ======
+  hp:
+    keywords: ["hp", "pavilion", "envy", "omen", "probook"]
+    components:
+      display:
+        keywords: ["pantalla", "fhd", "qhd"]
+        images:
+          - "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1559163853-a84c7ccf82b8?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería", "battery"]
+        images:
+          - "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=400&h=300&fit=crop"
+      keyboard:
+        keywords: ["teclado"]
+        images:
+          - "https://images.unsplash.com/photo-1544169897-17290ca913eb?w=400&h=300&fit=crop"
+
+  # ====== LENOVO ======
+  lenovo:
+    keywords: ["lenovo", "thinkpad", "ideapad", "yoga", "legion"]
+    components:
+      display:
+        keywords: ["pantalla", "lcd", "oled"]
+        images:
+          - "https://images.unsplash.com/photo-1588872657840-218e412ee5ff?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería"]
+        images:
+          - "https://images.unsplash.com/photo-1581092162562-40038f46eaa6?w=400&h=300&fit=crop"
+      keyboard:
+        keywords: ["teclado"]
+        images:
+          - "https://images.unsplash.com/photo-1610945415295-d9bbf01b98e7?w=400&h=300&fit=crop"
+
+  # ====== ASUS ======
+  asus:
+    keywords: ["asus", "vivobook", "tuf", "zenbook", "rog"]
+    components:
+      display:
+        keywords: ["pantalla", "fhd", "144hz"]
+        images:
+          - "https://images.unsplash.com/photo-1559163853-a84c7ccf82b8?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería"]
+        images:
+          - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+      keyboard:
+        keywords: ["teclado", "mecánico"]
+        images:
+          - "https://images.unsplash.com/photo-1619983081563-430f63602796?w=400&h=300&fit=crop"
+
+  # ====== ACER ======
+  acer:
+    keywords: ["acer", "aspire", "swift", "nitro", "predator"]
+    components:
+      display:
+        keywords: ["pantalla", "lcd"]
+        images:
+          - "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1559163853-a84c7ccf82b8?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería"]
+        images:
+          - "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=400&h=300&fit=crop"
+
+  # ====== MSI ======
+  msi:
+    keywords: ["msi", "ge", "gf", "gl", "gs"]
+    components:
+      display:
+        keywords: ["pantalla", "gaming", "144hz"]
+        images:
+          - "https://images.unsplash.com/photo-1559163853-a84c7ccf82b8?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+      keyboard:
+        keywords: ["teclado", "gaming"]
+        images:
+          - "https://images.unsplash.com/photo-1619983081563-430f63602796?w=400&h=300&fit=crop"
+
+  # ====== SAMSUNG ======
+  samsung:
+    keywords: ["samsung", "notebook", "series"]
+    components:
+      display:
+        keywords: ["pantalla", "fhd"]
+        images:
+          - "https://images.unsplash.com/photo-1588872657840-218e412ee5ff?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería"]
+        images:
+          - "https://images.unsplash.com/photo-1581092162562-40038f46eaa6?w=400&h=300&fit=crop"
