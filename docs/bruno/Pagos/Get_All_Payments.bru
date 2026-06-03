@@ -1,0 +1,18 @@
+meta {
+  name: Get All Payments
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/payments
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Obtiene todos los pagos del usuario autenticado.
+}

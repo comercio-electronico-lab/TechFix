@@ -3,16 +3,17 @@ MAIN_PATH=./cmd/api/main.go
 BINARY_NAME=api-server
 BUILD_DIR=./bin
 
-ifneq ("$(wildcard .env)","")
-	include .env
-	export $(shell sed 's/=.*//' .env)
-endif
+.PHONY: install dev migrate-up migrate-down seed build clean help
 
-.PHONY: dev migrate-up migrate-down seed build clean help
+## install: Descarga e instala las dependencias del proyecto
+install:
+	@go mod download
+	@go mod tidy
+	@echo "Dependencias instaladas correctamente"
 
-## dev: Inicia el servidor en modo desarrollo
+## dev: Inicia el servidor en modo desarrollo con hot reload
 dev:
-	@go run $(MAIN_PATH)
+	@air
 
 ## migrate-up: Ejecuta las migraciones automáticas
 migrate-up:

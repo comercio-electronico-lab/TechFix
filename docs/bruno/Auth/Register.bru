@@ -1,0 +1,28 @@
+meta {
+  name: Register User
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/auth/register
+  body: json
+}
+
+body:json {
+  {
+    "nombre": "Juan Pérez",
+    "email": "juan@prueba.com",
+    "login": "juanperez",
+    "password": "password123"
+  }
+}
+
+script:post-response {
+  // Usuario creado exitosamente
+  console.log("Usuario registrado");
+}
+
+docs {
+  Registra un nuevo usuario en el sistema.
+}

@@ -2,20 +2,24 @@ import React from 'react';
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'success' | 'warning' | 'error' | 'info' | 'neutral';
+  variant?: 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'pending' | 'primary' | 'secondary';
+  className?: string;
 }
 
-const Badge: React.FC<BadgeProps> = ({ children, variant = 'neutral' }) => {
+const Badge: React.FC<BadgeProps> = ({ children, variant = 'neutral', className = '' }) => {
   const variants = {
-    success: "bg-green-100 text-green-700 border-green-200",
+    success: "bg-green-500/10 text-green-500 border-green-500/20",
     warning: "bg-orange-100 text-orange-700 border-orange-200",
     error: "bg-red-100 text-red-700 border-red-200",
-    info: "bg-blue-100 text-blue-700 border-blue-200",
+    info: "bg-blue-500/10 text-blue-500 border-blue-500/20",
     neutral: "bg-surface-container-high text-on-surface-variant border-outline-variant/30",
+    pending: "bg-amber-500/10 text-amber-500 border-amber-500/20 animate-pulse",
+    primary: "bg-primary text-white border-primary/20",
+    secondary: "bg-secondary text-white border-secondary/20",
   };
 
   return (
-    <span className={`px-3 py-1 rounded-full text-[12px] font-bold uppercase tracking-wider border ${variants[variant]}`}>
+    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${variants[variant]} ${className}`}>
       {children}
     </span>
   );

@@ -1,14 +1,22 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, ShoppingCart, User } from 'lucide-react';
-import { useCart } from '@/context/CartContext';
+import { Search, User, Sun, Moon } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { useAuth } from '@/context/AuthContext';
+import CartDropdown from '@/components/cart/CartDropdown';
 
 const Navbar = () => {
   const pathname = usePathname();
-  const { totalItems } = useCart();
+  const { theme, setTheme } = useTheme();
+  const { isAuthenticated, user } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const navLinks = [
     { name: 'Inicio', href: '/' },
@@ -17,8 +25,15 @@ const Navbar = () => {
     { name: 'Nosotros', href: '/nosotros' },
   ];
 
+  const getDashboardLink = () => {
+    if (!isAuthenticated || !user) return "/auth";
+    if (user.rol === "Admin") return "/admin/dashboard";
+    if (user.rol === "Técnico") return "/tecnico/dashboard";
+    return "/cliente/dashboard";
+  };
+
   return (
-    <header className="fixed top-0 w-full h-18 bg-primary border-b border-outline-variant/20 shadow-sm z-50">
+    <header className="fixed top-0 w-full h-[72px] bg-primary border-b border-outline-variant/20 shadow-sm z-50">
       <div className="flex justify-between items-center px-gutter max-w-container-max mx-auto h-full">
         <div className="flex items-center gap-stack-md">
           <Link href="/" className="font-h2 text-[32px] text-white">
@@ -43,7 +58,6 @@ const Navbar = () => {
             })}
           </nav>
         </div>
-...
 
         <div className="flex items-center gap-stack-md">
           <div className="relative hidden lg:block">
@@ -55,17 +69,35 @@ const Navbar = () => {
             <Search className="absolute right-3 top-2.5 w-5 h-5 text-white/60" />
           </div>
           <div className="flex items-center gap-4 text-white">
-            <Link href="/carrito" className="hover:text-secondary-container transition-colors relative">
-              <ShoppingCart className="w-6 h-6" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-accent text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center shadow-sm">
-                  {totalItems}
+            {mounted && (
+              <button 
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="hover:text-secondary-container transition-colors focus:outline-none p-1.5 rounded-full hover:bg-white/10 flex items-center justify-center"
+                aria-label="Alternar tema"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-5 h-5 text-yellow-300" />
+                ) : (
+                  <Moon className="w-5 h-5 text-white" />
+                )}
+              </button>
+            )}
+            {!mounted && (
+              <div className="w-8 h-8" />
+            )}
+            <CartDropdown />
+            <Link 
+              href={getDashboardLink()} 
+              className="hover:text-secondary-container transition-colors flex items-center gap-1.5"
+              title={isAuthenticated ? `Mi Perfil: ${user?.nombre}` : "Iniciar Sesión"}
+            >
+              <User className="w-6 h-6" />
+              {isAuthenticated && user && (
+                <span className="hidden sm:inline text-xs font-bold bg-white/10 px-2 py-0.5 rounded-full">
+                  {user.nombre.split(' ')[0]}
                 </span>
               )}
             </Link>
-            <button className="hover:text-secondary-container transition-colors">
-              <User className="w-6 h-6" />
-            </button>
           </div>
         </div>
       </div>

@@ -9,7 +9,7 @@ interface StatsCardProps {
     isUpward: boolean;
   };
   icon: LucideIcon;
-  color?: 'primary' | 'secondary' | 'accent';
+  color?: 'primary' | 'secondary' | 'accent' | 'amber' | 'blue' | 'green';
 }
 
 const StatsCard: React.FC<StatsCardProps> = ({ label, value, trend, icon: Icon, color = 'primary' }) => {
@@ -17,24 +17,29 @@ const StatsCard: React.FC<StatsCardProps> = ({ label, value, trend, icon: Icon, 
     primary: "bg-primary-container text-secondary-container",
     secondary: "bg-secondary-container/20 text-secondary",
     accent: "bg-accent/10 text-accent",
+    amber: "bg-amber-500/10 text-amber-500",
+    blue: "bg-blue-500/10 text-blue-500",
+    green: "bg-green-500/10 text-green-500",
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-outline-variant/20 flex flex-col gap-4">
-      <div className="flex justify-between items-start">
-        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${iconColors[color]}`}>
-          <Icon className="w-7 h-7" />
-        </div>
-        {trend && (
-          <div className={`flex items-center gap-1 text-sm font-bold ${trend.isUpward ? 'text-green-600' : 'text-red-600'}`}>
-            {trend.isUpward ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-            {trend.value}%
+    <div className="bg-white/70 dark:bg-white/5 backdrop-blur-xl border border-outline-variant/10 dark:border-outline/20 p-6 rounded-2xl shadow-sm flex items-center justify-between">
+      <div>
+        <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">{label}</span>
+        {trend ? (
+          <div className="flex items-end gap-2 mt-1">
+            <p className="text-3xl font-black text-primary dark:text-white">{value}</p>
+            <div className={`flex items-center gap-0.5 text-xs font-bold mb-1 ${trend.isUpward ? 'text-green-600' : 'text-red-600'}`}>
+              {trend.isUpward ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              {trend.value}%
+            </div>
           </div>
+        ) : (
+          <p className="text-3xl font-black text-primary dark:text-white mt-1">{value}</p>
         )}
       </div>
-      <div>
-        <p className="text-on-surface-variant text-sm font-medium uppercase tracking-wider">{label}</p>
-        <h3 className="text-[32px] font-bold text-primary mt-1">{value}</h3>
+      <div className={`p-3.5 rounded-xl ${iconColors[color]}`}>
+        <Icon className="w-6 h-6" />
       </div>
     </div>
   );

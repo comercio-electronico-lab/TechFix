@@ -1,0 +1,44 @@
+meta {
+  name: Create Payment
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/payments
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "amount": 1.00,
+    "description": "Pago de prueba - 1 Sol",
+    "payer_email": "juan@prueba.com",
+    "repair_id": null
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  if(response.id) {
+    // Guardar el ID del pago para usar en otros requests
+    bru.setVar('payment_id', response.id);
+    console.log("Pago creado con ID:", response.id);
+    console.log("Estado:", response.status);
+    console.log("Monto:", response.amount);
+  }
+}
+
+docs {
+  Crea un nuevo pago. Requiere token JWT.
+
+  Variables necesarias:
+  - token: JWT obtenido del login (se guarda automáticamente)
+
+  El ID del pago se guarda automáticamente en 'payment_id'.
+}

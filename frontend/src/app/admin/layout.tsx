@@ -1,8 +1,5 @@
-"use client";
-
 import React from 'react';
 import AdminSidebar from '@/components/layout/AdminSidebar';
-import AdminNavbar from '@/components/admin/AdminNavbar';
 
 export default function AdminLayout({
   children,
@@ -11,13 +8,12 @@ export default function AdminLayout({
 }) {
   return (
     <div className="bg-background min-h-screen">
-      <AdminNavbar />
       <AdminSidebar />
-      <main className="ml-64 pt-18 min-h-screen transition-all duration-300">
+      <main className="ml-64 min-h-screen transition-all duration-300">
         <div className="max-w-container-max mx-auto p-gutter">
           {children}
         </div>
-        
+
         {/* Admin Footer Decoration */}
         <footer className="py-8 border-t border-outline-variant/10 mt-stack-lg bg-white/50">
           <div className="max-w-container-max mx-auto px-gutter flex flex-col md:flex-row items-center justify-between gap-4">
