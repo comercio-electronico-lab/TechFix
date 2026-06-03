@@ -106,6 +106,15 @@ func startServer() {
 			api.GET("/diagnostic/:sessionId/products", diagnosticHandlers.GetRecommendedProducts)
 		}
 
+		// Rutas de Productos (públicas, optimizadas para búsqueda)
+		productsHandlers := handlers.NewProductsHandler(db.DB)
+		{
+			api.GET("/products/search", productsHandlers.SearchProducts)
+			api.GET("/products/categories", productsHandlers.GetCategories)
+			api.GET("/products/category/:categoryName", productsHandlers.GetProductsByCategory)
+			api.GET("/products/:productId", productsHandlers.GetProductByID)
+		}
+
 		// Rutas públicas de Autenticación
 		authRoutes := api.Group("/auth")
 		{
