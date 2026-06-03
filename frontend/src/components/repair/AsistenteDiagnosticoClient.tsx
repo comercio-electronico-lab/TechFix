@@ -2,10 +2,13 @@
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useDiagnosticFlow } from '@/hooks/useDiagnosticFlow';
+import { useSegmentedDiagnosticFlow } from '@/hooks/useSegmentedDiagnosticFlow';
 import { useAuth } from '@/context/AuthContext';
 import {
-  DiagnosticStep1,
+  Step1_DeviceType,
+  Step2_Brand,
+  Step3_Model,
+  Step4_Damage,
   DiagnosticStep2,
   DiagnosticStep4,
   DiagnosticStep5,
@@ -13,110 +16,159 @@ import {
 
 export default function AsistenteDiagnosticoClient() {
   const router = useRouter();
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
   const {
     step,
-    deviceType,
-    currentNode,
-    options,
-    symptomPath,
-    suggestedProducts,
-    history,
+    nextStep,
+    prevStep,
+    selectedDeviceType,
+    setSelectedDeviceType,
+    selectedBrand,
+    setSelectedBrand,
+    selectedModel,
+    setSelectedModel,
+    damageDescription,
+    setDamageDescription,
+    diagnosticMode,
+    setDiagnosticMode,
     clientName,
+    setClientName,
     clientEmail,
+    setClientEmail,
     clientPhone,
-    isSubmitting,
-    ticketId,
-    terminalNode,
-    serialNumber,
-    deviceModel,
-    appointmentDate,
-    appointmentTime,
-    selectedBranch,
-    failurePhoto,
-    handleBack,
-    selectOption,
-    handleSubmit,
-    setDeviceType,
-    setClientField,
-    setFailurePhoto,
-  } = useDiagnosticFlow();
+    setClientPhone,
+    diagnosis,
+    recommendedProducts,
+    progress,
+  } = useSegmentedDiagnosticFlow();
 
   useEffect(() => {
-    if (!loading && step === 4 && !isAuthenticated) {
-      // Save complete flow state before redirecting to auth
-      try {
-        const flowState = {
-          step,
-          deviceType,
-          currentNode,
-          options,
-          symptomPath,
-          suggestedProducts,
-          history,
-          terminalNode,
-        };
-        localStorage.setItem('diagnosticFlowState', JSON.stringify(flowState));
-      } catch {
-        // Ignore storage errors
-      }
+    if (user) {
+      setClientName(user.nombre);
+      setClientEmail(user.email);
+    }
+  }, [user, setClientName, setClientEmail]);
+
+  useEffect(() => {
+    if (!loading && step === 6 && !isAuthenticated) {
       router.push('/auth?redirect=/reparaciones');
     }
-  }, [step, isAuthenticated, loading, router, deviceType, currentNode, options, symptomPath, suggestedProducts, history, terminalNode]);
+  }, [step, isAuthenticated, loading, router]);
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-8">
+      {/* Progress bar */}
+      <div className="h-1 bg-gradient-to-r from-primary to-primary dark:from-sky-400 dark:to-sky-500" style={{ width: `${progress}%` }} />
+
+      {/* Step 1: Device Type */}
       {step === 1 && (
-        <DiagnosticStep1
-          currentDevice={deviceType}
-          serialNumber={serialNumber}
-          deviceModel={deviceModel}
-          onSelect={setDeviceType}
-          onFieldChange={setClientField}
-        />
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <Step1_DeviceType
+            selectedType={selectedDeviceType}
+            onSelect={(type) => {
+              setSelectedDeviceType(type);
+              nextStep();
+            }}
+          />
+        </div>
       )}
 
-      {step === 2 && (
-        <DiagnosticStep2
-          currentNode={currentNode}
-          options={options}
-          symptomPath={symptomPath}
-          onSelect={selectOption}
-        />
+      {/* Step 2: Brand Selection */}
+      {step === 2 && selectedDeviceType && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <Step2_Brand
+            deviceType={selectedDeviceType}
+            selectedBrand={selectedBrand}
+            onSelect={(brand) => {
+              setSelectedBrand(brand);
+              nextStep();
+            }}
+            onBack={prevStep}
+          />
+        </div>
       )}
 
-      {step === 4 && isAuthenticated && (
-        <DiagnosticStep4
-          clientName={clientName}
-          clientEmail={clientEmail}
-          clientPhone={clientPhone}
-          isSubmitting={isSubmitting}
-          appointmentDate={appointmentDate}
-          appointmentTime={appointmentTime}
-          selectedBranch={selectedBranch}
-          failurePhoto={failurePhoto}
-          isAuthenticated={isAuthenticated}
-          onChange={setClientField}
-          setFailurePhoto={setFailurePhoto}
-          onSubmit={handleSubmit}
-        />
+      {/* Step 3: Model Selection */}
+      {step === 3 && selectedDeviceType && selectedBrand && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <Step3_Model
+            deviceType={selectedDeviceType}
+            brand={selectedBrand}
+            selectedModel={selectedModel}
+            onSelect={(model) => {
+              setSelectedModel(model);
+              nextStep();
+            }}
+            onBack={prevStep}
+          />
+        </div>
       )}
 
-      {step === 5 && ticketId && (
-        <DiagnosticStep5
-          ticketId={ticketId}
-          deviceType={deviceType}
-          terminalNode={terminalNode}
-          symptomPath={symptomPath}
-          suggestedProducts={suggestedProducts}
-          clientName={clientName}
-          serialNumber={serialNumber}
-          deviceModel={deviceModel}
-          appointmentDate={appointmentDate}
-          appointmentTime={appointmentTime}
-          selectedBranch={selectedBranch}
-          failurePhoto={failurePhoto}
-        />
+      {/* Step 4: Damage Description */}
+      {step === 4 && selectedDeviceType && selectedBrand && selectedModel && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <Step4_Damage
+            description={damageDescription}
+            onChange={(desc) => {
+              setDamageDescription(desc);
+            }}
+            onBack={prevStep}
+          />
+          <button
+            onClick={nextStep}
+            disabled={!damageDescription.trim()}
+            className="mt-8 w-full bg-primary dark:bg-sky-500 text-white py-3 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            Continuar al Diagnóstico
+          </button>
+        </div>
+      )}
+
+      {/* Step 5: Diagnostic Mode Selection */}
+      {step === 5 && selectedDeviceType && selectedBrand && selectedModel && damageDescription && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="text-center space-y-3">
+            <h1 className="text-3xl md:text-[40px] font-bold text-on-surface dark:text-white tracking-tight">
+              ¿Cómo deseas diagnosticar?
+            </h1>
+            <p className="text-base text-on-surface-variant dark:text-slate-400">
+              Puedes usar nuestro árbol de decisión (PIG) o diagnóstico por IA.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+            <button
+              onClick={() => {
+                setDiagnosticMode('pig');
+                nextStep();
+              }}
+              className="p-6 rounded-xl border-2 border-outline-variant/40 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary dark:hover:border-sky-400 transition-all text-center space-y-2"
+            >
+              <h3 className="font-bold text-on-surface dark:text-white">Árbol de Decisión</h3>
+              <p className="text-sm text-on-surface-variant dark:text-slate-400">Preguntas guiadas paso a paso</p>
+            </button>
+            <button
+              onClick={() => {
+                setDiagnosticMode('ia');
+                nextStep();
+              }}
+              className="p-6 rounded-xl border-2 border-primary dark:border-sky-400 bg-primary/10 dark:bg-sky-400/10 text-primary dark:text-sky-400 transition-all text-center space-y-2 font-semibold"
+            >
+              <h3 className="font-bold">Diagnóstico por IA ✨</h3>
+              <p className="text-sm">Análisis inteligente inmediato</p>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 6+: Legacy flows (PIG/IA/Auth/Contact/Report) */}
+      {step >= 6 && (
+        <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+          <p>Paso {step} - Flujo de diagnóstico</p>
+          <p className="text-sm mt-2">Dispositivo: {selectedModel} ({selectedBrand})</p>
+          <p className="text-sm">Problema: {damageDescription}</p>
+          <p className="text-sm">Modo: {diagnosticMode?.toUpperCase()}</p>
+        </div>
       )}
     </div>
   );
