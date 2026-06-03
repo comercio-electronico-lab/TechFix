@@ -6,7 +6,7 @@ import (
 
 	"backend/internal/db"
 	"backend/internal/models"
-
+	"backend/internal/services"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -170,4 +170,73 @@ func DeleteDevice(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Dispositivo eliminado exitosamente"})
+}
+
+// ========== DEVICE CATALOG (Public - No Auth) ==========
+
+// GetDeviceCatalog lista todas las categorías de dispositivos disponibles para diagnóstico
+// GET /api/catalog/devices
+func GetDeviceCatalog(c *gin.Context) {
+	service := services.GetDevicesService()
+	devices := service.GetAllDevices()
+
+	c.JSON(http.StatusOK, gin.H{
+		"devices": devices,
+		"total":   len(devices),
+	})
+}
+
+// GetDevicesByType obtiene marcas y modelos para un tipo de dispositivo
+// GET /api/catalog/devices/:deviceType
+func GetDevicesByType(c *gin.Context) {
+	deviceType := c.Param("deviceType")
+	service := services.GetDevicesService()
+
+	result, err := service.GetDevicesByType(deviceType)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+// GetDeviceBrands obtiene todas las marcas disponibles para un tipo de dispositivo
+// GET /api/catalog/devices/:deviceType/brands
+func GetDeviceBrands(c *gin.Context) {
+	deviceType := c.Param("deviceType")
+	service := services.GetDevicesService()
+
+	brands, err := service.GetBrands(deviceType)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"device_type": deviceType,
+		"brands":      brands,
+		"total":       len(brands),
+	})
+}
+
+// GetDeviceModels obtiene todos los modelos de una marca específica
+// GET /api/catalog/devices/:deviceType/brands/:brand/models
+func GetDeviceModels(c *gin.Context) {
+	deviceType := c.Param("deviceType")
+	brand := c.Param("brand")
+	service := services.GetDevicesService()
+
+	models, err := service.GetModels(deviceType, brand)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"device_type": deviceType,
+		"brand":       brand,
+		"models":      models,
+		"total":       len(models),
+	})
 }

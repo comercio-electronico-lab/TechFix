@@ -1,0 +1,178 @@
+# Device Catalog for Diagnostic System
+# Catálogo de dispositivos disponibles para diagnóstico
+
+devices:
+  # ====== SMARTPHONES ======
+  smartphones:
+    category: "Smartphone"
+    brands:
+      apple:
+        name: "Apple"
+        models:
+          - "iPhone 15 Pro Max"
+          - "iPhone 15 Pro"
+          - "iPhone 15"
+          - "iPhone 14 Pro"
+          - "iPhone 14"
+          - "iPhone 13"
+          - "iPhone 12"
+          - "iPhone 11"
+      samsung:
+        name: "Samsung"
+        models:
+          - "Galaxy S24 Ultra"
+          - "Galaxy S24"
+          - "Galaxy S23 Ultra"
+          - "Galaxy S23"
+          - "Galaxy A54"
+          - "Galaxy A34"
+          - "Galaxy Z Fold 6"
+          - "Galaxy Z Flip 6"
+      google:
+        name: "Google"
+        models:
+          - "Pixel 8 Pro"
+          - "Pixel 8"
+          - "Pixel 7a"
+          - "Pixel 7"
+      xiaomi:
+        name: "Xiaomi"
+        models:
+          - "Redmi Note 13"
+          - "Redmi 13"
+          - "Mi 14 Ultra"
+          - "Poco X6"
+      motorola:
+        name: "Motorola"
+        models:
+          - "Moto G84"
+          - "Moto G54"
+          - "Edge 50 Pro"
+          - "Razr 50"
+      oneplus:
+        name: "OnePlus"
+        models:
+          - "12"
+          - "12R"
+          - "Open"
+
+  # ====== TABLETS ======
+  tablets:
+    category: "Tablet"
+    brands:
+      apple:
+        name: "Apple"
+        models:
+          - "iPad Pro 12.9\" M4"
+          - "iPad Pro 11\" M4"
+          - "iPad Air 11\""
+          - "iPad (10th gen)"
+          - "iPad mini (7th gen)"
+      samsung:
+        name: "Samsung"
+        models:
+          - "Galaxy Tab S9 Ultra"
+          - "Galaxy Tab S9+"
+          - "Galaxy Tab S9"
+          - "Galaxy Tab A9 Ultra"
+      lenovo:
+        name: "Lenovo"
+        models:
+          - "Tab P12 Pro"
+          - "Tab M10"
+          - "Yoga Tab 11"
+      microsoft:
+        name: "Microsoft"
+        models:
+          - "Surface Pro 10"
+          - "Surface Go 4"
+      amazon:
+        name: "Amazon"
+        models:
+          - "Fire Max 11"
+          - "Fire 11"
+          - "Fire 7"
+
+  # ====== LAPTOPS ======
+  laptops:
+    category: "Laptop"
+    brands:
+      apple:
+        name: "Apple"
+        models:
+          - "MacBook Pro 16\" M3 Max"
+          - "MacBook Pro 14\" M3"
+          - "MacBook Air 15\" M2"
+          - "MacBook Air 13\" M2"
+      dell:
+        name: "Dell"
+        models:
+          - "XPS 17"
+          - "XPS 15"
+          - "XPS 13"
+          - "Inspiron 15"
+          - "Vostro 15"
+      hp:
+        name: "HP"
+        models:
+          - "Pavilion 15"
+          - "Envy 13"
+          - "Omen 15"
+          - "ProBook 450"
+      lenovo:
+        name: "Lenovo"
+        models:
+          - "ThinkPad X1 Carbon"
+          - "ThinkPad E15"
+          - "IdeaPad Flex 5"
+          - "Yoga 9i"
+      asus:
+        name: "ASUS"
+        models:
+          - "Vivobook 15"
+          - "TUF A15"
+          - "ZenBook 14"
+          - "ROG Zephyrus G16"
+
+  # ====== DESKTOPS ======
+  desktops:
+    category: "Desktop"
+    brands:
+      dell:
+        name: "Dell"
+        models:
+          - "XPS 25"
+          - "Inspiron 24"
+          - "Alienware Aurora R16"
+          - "OptiPlex 7090"
+      hp:
+        name: "HP"
+        models:
+          - "Pavilion 25"
+          - "Omen 40L"
+          - "Elite 800"
+      lenovo:
+        name: "Lenovo"
+        models:
+          - "ThinkCentre M90"
+          - "IdeaCentre 5i"
+          - "Legion T5 Pro"
+      asus:
+        name: "ASUS"
+        models:
+          - "Vivopc M32CD"
+          - "G20"
+          - "ROG Strix GT35"
+      apple:
+        name: "Apple"
+        models:
+          - "Mac mini M3 Max"
+          - "Mac Studio M2 Ultra"
+          - "iMac 24\" M3"
+
+# Diagnostic metadata
+diagnostic_config:
+  min_pig_questions: 3
+  max_pig_questions: 5
+  ai_assistance_enabled: true
+  image_generation: true

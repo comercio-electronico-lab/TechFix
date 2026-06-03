@@ -106,6 +106,14 @@ func startServer() {
 			api.GET("/diagnostic/:sessionId/products", diagnosticHandlers.GetRecommendedProducts)
 		}
 
+		// Rutas de Catálogo de Dispositivos (públicas, sin autenticación)
+		{
+			api.GET("/catalog/devices", handlers.GetDeviceCatalog)
+			api.GET("/catalog/devices/:deviceType", handlers.GetDevicesByType)
+			api.GET("/catalog/devices/:deviceType/brands", handlers.GetDeviceBrands)
+			api.GET("/catalog/devices/:deviceType/brands/:brand/models", handlers.GetDeviceModels)
+		}
+
 		// Rutas de Productos (públicas, optimizadas para búsqueda)
 		productsHandlers := handlers.NewProductsHandler(db.DB)
 		{
