@@ -6,13 +6,13 @@ interface CatalogoFiltersProps {
   filters: {
     searchQuery: string;
     selectedCategories: string[];
-    maxPrice: number;
+    maxPrice: string;
     sortBy: SortOption;
   };
   categoriesList: string[];
   setSearchQuery: (query: string) => void;
   handleCategoryToggle: (category: string) => void;
-  setMaxPrice: (price: string | number) => void;
+  setMaxPrice: (price: string) => void;
   setSortBy: (sort: SortOption) => void;
   handleClearFilters: () => void;
   filteredProductsCount: number;

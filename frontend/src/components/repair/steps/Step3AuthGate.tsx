@@ -59,7 +59,7 @@ export function Step3AuthGate({ onSuccess }: Step3AuthGateProps) {
     }
 
     try {
-      await register(registerName, registerLogin, registerEmail, registerPassword);
+      await register(registerName, registerEmail, registerPassword);
       alert('¡Cuenta creada con éxito!');
       if (onSuccess) onSuccess();
     } catch (err: any) {

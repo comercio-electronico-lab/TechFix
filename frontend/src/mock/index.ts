@@ -2,7 +2,8 @@
 export { getMockPhone, getMockPhones, getMockUserEmail, mockUsers } from './users';
 
 // Devices
-export { getMockDeviceModel, getMockSerialNumber, getMockDevice, mockCustomerDevices, mockDevices, Device } from './devices';
+export { getMockDeviceModel, getMockSerialNumber, getMockDevice, mockCustomerDevices, mockDevices } from './devices';
+export type { Device } from './devices';
 
 // Addresses
 export { MOCK_ADDRESSES, MOCK_ZIP_CODES, MOCK_CITIES, MOCK_STATES, getMockAddress, getMockZipCode, getMockCity } from './addresses';
