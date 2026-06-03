@@ -1,16 +1,11 @@
 'use client';
 
-import DiagnosticStepper from './DiagnosticStepper';
 import AsistenteDiagnosticoClient from './AsistenteDiagnosticoClient';
-import { useDiagnosticFlow } from '@/hooks/useDiagnosticFlow';
 
 export default function ReparacionesWrapper() {
-  const { step, handleBack } = useDiagnosticFlow();
-
   return (
-    <>
-      <DiagnosticStepper currentStep={step} onBack={handleBack} />
+    <div className="w-full px-4 py-8 md:px-8">
       <AsistenteDiagnosticoClient />
-    </>
+    </div>
   );
 }

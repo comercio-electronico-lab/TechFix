@@ -9,6 +9,8 @@ import {
   Step2_Brand,
   Step3_Model,
   Step4_Damage,
+  Step6_AIDiagnostic,
+  Step7_Results,
   DiagnosticStep2,
   DiagnosticStep4,
   DiagnosticStep5,
@@ -38,7 +40,11 @@ export default function AsistenteDiagnosticoClient() {
     clientPhone,
     setClientPhone,
     diagnosis,
+    estimatedMinPrice,
+    estimatedMaxPrice,
     recommendedProducts,
+    setEstimatedMinPrice,
+    setEstimatedMaxPrice,
     progress,
   } = useSegmentedDiagnosticFlow();
 
@@ -56,7 +62,7 @@ export default function AsistenteDiagnosticoClient() {
   }, [step, isAuthenticated, loading, router]);
 
   return (
-    <div className="w-full space-y-8">
+    <div className="w-full max-w-4xl mx-auto space-y-12 py-8">
       {/* Progress bar */}
       <div className="h-1 bg-gradient-to-r from-primary to-primary dark:from-sky-400 dark:to-sky-500" style={{ width: `${progress}%` }} />
 
@@ -161,13 +167,48 @@ export default function AsistenteDiagnosticoClient() {
         </div>
       )}
 
-      {/* Step 6+: Legacy flows (PIG/IA/Auth/Contact/Report) */}
-      {step >= 6 && (
+      {/* Step 6: AI Diagnostic Questions */}
+      {step === 6 && diagnosticMode === 'ia' && selectedDeviceType && selectedBrand && selectedModel && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <Step6_AIDiagnostic
+            deviceType={selectedDeviceType}
+            brand={selectedBrand}
+            model={selectedModel}
+            damageDescription={damageDescription}
+            onDiagnosisComplete={(sessionId, result) => {
+              if (result.diagnosis) setDiagnosis(result.diagnosis);
+              if (result.estimated_min_price) setEstimatedMinPrice(result.estimated_min_price);
+              if (result.estimated_max_price) setEstimatedMaxPrice(result.estimated_max_price);
+              if (result.recommended_products) setRecommendedProducts(result.recommended_products);
+              nextStep();
+            }}
+            onBack={prevStep}
+          />
+        </div>
+      )}
+
+      {/* Step 7: Diagnostic Results */}
+      {step === 7 && diagnosis && selectedModel && selectedBrand && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <Step7_Results
+            model={selectedModel}
+            brand={selectedBrand}
+            diagnosis={diagnosis}
+            minPrice={estimatedMinPrice}
+            maxPrice={estimatedMaxPrice}
+            recommendedProducts={recommendedProducts}
+            onContinue={nextStep}
+            onBack={prevStep}
+          />
+        </div>
+      )}
+
+      {/* Step 8: Contact & Confirmation */}
+      {step >= 8 && (
         <div className="text-center py-12 text-slate-500 dark:text-slate-400">
-          <p>Paso {step} - Flujo de diagnóstico</p>
+          <p>Paso {step} - Confirmación de reparación</p>
           <p className="text-sm mt-2">Dispositivo: {selectedModel} ({selectedBrand})</p>
-          <p className="text-sm">Problema: {damageDescription}</p>
-          <p className="text-sm">Modo: {diagnosticMode?.toUpperCase()}</p>
+          <p className="text-sm">Diagnóstico completado ✓</p>
         </div>
       )}
     </div>
