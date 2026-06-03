@@ -36,7 +36,7 @@ export function DiagnosticStep2({ currentNode, options, symptomPath, onSelect }:
         </p>
       </div>
 
-      <div className="flex flex-col gap-3.5 max-w-2xl mx-auto">
+      <div className="flex flex-col gap-3.5 max-w-3xl mx-auto">
         {options.map((opt, idx) => {
           const letter = String.fromCharCode(65 + idx); // A, B, C...
           return (

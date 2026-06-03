@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import ConfirmationHero from '@/components/checkout/ConfirmationHero';
 import DetailedOrderSummary from '@/components/checkout/DetailedOrderSummary';
 import DeliveryDetailsCard from '@/components/checkout/DeliveryDetailsCard';
 import NextStepsCard from '@/components/checkout/NextStepsCard';
 import WarrantyCard from '@/components/checkout/WarrantyCard';
+import { useAuth } from '@/context/AuthContext';
 
 interface OrderData {
   orderNumber: string;
@@ -44,7 +46,15 @@ const DEFAULT_ORDER: OrderData = {
 };
 
 export default function CheckoutConfirmacion() {
+  const router = useRouter();
+  const { isAuthenticated, loading } = useAuth();
   const [order, setOrder] = useState<OrderData>(DEFAULT_ORDER);
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push('/auth?redirect=/checkout/confirmacion');
+    }
+  }, [isAuthenticated, loading, router]);
 
   useEffect(() => {
     const saved = localStorage.getItem('techfix_last_order');
@@ -57,6 +67,21 @@ export default function CheckoutConfirmacion() {
       }
     }
   }, []);
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <main className="pt-18 min-h-screen bg-background flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-secondary"></div>
+        </main>
+      </>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <>

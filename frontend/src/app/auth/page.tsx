@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { Mail, Lock, User, AlertCircle } from 'lucide-react';
@@ -10,6 +10,9 @@ import Button from '@/components/ui/Button';
 
 export default function AuthPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get('redirect');
+
   const { isAuthenticated, loading, user, login, register, error, setError } = useAuth();
   const { items } = useCart();
 
@@ -28,15 +31,13 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (!loading && isAuthenticated && user) {
-      if (user.rol === 'Admin') {
-        router.push('/admin/dashboard');
-      } else if (user.rol === 'Técnico') {
-        router.push('/tecnico/dashboard');
+      if (redirectUrl) {
+        router.push(redirectUrl);
       } else {
         router.push('/cliente/dashboard');
       }
     }
-  }, [isAuthenticated, loading, user, router]);
+  }, [isAuthenticated, loading, user, redirectUrl, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +68,9 @@ export default function AuthPage() {
     try {
       if (isLoginTab) {
         const user = await login(email, password);
-        if (user.rol === 'Admin') {
+        if (redirectUrl) {
+          router.push(redirectUrl);
+        } else if (user.rol === 'Admin') {
           router.push('/admin/dashboard');
         } else if (user.rol === 'Técnico') {
           router.push('/tecnico/dashboard');
@@ -80,7 +83,9 @@ export default function AuthPage() {
         }
       } else {
         await register(nombre, email, password);
-        if (items.length > 0) {
+        if (redirectUrl) {
+          router.push(redirectUrl);
+        } else if (items.length > 0) {
           router.push('/checkout/envio');
         } else {
           router.push('/cliente/dashboard');

@@ -1,19 +1,20 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useDiagnosticFlow } from '@/hooks/useDiagnosticFlow';
 import DiagnosticStepper from '@/components/repair/DiagnosticStepper';
 import { useAuth } from '@/context/AuthContext';
 import {
   DiagnosticStep1,
   DiagnosticStep2,
-  Step3AuthGate,
   DiagnosticStep4,
   DiagnosticStep5,
 } from '@/components/repair/DiagnosticSteps';
 
 export default function AsistenteDiagnostico() {
-  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const { isAuthenticated, loading } = useAuth();
   const {
     step,
     deviceType,
@@ -42,9 +43,15 @@ export default function AsistenteDiagnostico() {
     setFailurePhoto,
   } = useDiagnosticFlow();
 
+  useEffect(() => {
+    if (!loading && step === 4 && !isAuthenticated) {
+      router.push('/auth?redirect=/reparaciones');
+    }
+  }, [step, isAuthenticated, loading, router]);
+
   return (
-    <div className="min-h-[calc(100vh-140px)] py-12 px-gutter bg-surface-bright dark:bg-slate-950 transition-colors duration-300 flex justify-center">
-      <div className="max-w-4xl w-full space-y-12 animate-in fade-in slide-in-from-bottom-5 duration-500">
+    <div className="min-h-[calc(100vh-140px)] py-6 md:py-12 px-4 md:px-gutter bg-surface-bright dark:bg-slate-950 transition-colors duration-300 flex justify-center">
+      <div className="max-w-5xl w-full space-y-8 md:space-y-12 animate-in fade-in slide-in-from-bottom-5 duration-500">
         
         <DiagnosticStepper
           currentStep={step}
@@ -71,25 +78,21 @@ export default function AsistenteDiagnostico() {
             />
           )}
 
-          {step === 4 && (
-            !isAuthenticated ? (
-              <Step3AuthGate />
-            ) : (
-              <DiagnosticStep4
-                clientName={clientName}
-                clientEmail={clientEmail}
-                clientPhone={clientPhone}
-                isSubmitting={isSubmitting}
-                appointmentDate={appointmentDate}
-                appointmentTime={appointmentTime}
-                selectedBranch={selectedBranch}
-                failurePhoto={failurePhoto}
-                isAuthenticated={isAuthenticated}
-                onChange={setClientField}
-                setFailurePhoto={setFailurePhoto}
-                onSubmit={handleSubmit}
-              />
-            )
+          {step === 4 && isAuthenticated && (
+            <DiagnosticStep4
+              clientName={clientName}
+              clientEmail={clientEmail}
+              clientPhone={clientPhone}
+              isSubmitting={isSubmitting}
+              appointmentDate={appointmentDate}
+              appointmentTime={appointmentTime}
+              selectedBranch={selectedBranch}
+              failurePhoto={failurePhoto}
+              isAuthenticated={isAuthenticated}
+              onChange={setClientField}
+              setFailurePhoto={setFailurePhoto}
+              onSubmit={handleSubmit}
+            />
           )}
 
           {step === 5 && ticketId && (

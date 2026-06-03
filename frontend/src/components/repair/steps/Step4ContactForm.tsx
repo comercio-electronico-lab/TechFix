@@ -80,7 +80,7 @@ export function DiagnosticStep4({
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl border border-outline-variant/60 dark:border-slate-800 shadow-xl max-w-2xl mx-auto space-y-6">
+      <form onSubmit={onSubmit} className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl border border-outline-variant/60 dark:border-slate-800 shadow-xl max-w-3xl mx-auto space-y-6">
         
         <div className="mb-4">
           <h3 className="text-sm font-black text-primary dark:text-sky-400 uppercase tracking-wider">

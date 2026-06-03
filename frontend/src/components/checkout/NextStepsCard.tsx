@@ -27,8 +27,7 @@ const NextStepsCard: React.FC<NextStepsCardProps> = ({ email }) => {
           Imprimir Recibo
         </Button>
         <Link href="/">
-          <Button variant="outline" className="w-full py-4 flex items-center justify-center gap-2 mt-4 border-white/30 text-white hover:bg-white/10">
-            <Home className="w-5 h-5" />
+          <Button variant="outline-white" icon={Home} className="w-full mt-4">
             Volver al Inicio
           </Button>
         </Link>

@@ -111,7 +111,7 @@ export function DiagnosticStep5({
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in duration-500">
+    <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in duration-500">
       
       {/* Exito Header */}
       <div className="space-y-3 flex flex-col items-center text-center">
@@ -141,9 +141,6 @@ export function DiagnosticStep5({
               <h2 className="text-xl font-mono font-black text-on-surface dark:text-white tracking-tight select-all">
                 {ticketId}
               </h2>
-            </div>
-            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
-              Pre-analizado
             </div>
           </div>
 

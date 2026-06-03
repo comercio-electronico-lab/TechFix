@@ -52,7 +52,7 @@ export function DiagnosticStep1({
       </div>
 
       {currentDevice && (
-        <div className="bg-white dark:bg-slate-900 border border-outline-variant/65 dark:border-slate-800 p-6 md:p-8 rounded-2xl shadow-md max-w-xl mx-auto space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="bg-white dark:bg-slate-900 border border-outline-variant/65 dark:border-slate-800 p-6 md:p-8 rounded-2xl shadow-md max-w-2xl mx-auto space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="flex gap-2.5 items-center text-xs font-black text-primary dark:text-sky-400 uppercase tracking-widest border-b border-outline-variant/20 dark:border-slate-800 pb-2.5">
             <ShieldAlert className="w-4 h-4 text-primary dark:text-sky-400" />
             <span>Detalles del Dispositivo (Recomendado)</span>

@@ -2,7 +2,7 @@ import React from 'react';
 import { LucideIcon, Loader2 } from 'lucide-react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'accent' | 'outline' | 'ghost' | 'secondary';
+  variant?: 'primary' | 'accent' | 'outline' | 'ghost' | 'secondary' | 'outline-white';
   icon?: LucideIcon;
   isLoading?: boolean;
 }
@@ -15,13 +15,14 @@ const Button: React.FC<ButtonProps> = ({
   className = '', 
   ...props 
 }) => {
-  const baseStyles = "px-stack-lg py-4 rounded-lg font-button text-button transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none";
+  const baseStyles = "px-8 py-3 rounded-full font-bold text-sm transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none";
   
   const variants = {
-    primary: "bg-secondary text-white hover:bg-secondary/90",
-    accent: "bg-accent text-white hover:bg-accent/90",
-    secondary: "bg-primary text-white hover:bg-primary/90",
-    outline: "border border-white/30 text-white hover:bg-white/10",
+    primary: "bg-secondary text-white hover:brightness-110 shadow-sm",
+    accent: "bg-accent text-white hover:brightness-110 shadow-sm",
+    secondary: "bg-primary text-white hover:brightness-110 shadow-sm",
+    outline: "border-2 border-primary/20 text-primary hover:bg-primary/5",
+    "outline-white": "border-2 border-white/30 text-white hover:bg-white/10",
     ghost: "text-on-surface-variant hover:bg-surface-container transition-colors",
   };
 

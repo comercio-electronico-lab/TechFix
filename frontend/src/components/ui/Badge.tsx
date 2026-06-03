@@ -2,7 +2,7 @@ import React from 'react';
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'pending';
+  variant?: 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'pending' | 'primary' | 'secondary';
   className?: string;
 }
 
@@ -14,6 +14,8 @@ const Badge: React.FC<BadgeProps> = ({ children, variant = 'neutral', className 
     info: "bg-blue-500/10 text-blue-500 border-blue-500/20",
     neutral: "bg-surface-container-high text-on-surface-variant border-outline-variant/30",
     pending: "bg-amber-500/10 text-amber-500 border-amber-500/20 animate-pulse",
+    primary: "bg-primary text-white border-primary/20",
+    secondary: "bg-secondary text-white border-secondary/20",
   };
 
   return (
