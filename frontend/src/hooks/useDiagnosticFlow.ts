@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { mockDiagnosticTree, getNodeById, getOptionsForNode } from '@/mock/diagnosticTree';
+import { generateMockData, getTomorrowDate, getDefaultTimeSlot } from '@/data/mock';
 
 export interface UseDiagnosticFlowReturn {
   step: number;
@@ -35,6 +36,7 @@ export interface UseDiagnosticFlowReturn {
 }
 
 const TOTAL_STEPS = 5;
+const mockData = generateMockData();
 
 // Mapeador para adaptar los nodos mock al formato esperado por el frontend
 const mapNode = (node: any) => {
@@ -62,19 +64,19 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
   const [history, setHistory] = useState<{ node: any; options: any[] }[]>([]);
   const [terminalNode, setTerminalNode] = useState<any>(null);
 
-  // Estados de cliente y cita
-  const [clientName, setClientName] = useState(user?.nombre || '');
-  const [clientEmail, setClientEmail] = useState(user?.email || '');
-  const [clientPhone, setClientPhone] = useState('');
+  // Estados de cliente y cita con datos mock por defecto
+  const [clientName, setClientName] = useState(user?.nombre || 'Cliente Laboratorio');
+  const [clientEmail, setClientEmail] = useState(user?.email || 'contacto@techfix.pe');
+  const [clientPhone, setClientPhone] = useState(mockData.phone);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [ticketId, setTicketId] = useState<string | null>(null);
 
-  // Nuevos estados premium
-  const [serialNumber, setSerialNumber] = useState('');
-  const [deviceModel, setDeviceModel] = useState('');
-  const [appointmentDate, setAppointmentDate] = useState('');
-  const [appointmentTime, setAppointmentTime] = useState('');
-  const [selectedBranch, setSelectedBranch] = useState('Central Miraflores');
+  // Nuevos estados premium con datos mock
+  const [serialNumber, setSerialNumber] = useState(mockData.serialNumber);
+  const [deviceModel, setDeviceModel] = useState(mockData.deviceModel);
+  const [appointmentDate, setAppointmentDate] = useState(getTomorrowDate());
+  const [appointmentTime, setAppointmentTime] = useState(getDefaultTimeSlot());
+  const [selectedBranch, setSelectedBranch] = useState('Laboratorio Central - Miraflores');
   const [failurePhoto, setFailurePhoto] = useState<string | null>(null);
 
   useEffect(() => {
@@ -197,6 +199,7 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
 
   // Reset
   const resetFlow = () => {
+    const newMockData = generateMockData();
     setStep(1);
     setDeviceTypeState(null);
     setCurrentNode(null);
@@ -205,15 +208,15 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
     setSuggestedProducts([]);
     setHistory([]);
     setTerminalNode(null);
-    setClientName('');
-    setClientEmail('');
-    setClientPhone('');
+    setClientName(user?.nombre || 'Cliente Laboratorio');
+    setClientEmail(user?.email || 'contacto@techfix.pe');
+    setClientPhone(newMockData.phone);
     setTicketId(null);
-    setSerialNumber('');
-    setDeviceModel('');
-    setAppointmentDate('');
-    setAppointmentTime('');
-    setSelectedBranch('Central Miraflores');
+    setSerialNumber(newMockData.serialNumber);
+    setDeviceModel(newMockData.deviceModel);
+    setAppointmentDate(getTomorrowDate());
+    setAppointmentTime(getDefaultTimeSlot());
+    setSelectedBranch('Laboratorio Central - Miraflores');
     setFailurePhoto(null);
   };
 

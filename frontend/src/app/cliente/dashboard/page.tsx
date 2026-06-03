@@ -39,7 +39,10 @@ export default function ClienteDashboard() {
 
   // Perfil state
   const [nombre, setNombre] = useState('');
-  const [login, setLogin] = useState('');
+  const [teléfono, setTeléfono] = useState('');
+  const [dirección, setDirección] = useState('');
+  const [ciudad, setCiudad] = useState('');
+  const [documentId, setDocumentId] = useState('');
   const [profileSuccess, setProfileSuccess] = useState('');
   const [profileError, setProfileError] = useState('');
   const [profileSubmitting, setProfileSubmitting] = useState(false);
@@ -63,7 +66,10 @@ export default function ClienteDashboard() {
   useEffect(() => {
     if (user) {
       setNombre(user.nombre);
-      setLogin(user.login);
+      setTeléfono(user.teléfono || '');
+      setDirección(user.dirección || '');
+      setCiudad(user.ciudad || '');
+      setDocumentId(user.documentId || '');
     }
   }, [user]);
 
@@ -155,7 +161,7 @@ export default function ClienteDashboard() {
     setProfileError('');
     setProfileSubmitting(true);
 
-    const res = await updateProfile(nombre, login);
+    const res = await updateProfile(nombre);
     if (res.success) {
       setProfileSuccess('Perfil actualizado con éxito');
     } else {
@@ -338,23 +344,46 @@ export default function ClienteDashboard() {
             )}
 
             <form onSubmit={handleUpdateProfile} className="space-y-6 max-w-xl">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Input
-                  label="Nombre Completo"
-                  type="text"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  placeholder="Tu nombre completo"
-                />
+              <Input
+                label="Nombre Completo"
+                type="text"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder="Tu nombre completo"
+              />
 
+              <div className="grid grid-cols-2 gap-4">
                 <Input
-                  label="Nombre de Usuario"
+                  label="Documento"
                   type="text"
-                  value={login}
-                  onChange={(e) => setLogin(e.target.value)}
-                  placeholder="Tu nombre de usuario"
+                  value={documentId}
+                  onChange={(e) => setDocumentId(e.target.value)}
+                  placeholder="12345678"
+                />
+                <Input
+                  label="Teléfono"
+                  type="tel"
+                  value={teléfono}
+                  onChange={(e) => setTeléfono(e.target.value)}
+                  placeholder="+51 999 888 777"
                 />
               </div>
+
+              <Input
+                label="Dirección"
+                type="text"
+                value={dirección}
+                onChange={(e) => setDirección(e.target.value)}
+                placeholder="Av. Principal 123"
+              />
+
+              <Input
+                label="Ciudad"
+                type="text"
+                value={ciudad}
+                onChange={(e) => setCiudad(e.target.value)}
+                placeholder="Lima"
+              />
 
               <div>
                 <Input

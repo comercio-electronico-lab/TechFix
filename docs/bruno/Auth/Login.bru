@@ -1,0 +1,34 @@
+meta {
+  name: Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/auth/login
+  body: json
+}
+
+body:json {
+  {
+    "email": "juan@prueba.com",
+    "password": "password123"
+  }
+}
+
+script:post-response {
+  const response = res.getBody();
+  if(response.token) {
+    // Guardar el token para usarlo en otros requests
+    bru.setVar('token', response.token);
+    bru.setVar('user_id', response.usuario.id);
+    console.log("Token guardado:", response.token.substring(0, 20) + "...");
+    console.log("User ID:", response.usuario.id);
+  }
+}
+
+docs {
+  Inicia sesión con las credenciales y obtiene un token JWT.
+
+  El token se guarda automáticamente en la variable 'token' para usar en requests posteriores.
+}

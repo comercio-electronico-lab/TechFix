@@ -17,7 +17,7 @@ export default function TecnicoLayout({
   React.useEffect(() => {
     if (!loading) {
       if (!isAuthenticated || user?.rol !== "Técnico") {
-        router.push("/auth/login");
+        router.push("/auth");
       }
     }
   }, [loading, isAuthenticated, user, router]);

@@ -11,6 +11,14 @@ interface User {
   rol: string;
   estado: string;
   joined_date: string;
+  apellido?: string;
+  teléfono?: string;
+  documentType?: string;
+  documentId?: string;
+  dirección?: string;
+  ciudad?: string;
+  código_postal?: string;
+  país?: string;
 }
 
 interface AuthContextType {
@@ -19,9 +27,9 @@ interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<User>;
-  register: (nombre: string, login: string, email: string, password: string) => Promise<User>;
+  register: (nombre: string, email: string, password: string) => Promise<User>;
   logout: () => void;
-  updateProfile: (nombre: string, login: string) => Promise<{ success: boolean; error?: string }>;
+  updateProfile: (nombre: string) => Promise<{ success: boolean; error?: string }>;
   error: string | null;
   setError: (err: string | null) => void;
 }
@@ -84,13 +92,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const handleRegister = async (
     nombre: string,
-    login: string,
     email: string,
     password: string
   ): Promise<User> => {
     setError(null);
     try {
-      const { user: userData, token: userToken } = await registerAction(nombre, login, email);
+      const { user: userData, token: userToken } = await registerAction(nombre, email, password);
 
       setToken(userToken);
       setUser(userData);
@@ -112,9 +119,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null);
   };
 
-  const updateProfile = async (nombre: string, login: string): Promise<{ success: boolean; error?: string }> => {
+  const updateProfile = async (nombre: string): Promise<{ success: boolean; error?: string }> => {
     if (!user) return { success: false, error: 'No has iniciado sesión' };
-    const updatedUser = { ...user, nombre, login };
+    const updatedUser = { ...user, nombre };
     setUser(updatedUser);
     localStorage.setItem('techfix_user', JSON.stringify(updatedUser));
     return { success: true };

@@ -84,6 +84,7 @@ export default function AsistenteDiagnostico() {
                 appointmentTime={appointmentTime}
                 selectedBranch={selectedBranch}
                 failurePhoto={failurePhoto}
+                isAuthenticated={isAuthenticated}
                 onChange={setClientField}
                 setFailurePhoto={setFailurePhoto}
                 onSubmit={handleSubmit}
@@ -113,5 +114,3 @@ export default function AsistenteDiagnostico() {
     </div>
   );
 }
-
-

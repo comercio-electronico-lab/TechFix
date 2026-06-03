@@ -13,6 +13,7 @@ import {
   Sparkles,
   SearchCode
 } from 'lucide-react';
+import Hero from "@/components/sections/Hero";
 import { mockProducts } from "@/mock/products";
 import ProductCard from "@/components/cards/ProductCard";
 import { useRouter } from 'next/navigation';
@@ -29,25 +30,7 @@ export default function Home() {
 
   return (
     <div className="space-y-20 pb-24">
-      {/* Premium Integrated Hero Section */}
-      <section className="relative overflow-hidden -mt-[72px] pt-[140px] pb-16 text-white bg-slate-950 flex items-center justify-center">
-        {/* Glow Effects */}
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-secondary/15 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-sky-500/10 rounded-full blur-[100px] pointer-events-none" />
-        
-        <div className="max-w-container-max w-full mx-auto px-gutter relative z-10 flex flex-col items-center text-center space-y-6">
-          <span className="inline-flex items-center gap-1.5 bg-sky-500/10 border border-sky-500/20 text-sky-400 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider animate-pulse">
-            <Sparkles className="w-3.5 h-3.5" /> TechFix Ultimate Experience
-          </span>
-          <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white max-w-4xl leading-tight">
-            Ingeniería de Hardware para <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-400">Tus Dispositivos</span>
-          </h1>
-          <p className="font-body-lg text-slate-350 max-w-2xl leading-relaxed text-sm md:text-base">
-            Diagnostica fallas lógicas instantáneamente con nuestro asistente automatizado o adquiere componentes OEM certificados de alto rendimiento para reparaciones DIY profesionales.
-          </p>
-        </div>
-      </section>
-
+      <Hero />
       {/* Dual Entry Premium Cards - Apple Support vs iFixit Style */}
       <section className="max-w-container-max mx-auto px-gutter -mt-16 relative z-20">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

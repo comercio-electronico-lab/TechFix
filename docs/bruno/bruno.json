@@ -1,0 +1,41 @@
+{
+  "version": "1",
+  "name": "TechFix API",
+  "type": "collection",
+  "settings": {
+    "preRequestScript": "",
+    "postRequestScript": ""
+  },
+  "auth": {
+    "basic": {
+      "username": "",
+      "password": ""
+    },
+    "bearer": "",
+    "digest": {
+      "username": "",
+      "password": ""
+    },
+    "oauth2": {
+      "clientId": "",
+      "clientSecret": "",
+      "accessTokenUrl": "",
+      "authorizationUrl": "",
+      "scope": "",
+      "username": "",
+      "password": "",
+      "refreshToken": "",
+      "accessToken": "",
+      "grantType": "authorization_code"
+    }
+  },
+  "variables": {
+    "protocol": "http",
+    "host": "localhost",
+    "port": "8080",
+    "base_url": "http://localhost:8080/api",
+    "token": "",
+    "user_id": "",
+    "payment_id": ""
+  }
+}

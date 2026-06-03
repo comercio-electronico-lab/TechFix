@@ -3,14 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, ShoppingCart, User, Sun, Moon } from 'lucide-react';
-import { useCart } from '@/context/CartContext';
+import { Search, User, Sun, Moon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/context/AuthContext';
+import CartDropdown from '@/components/cart/CartDropdown';
 
 const Navbar = () => {
   const pathname = usePathname();
-  const { totalItems } = useCart();
   const { theme, setTheme } = useTheme();
   const { isAuthenticated, user } = useAuth();
   const [mounted, setMounted] = useState(false);
@@ -27,7 +26,7 @@ const Navbar = () => {
   ];
 
   const getDashboardLink = () => {
-    if (!isAuthenticated || !user) return "/auth/login";
+    if (!isAuthenticated || !user) return "/auth";
     if (user.rol === "Admin") return "/admin/dashboard";
     if (user.rol === "Técnico") return "/tecnico/dashboard";
     return "/cliente/dashboard";
@@ -86,14 +85,7 @@ const Navbar = () => {
             {!mounted && (
               <div className="w-8 h-8" />
             )}
-            <Link href="/carrito" className="hover:text-secondary-container transition-colors relative">
-              <ShoppingCart className="w-6 h-6" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-accent text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center shadow-sm">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
+            <CartDropdown />
             <Link 
               href={getDashboardLink()} 
               className="hover:text-secondary-container transition-colors flex items-center gap-1.5"

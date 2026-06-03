@@ -1,0 +1,31 @@
+meta {
+  name: Get Payment
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/payments/{{payment_id}}
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+script:post-response {
+  const response = res.getBody();
+  console.log("Pago obtenido:");
+  console.log("ID:", response.id);
+  console.log("Estado:", response.status);
+  console.log("Monto:", response.amount);
+  console.log("Mercado Pago ID:", response.mercado_pago_id || "No asignado aún");
+}
+
+docs {
+  Obtiene los detalles de un pago específico usando su ID.
+
+  Variables necesarias:
+  - token: JWT (obtenido del login)
+  - payment_id: ID del pago a obtener (se obtiene al crear un pago)
+}

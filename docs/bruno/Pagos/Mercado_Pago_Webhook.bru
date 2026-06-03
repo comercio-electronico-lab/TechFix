@@ -1,0 +1,29 @@
+meta {
+  name: Mercado Pago Webhook
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/webhooks/mercado-pago
+  body: json
+}
+
+body:json {
+  {
+    "action": "payment.updated",
+    "data": {
+      "id": "1234567890"
+    }
+  }
+}
+
+docs {
+  Webhook de Mercado Pago para notificaciones de pago.
+
+  Acciones soportadas:
+  - payment.created: Pago creado
+  - payment.updated: Pago actualizado
+
+  El servidor procesará el webhook y actualizará el estado del pago en la base de datos.
+}

@@ -31,7 +31,7 @@ export default function SidebarFactura() {
     if (isAuthenticated) {
       router.push('/checkout/envio');
     } else {
-      router.push('/auth/login');
+      router.push('/auth');
     }
   };
 

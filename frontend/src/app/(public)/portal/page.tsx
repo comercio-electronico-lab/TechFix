@@ -9,7 +9,6 @@ import { useAuth } from '@/context/AuthContext';
 import PortalSidebar from '@/components/portal/PortalSidebar';
 import DevicesTab from '@/components/portal/DevicesTab';
 import RegisterDeviceModal from '@/components/portal/RegisterDeviceModal';
-import AuthForm from '@/components/portal/AuthForm';
 import RepairsTab from '@/components/portal/RepairsTab';
 import PurchasesTab from '@/components/portal/PurchasesTab';
 
@@ -73,7 +72,8 @@ export default function CustomerPortal() {
   }
 
   if (!isAuthenticated) {
-    return <AuthForm />;
+    router.push('/auth');
+    return null;
   }
 
   return (

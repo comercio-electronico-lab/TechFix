@@ -275,3 +275,24 @@ func (r *RepairOrderProducto) BeforeCreate(tx *gorm.DB) error {
 	}
 	return nil
 }
+
+type Payment struct {
+	Base
+	UserID              uuid.UUID `gorm:"type:uuid;not null" json:"user_id" yaml:"user_id"`
+	User                Usuario   `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	RepairID            *uuid.UUID `gorm:"type:uuid" json:"repair_id" yaml:"repair_id"`
+	RepairOrder         *RepairOrder `gorm:"foreignKey:RepairID" json:"repair_order,omitempty"`
+	Amount              float64   `json:"amount" yaml:"amount"`
+	Currency            string    `gorm:"size:10;default:'ARS'" json:"currency" yaml:"currency"`
+	Description         string    `gorm:"type:text" json:"description" yaml:"description"`
+	MercadoPagoID       string    `gorm:"size:255;uniqueIndex" json:"mercado_pago_id" yaml:"mercado_pago_id"`
+	Status              string    `gorm:"size:50;default:'pending'" json:"status" yaml:"status"`
+	PaymentMethod       string    `gorm:"size:50" json:"payment_method" yaml:"payment_method"`
+	TransactionReference string    `gorm:"size:255" json:"transaction_reference" yaml:"transaction_reference"`
+	PayerEmail          string    `gorm:"size:100" json:"payer_email" yaml:"payer_email"`
+	PaymentDetails      string    `gorm:"type:jsonb" json:"payment_details" yaml:"payment_details"`
+}
+
+func (Payment) TableName() string {
+	return "techfix_payments"
+}

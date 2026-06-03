@@ -105,7 +105,7 @@ export function DiagnosticStep5({
       // Guardar en localStorage para procesar después del inicio de sesión
       localStorage.setItem('techfix_pending_repair', JSON.stringify(repairData));
       alert('Para confirmar tu cita reservada y asignarla a tu perfil de cliente, por favor inicia sesión o crea una cuenta.');
-      router.push('/auth/login');
+      router.push('/auth');
     }
     setBooking(false);
   };

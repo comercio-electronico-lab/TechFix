@@ -10,11 +10,19 @@ function mapMockUser(user: any) {
   return {
     id: user.id,
     nombre: user.name,
-    login: user.name.toLowerCase().replace(/[^a-z0-9]/g, ''),
+    apellido: user.lastName,
+    login: user.email.split('@')[0].toLowerCase(),
     email: user.email,
     rol: user.role,
     estado: user.status,
     joined_date: user.joinedDate,
+    teléfono: user.phone,
+    documentType: user.documentType,
+    documentId: user.documentId,
+    dirección: user.address,
+    ciudad: user.city,
+    código_postal: user.postalCode,
+    país: user.country,
   };
 }
 
@@ -34,7 +42,7 @@ export async function loginAction(email: string, password?: string) {
   return { user, token };
 }
 
-export async function registerAction(nombre: string, login: string, email: string) {
+export async function registerAction(nombre: string, email: string, password: string) {
   await new Promise((resolve) => setTimeout(resolve, 800));
 
   const existing = mockUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
@@ -42,14 +50,24 @@ export async function registerAction(nombre: string, login: string, email: strin
     throw new Error('El correo electrónico ya está registrado');
   }
 
+  const autoLogin = email.split('@')[0].toLowerCase();
+
   const newUser = {
     id: `USR-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
     nombre,
-    login,
+    login: autoLogin,
     email,
     rol: 'Cliente',
     estado: 'Activo',
     joined_date: new Date().toISOString().split('T')[0],
+    apellido: '',
+    teléfono: '',
+    documentType: 'DNI',
+    documentId: '',
+    dirección: '',
+    ciudad: '',
+    código_postal: '',
+    país: 'Argentina',
   };
 
   const token = `mock-jwt-token-${newUser.id}`;

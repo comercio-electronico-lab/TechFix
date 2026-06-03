@@ -20,12 +20,14 @@ interface CartContextType {
   clearCart: () => void;
   totalItems: number;
   subtotal: number;
+  lastAddedItem?: CartItem;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [lastAddedItem, setLastAddedItem] = useState<CartItem | undefined>();
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -47,13 +49,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const addItem = (product: any) => {
     setItems(prev => {
       const existing = prev.find(item => item.id === product.id);
+      let newItem: CartItem;
+
       if (existing) {
-        return prev.map(item => 
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        newItem = { ...existing, quantity: existing.quantity + 1 };
+        return prev.map(item =>
+          item.id === product.id ? newItem : item
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+      newItem = { ...product, quantity: 1 };
+      return [...prev, newItem];
     });
+
+    setLastAddedItem({ ...product, quantity: 1 });
+    setTimeout(() => setLastAddedItem(undefined), 600);
   };
 
   const removeItem = (id: string) => {
@@ -72,7 +81,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, subtotal }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, subtotal, lastAddedItem }}>
       {children}
     </CartContext.Provider>
   );

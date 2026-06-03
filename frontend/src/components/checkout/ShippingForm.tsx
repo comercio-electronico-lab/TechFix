@@ -7,17 +7,24 @@ import Button from '../ui/Button';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { getMockPhone, getMockAddress, getMockZipCode } from '@/data/mock';
+
+const mockShippingData = {
+  phone: getMockPhone(),
+  address: getMockAddress(),
+  zipCode: getMockZipCode(),
+};
 
 const ShippingForm = () => {
   const router = useRouter();
   const { user } = useAuth();
 
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
+  const [fullName, setFullName] = useState(user?.nombre || 'Cliente Laboratorio');
+  const [phone, setPhone] = useState(mockShippingData.phone);
+  const [address, setAddress] = useState(mockShippingData.address);
+  const [city, setCity] = useState('Lima');
   const [stateProv, setStateProv] = useState('Lima');
-  const [zipCode, setZipCode] = useState('');
+  const [zipCode, setZipCode] = useState(mockShippingData.zipCode);
   const [errorMsg, setErrorMsg] = useState('');
 
   // Pre-fill name from authenticated user details

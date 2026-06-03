@@ -17,7 +17,7 @@ export default function ClienteLayout({
   React.useEffect(() => {
     if (!loading) {
       if (!isAuthenticated || user?.rol !== "Cliente") {
-        router.push("/auth/login");
+        router.push("/auth");
       }
     }
   }, [loading, isAuthenticated, user, router]);
