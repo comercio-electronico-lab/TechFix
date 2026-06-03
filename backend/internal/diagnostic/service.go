@@ -35,6 +35,8 @@ func NewDiagnosticService(db *gorm.DB) *DiagnosticService {
 type StartDiagnosticRequest struct {
 	DeviceType   string `json:"device_type" binding:"required"`
 	InitialIssue string `json:"initial_issue" binding:"required"`
+	Brand        string `json:"brand,omitempty"`
+	Model        string `json:"model,omitempty"`
 }
 
 type StartDiagnosticResponse struct {
@@ -91,6 +93,8 @@ func (s *DiagnosticService) StartDiagnostic(req StartDiagnosticRequest) (*StartD
 		UserID:       nil,
 		DeviceID:     nil,
 		DeviceType:   req.DeviceType,
+		Brand:        req.Brand,
+		Model:        req.Model,
 		InitialIssue: req.InitialIssue,
 		Status:       "in_progress",
 		IsCompleted:  false,

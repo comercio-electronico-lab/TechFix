@@ -307,6 +307,8 @@ type DiagnosticSession struct {
 	DeviceID          *uuid.UUID `gorm:"type:uuid" json:"device_id" yaml:"device_id"`
 	Device            *Device    `gorm:"foreignKey:DeviceID" json:"device,omitempty"`
 	DeviceType        string     `gorm:"size:50;not null" json:"device_type" yaml:"device_type"`
+	Brand             string     `gorm:"size:100" json:"brand" yaml:"brand"`
+	Model             string     `gorm:"size:200" json:"model" yaml:"model"`
 	InitialIssue      string     `gorm:"type:text;not null" json:"initial_issue" yaml:"initial_issue"`
 	FinalDiagnosis    string     `gorm:"type:text" json:"final_diagnosis" yaml:"final_diagnosis"`
 	EstimatedMinPrice float64    `json:"estimated_min_price" yaml:"estimated_min_price"`
