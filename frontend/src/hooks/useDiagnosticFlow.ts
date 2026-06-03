@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { mockDiagnosticTree, getNodeById, getOptionsForNode } from '@/mock/diagnosticTree';
-import { generateMockData, getTomorrowDate, getDefaultTimeSlot } from '@/data/mock';
+import { generateMockData, getTomorrowDate, getDefaultTimeSlot } from '@/mock';
 
 export interface UseDiagnosticFlowReturn {
   step: number;
