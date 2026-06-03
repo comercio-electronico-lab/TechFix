@@ -36,7 +36,7 @@ export default function SidebarFactura() {
   };
 
   return (
-    <aside className="bg-white dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800/80 rounded-2xl p-6 shadow-xl w-full sticky top-24 self-start max-h-[85vh] overflow-y-auto flex flex-col transition-all duration-300">
+    <aside className="bg-white dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800/80 rounded-2xl p-6 shadow-xl w-full max-h-[85vh] overflow-y-auto flex flex-col transition-all duration-300">
       
       {/* Sidebar Header */}
       <div className="border-b border-outline-variant/30 dark:border-slate-800 pb-4 mb-5 flex items-center justify-between">

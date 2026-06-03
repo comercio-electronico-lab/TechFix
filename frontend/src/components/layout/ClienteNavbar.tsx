@@ -15,7 +15,7 @@ const ClienteNavbar = () => {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-gutter bg-[#022448] text-white h-18 shadow-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-gutter bg-[#022448] text-white h-[72px] shadow-sm">
       <div className="flex items-center gap-stack-md">
         <span className="text-xl font-bold font-h2">TechFix Lab</span>
         <span className="text-xs bg-white/10 px-3 py-1 rounded-full uppercase tracking-wider font-bold">Cliente</span>
