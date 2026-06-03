@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { IProduct } from '@/interfaces/domain';
 
 export interface UseSegmentedFlowReturn {
   // Step tracking
@@ -40,9 +41,13 @@ export interface UseSegmentedFlowReturn {
 
   // Results
   diagnosis: string | null;
-  recommendedProducts: any[];
+  estimatedMinPrice: number | undefined;
+  estimatedMaxPrice: number | undefined;
+  recommendedProducts: IProduct[];
   setDiagnosis: (diagnosis: string) => void;
-  setRecommendedProducts: (products: any[]) => void;
+  setEstimatedMinPrice: (price: number) => void;
+  setEstimatedMaxPrice: (price: number) => void;
+  setRecommendedProducts: (products: IProduct[]) => void;
 
   // Progress
   progress: number;
@@ -75,32 +80,34 @@ export function useSegmentedDiagnosticFlow(): UseSegmentedFlowReturn {
   const [diagnosticMode, setDiagnosticMode] = useState<'pig' | 'ia' | null>(null);
 
   // Contact info
-  const [clientName, setClientName] = useState(user?.nombre || '');
+  const [clientName, setClientName] = useState(user?.name || '');
   const [clientEmail, setClientEmail] = useState(user?.email || '');
   const [clientPhone, setClientPhone] = useState('');
 
   // Results
   const [diagnosis, setDiagnosis] = useState<string | null>(null);
-  const [recommendedProducts, setRecommendedProducts] = useState<any[]>([]);
+  const [estimatedMinPrice, setEstimatedMinPrice] = useState<number | undefined>();
+  const [estimatedMaxPrice, setEstimatedMaxPrice] = useState<number | undefined>();
+  const [recommendedProducts, setRecommendedProducts] = useState<IProduct[]>([]);
 
   // Navigation
-  const nextStep = () => {
-    if (step < TOTAL_STEPS) setStep(step + 1);
-  };
+  const nextStep = useCallback(() => {
+    if (step < TOTAL_STEPS) setStep(prev => prev + 1);
+  }, [step]);
 
-  const prevStep = () => {
-    if (step > 1) setStep(step - 1);
-  };
+  const prevStep = useCallback(() => {
+    if (step > 1) setStep(prev => prev - 1);
+  }, [step]);
 
-  const goToStep = (targetStep: number) => {
+  const goToStep = useCallback((targetStep: number) => {
     if (targetStep >= 1 && targetStep <= TOTAL_STEPS) {
       setStep(targetStep);
     }
-  };
+  }, []);
 
   const progress = (step / TOTAL_STEPS) * 100;
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setStep(1);
     setSelectedDeviceType(null);
     setSelectedBrand(null);
@@ -108,8 +115,10 @@ export function useSegmentedDiagnosticFlow(): UseSegmentedFlowReturn {
     setDamageDescription('');
     setDiagnosticMode(null);
     setDiagnosis(null);
+    setEstimatedMinPrice(undefined);
+    setEstimatedMaxPrice(undefined);
     setRecommendedProducts([]);
-  };
+  }, []);
 
   return {
     step,
@@ -133,8 +142,12 @@ export function useSegmentedDiagnosticFlow(): UseSegmentedFlowReturn {
     clientPhone,
     setClientPhone,
     diagnosis,
-    setDiagnosis,
+    estimatedMinPrice,
+    estimatedMaxPrice,
     recommendedProducts,
+    setDiagnosis,
+    setEstimatedMinPrice,
+    setEstimatedMaxPrice,
     setRecommendedProducts,
     progress,
     reset,

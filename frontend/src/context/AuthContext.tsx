@@ -1,35 +1,18 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { loginAction, registerAction, meAction } from '@/app/actions';
-
-interface User {
-  id: string;
-  nombre: string;
-  login: string;
-  email: string;
-  rol: string;
-  estado: string;
-  joined_date: string;
-  apellido?: string;
-  teléfono?: string;
-  documentType?: string;
-  documentId?: string;
-  dirección?: string;
-  ciudad?: string;
-  código_postal?: string;
-  país?: string;
-}
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { authenticate, register, getCurrentUser } from '@/app/actions';
+import { IUser } from '@/interfaces/domain';
 
 interface AuthContextType {
-  user: User | null;
+  user: IUser | null;
   token: string | null;
   loading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<User>;
-  register: (nombre: string, email: string, password: string) => Promise<User>;
+  login: (email: string, password: string) => Promise<IUser>;
+  register: (name: string, email: string, password: string) => Promise<IUser>;
   logout: () => void;
-  updateProfile: (nombre: string) => Promise<{ success: boolean; error?: string }>;
+  updateProfile: (name: string) => Promise<{ success: boolean; error?: string }>;
   error: string | null;
   setError: (err: string | null) => void;
 }
@@ -37,12 +20,21 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Inicializar auth desde localStorage
+  const handleLogout = useCallback(() => {
+    setUser(null);
+    setToken(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('techfix_token');
+      localStorage.removeItem('techfix_user');
+    }
+    setError(null);
+  }, []);
+
   useEffect(() => {
     async function loadStoredAuth() {
       try {
@@ -53,75 +45,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setToken(storedToken);
           setUser(JSON.parse(storedUser));
 
-          // Verificar si el token sigue siendo válido con Server Action
           try {
-            const userData = await meAction(storedToken);
+            const userData = await getCurrentUser(storedToken);
             setUser(userData);
             localStorage.setItem('techfix_user', JSON.stringify(userData));
           } catch (e) {
-            console.error('Error al verificar sesión:', e);
+            console.error('Sesión inválida:', e);
             handleLogout();
           }
         }
       } catch (e) {
-        console.error('Error al cargar sesión desde almacenamiento local:', e);
+        console.error('Error cargando sesión:', e);
       } finally {
         setLoading(false);
       }
     }
-
     loadStoredAuth();
-  }, []);
+  }, [handleLogout]);
 
-  const handleLogin = async (email: string, password: string): Promise<User> => {
+  const handleLogin = async (email: string, password: string): Promise<IUser> => {
     setError(null);
     try {
-      const { user: userData, token: userToken } = await loginAction(email, password);
-
+      const { user: userData, token: userToken } = await authenticate(email, password);
       setToken(userToken);
       setUser(userData);
       localStorage.setItem('techfix_token', userToken);
       localStorage.setItem('techfix_user', JSON.stringify(userData));
-
       return userData;
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Error al iniciar sesión';
+      setError(msg);
       throw e;
     }
   };
 
-  const handleRegister = async (
-    nombre: string,
-    email: string,
-    password: string
-  ): Promise<User> => {
+  const handleRegister = async (name: string, email: string, _password?: string): Promise<IUser> => {
     setError(null);
     try {
-      const { user: userData, token: userToken } = await registerAction(nombre, email, password);
-
+      const { user: userData, token: userToken } = await register(name, email);
       setToken(userToken);
       setUser(userData);
       localStorage.setItem('techfix_token', userToken);
       localStorage.setItem('techfix_user', JSON.stringify(userData));
-
       return userData;
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Error al registrarse';
+      setError(msg);
       throw e;
     }
   };
 
-  const handleLogout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem('techfix_token');
-    localStorage.removeItem('techfix_user');
-    setError(null);
-  };
-
-  const updateProfile = async (nombre: string): Promise<{ success: boolean; error?: string }> => {
-    if (!user) return { success: false, error: 'No has iniciado sesión' };
-    const updatedUser = { ...user, nombre };
+  const updateProfile = async (name: string): Promise<{ success: boolean; error?: string }> => {
+    if (!user) return { success: false, error: 'No autenticado' };
+    const updatedUser = { ...user, name };
     setUser(updatedUser);
     localStorage.setItem('techfix_user', JSON.stringify(updatedUser));
     return { success: true };
@@ -149,8 +125,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
-  }
+  if (context === undefined) throw new Error('useAuth debe ser usado dentro de un AuthProvider');
   return context;
 }

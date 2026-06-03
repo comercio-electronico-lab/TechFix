@@ -3,26 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getClientRepairsAction, getClientWarrantiesAction, scheduleRepairAction } from '@/app/actions';
+import { IRepair } from '@/interfaces/domain';
 
-export interface RepairOrder {
-  id: string;
-  user_id: string;
-  device_id: string;
-  device?: {
-    id: string;
-    brand: string;
-    model: string;
-    serial_number: string;
-    specs: string;
-    status: string;
-  };
+// Extendemos IRepair para incluir campos específicos de la orden si es necesario
+export interface RepairOrder extends IRepair {
   pig_session_id?: string;
-  appointment_datetime: string;
-  status: string; // pending, in_review, waiting_parts, repairing, ready, delivered, canceled
-  diagnosis_final?: string;
-  final_price?: number;
   notes?: string;
-  created_at: string;
 }
 
 export interface Warranty {
@@ -73,11 +59,13 @@ export function useRepairs() {
       // Fetch warranties via Server Action
       const warrantiesData = await getClientWarrantiesAction(token);
 
-      setRepairs(repairsData || []);
+      // Cast para compatibilidad (En una API real el mapeo se haría en la Action)
+      setRepairs((repairsData as unknown as RepairOrder[]) || []);
       setWarranties(warrantiesData || []);
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Error al recuperar tus reparaciones';
       console.error(e);
-      setError(e.message || 'Error al recuperar tus reparaciones o certificados.');
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -87,16 +75,17 @@ export function useRepairs() {
     fetchRepairsAndWarranties();
   }, [fetchRepairsAndWarranties]);
 
-  const scheduleRepair = async (input: ScheduleRepairInput): Promise<{ success: boolean; data?: any; error?: string }> => {
+  const scheduleRepair = async (input: ScheduleRepairInput): Promise<{ success: boolean; data?: unknown; error?: string }> => {
     if (!token) return { success: false, error: 'No autenticado' };
 
     try {
       const data = await scheduleRepairAction(token, input);
       await fetchRepairsAndWarranties(); // Recargar datos
       return { success: true, data };
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Error al agendar la reparación';
       console.error(e);
-      return { success: false, error: e.message || 'Error al agendar la reparación' };
+      return { success: false, error: errorMessage };
     }
   };
 
