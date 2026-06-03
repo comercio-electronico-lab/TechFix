@@ -1,5 +1,6 @@
 import React from 'react';
-import AdminSidebar from '@/components/layout/AdminSidebar';
+import { DashboardSidebar } from '@/components/features/dashboard/DashboardSidebar/DashboardSidebar';
+import { Icon } from '@/components/ui';
 
 export default function AdminLayout({
   children,
@@ -7,27 +8,34 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-background min-h-screen">
-      <AdminSidebar />
-      <main className="ml-64 min-h-screen transition-all duration-300">
-        <div className="max-w-container-max mx-auto p-gutter">
-          {children}
-        </div>
-
-        {/* Admin Footer Decoration */}
-        <footer className="py-8 border-t border-outline-variant/10 mt-stack-lg bg-white/50">
-          <div className="max-w-container-max mx-auto px-gutter flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2 opacity-40">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Infraestructura Segura © 2026 TechFix</p>
-            </div>
-            <div className="flex gap-6 opacity-60">
-              <a href="#" className="text-[10px] font-bold uppercase tracking-widest hover:text-primary transition-colors">Logs de Auditoría</a>
-              <a href="#" className="text-[10px] font-bold uppercase tracking-widest hover:text-primary transition-colors">Soporte Técnico</a>
+    <div className="flex min-h-screen bg-[var(--color-background)]">
+      <DashboardSidebar />
+      <div className="flex-1 flex flex-col">
+        <header className="h-16 border-b border-[var(--color-border)] bg-white sticky top-0 z-10 px-8 flex items-center justify-between">
+          <div className="flex items-center gap-4 text-[var(--color-muted)]">
+            <Icon name="Menu" size={24} className="lg:hidden" />
+            <span className="text-sm font-medium">miércoles, 3 de junio de 2026</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <button className="p-2 text-[var(--color-muted)] hover:bg-[var(--color-accent)] rounded-lg transition-colors relative">
+              <Icon name="Bell" size={20} />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+            </button>
+            <div className="flex items-center gap-3 border-l border-[var(--color-border)] pl-4">
+              <div className="text-right hidden sm:block">
+                <p className="text-xs font-bold leading-none">Parker Admin</p>
+                <p className="text-[10px] text-[var(--color-muted)] mt-1 uppercase font-black tracking-widest">Administrator</p>
+              </div>
+              <div className="w-9 h-9 bg-[var(--color-primary)] rounded-lg flex items-center justify-center text-white font-bold">
+                P
+              </div>
             </div>
           </div>
-        </footer>
-      </main>
+        </header>
+        <main className="p-8">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
