@@ -1,0 +1,171 @@
+# Product Images Seed
+# URLs de imágenes para componentes de reparación electrónica
+# Utilizadas por el sistema de diagnóstico IA para asignar imágenes a productos recomendados
+
+products:
+  # ====== PANTALLAS / DISPLAYS ======
+  displays:
+    - keywords: ["pantalla", "display", "screen", "lcd", "oled"]
+      images:
+        - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1559056199-641a0ac8b3f4?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+
+  # ====== BATERÍAS ======
+  batteries:
+    - keywords: ["batería", "battery", "acumulador", "power", "energía"]
+      images:
+        - "https://images.unsplash.com/photo-1556742208-999815fca738?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1581092162562-40038f46eaa6?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+
+  # ====== CARGADORES / ADAPTADORES ======
+  chargers:
+    - keywords: ["cargador", "charger", "adaptador", "adapter", "poder", "cable"]
+      images:
+        - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1625948515573-a808e45fad26?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1622181451923-24a88e6b4ffd?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+
+  # ====== PLACAS BASE / MOTHERBOARD ======
+  motherboards:
+    - keywords: ["placa base", "motherboard", "placa madre", "circuito", "board"]
+      images:
+        - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1531492746076-161ca9bcad58?w=400&h=300&fit=crop"
+
+  # ====== VENTILADORES / COOLING ======
+  fans:
+    - keywords: ["ventilador", "fan", "cooler", "enfriamiento", "refrigeración"]
+      images:
+        - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+
+  # ====== CONECTORES / PUERTOS ======
+  connectors:
+    - keywords: ["conector", "puerto", "jack", "usb", "hdmi", "conexión"]
+      images:
+        - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1622182451923-24a88e6b4ffd?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1625948515573-a808e45fad26?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+
+  # ====== MEMORIA / RAM ======
+  memory:
+    - keywords: ["memoria", "ram", "ssd", "almacenamiento", "storage"]
+      images:
+        - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== TECLADOS ======
+  keyboards:
+    - keywords: ["teclado", "keyboard", "teclas"]
+      images:
+        - "https://images.unsplash.com/photo-1587829191301-b65e2931e439?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1587829191294-a675e7ca4537?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1544169897-17290ca913eb?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1610945415295-d9bbf01b98e7?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1619983081563-430f63602796?w=400&h=300&fit=crop"
+
+  # ====== TOUCHPAD / MOUSE ======
+  touchpads:
+    - keywords: ["touchpad", "mouse", "ratón", "trackpad"]
+      images:
+        - "https://images.unsplash.com/photo-1527814050087-3793815479db?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+
+  # ====== AUDIO / ALTAVOCES ======
+  audio:
+    - keywords: ["audio", "parlante", "altavoz", "speaker", "micrófono", "mic"]
+      images:
+        - "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1487180144351-b8472da7d491?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== CARCASA / BODY ======
+  housing:
+    - keywords: ["carcasa", "body", "cuerpo", "chasis", "frame", "marco"]
+      images:
+        - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+
+  # ====== PROCESADOR / CPU ======
+  processors:
+    - keywords: ["procesador", "cpu", "chip", "processor"]
+      images:
+        - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== LAPTOP / DESKTOP ======
+  laptops:
+    - keywords: ["laptop", "computadora", "notebook", "desktop", "pc"]
+      images:
+        - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1588872657840-218e412ee5ff?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1559163853-a84c7ccf82b8?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+
+  # ====== SMARTPHONE ======
+  smartphones:
+    - keywords: ["smartphone", "teléfono", "celular", "phone", "mobile"]
+      images:
+        - "https://images.unsplash.com/photo-1511707267537-b85faf00021e?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+
+  # ====== TABLET ======
+  tablets:
+    - keywords: ["tablet", "ipad", "pad"]
+      images:
+        - "https://images.unsplash.com/photo-1544716278-ca5e3af4abd8?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+
+  # ====== COMPONENTES GENÉRICOS ======
+  generic:
+    - keywords: ["componente", "part", "pieza", "repuesto"]
+      images:
+        - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+        - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+# ====== NOTAS ======
+# - Las URLs son de Unsplash (dominio público, sin restricciones)
+# - Cada categoría tiene múltiples URLs para variedad
+# - El sistema buscará coincidencias por keywords
+# - Si no hay coincidencia exacta, usa la categoría "generic"
+# - Todas las imágenes son 400x300px (optimizadas para web)

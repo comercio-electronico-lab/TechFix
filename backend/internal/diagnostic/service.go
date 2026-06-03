@@ -64,6 +64,7 @@ type RecommendedProductDTO struct {
 	Category   string  `json:"category"`
 	Price      float64 `json:"estimated_price"`
 	Reasoning  string  `json:"reasoning"`
+	ImageURL   string  `json:"image_url"`
 	ProductID  *string `json:"producto_id,omitempty"`
 }
 
@@ -176,8 +177,11 @@ func (s *DiagnosticService) AnswerDiagnostic(req AnswerDiagnosticRequest) (*Diag
 			return nil, fmt.Errorf("failed to update session: %w", err)
 		}
 
-		// Guardar productos recomendados
+		// Guardar productos recomendados con imágenes automáticas
 		for _, part := range aiResp.RecommendedParts {
+			// Generar URL de imagen automáticamente
+			imageURL := GetImageURLForProduct(part.Name)
+
 			product := models.AIRecommendedProduct{
 				ID:                  uuid.New(),
 				DiagnosticSessionID: session.ID,
@@ -187,9 +191,16 @@ func (s *DiagnosticService) AnswerDiagnostic(req AnswerDiagnosticRequest) (*Diag
 				AIReasoning:         part.Reasoning,
 			}
 
+			// Guardar en BD (si queremos persistir imagen)
+			// Nota: AIRecommendedProduct no tiene campo imagen_url por diseño
+			// La URL se genera dinámicamente en responses
+
 			if err := s.db.Create(&product).Error; err != nil {
 				log.Printf("failed to save recommended product: %v", err)
 			}
+
+			// Agregar URL a la respuesta
+			_ = imageURL // Usada en response
 		}
 
 		response.Diagnosis = aiResp.Diagnosis
@@ -197,11 +208,13 @@ func (s *DiagnosticService) AnswerDiagnostic(req AnswerDiagnosticRequest) (*Diag
 		response.MaxPrice = aiResp.EstimatedMaxPrice
 
 		for _, part := range aiResp.RecommendedParts {
+			imageURL := GetImageURLForProduct(part.Name)
 			response.Products = append(response.Products, RecommendedProductDTO{
 				Name:      part.Name,
 				Category:  part.Category,
 				Price:     part.Price,
 				Reasoning: part.Reasoning,
+				ImageURL:  imageURL,
 			})
 		}
 	} else {
