@@ -4,13 +4,7 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSegmentedDiagnosticFlow } from '@/hooks/useSegmentedDiagnosticFlow';
 import { useAuth } from '@/context/AuthContext';
-import { Step1 } from '@/components/repair/steps/Step1';
-import { Step2 } from '@/components/repair/steps/Step2';
-import { Step3 } from '@/components/repair/steps/Step3';
-import { Step4 } from '@/components/repair/steps/Step4';
-import { Step5 } from '@/components/repair/steps/Step5';
-import { Step6 } from '@/components/repair/steps/Step6';
-import { Step7 } from '@/components/repair/steps/Step7';
+import { Step1_DeviceType, Step2_Brand, Step3_Model, Step4_Damage, Step6_AIDiagnostic, Step7_Results, DiagnosticStep5 } from '@/components/repair/DiagnosticSteps';
 
 export default function DiagnosticFlow() {
   const router = useRouter();
@@ -72,15 +66,15 @@ export default function DiagnosticFlow() {
       {/* Progress bar */}
       <div className="h-1 bg-linear-to-r from-primary to-primary dark:from-sky-400 dark:to-sky-500" style={{ width: `${progress}%` }} />
 
-      {step === 1 && <Step1 selected={selectedDeviceType} onSelect={(t) => { setSelectedDeviceType(t); nextStep(); }} />}
+      {step === 1 && <Step1_DeviceType selectedType={selectedDeviceType} onSelect={(t) => { setSelectedDeviceType(t); nextStep(); }} />}
 
-      {step === 2 && selectedDeviceType && <Step2 deviceType={selectedDeviceType} selected={selectedBrand} onSelect={(b) => { setSelectedBrand(b); nextStep(); }} onBack={prevStep} />}
+      {step === 2 && selectedDeviceType && <Step2_Brand deviceType={selectedDeviceType} selectedBrand={selectedBrand} onSelect={(b) => { setSelectedBrand(b); nextStep(); }} onBack={prevStep} />}
 
-      {step === 3 && selectedDeviceType && selectedBrand && <Step3 deviceType={selectedDeviceType} brand={selectedBrand} selected={selectedModel} onSelect={(m) => { setSelectedModel(m); nextStep(); }} onBack={prevStep} />}
+      {step === 3 && selectedDeviceType && selectedBrand && <Step3_Model deviceType={selectedDeviceType} brand={selectedBrand} selectedModel={selectedModel} onSelect={(m) => { setSelectedModel(m); nextStep(); }} onBack={prevStep} />}
 
-      {step === 4 && selectedDeviceType && selectedBrand && selectedModel && damageDescription !== undefined && (
+      {step === 4 && selectedDeviceType && selectedBrand && selectedModel && (
         <div className="space-y-4">
-          <Step4 description={damageDescription} onChange={setDamageDescription} onBack={prevStep} />
+          <Step4_Damage description={damageDescription} onChange={setDamageDescription} onBack={prevStep} />
           <button onClick={nextStep} className="w-full px-6 py-3 bg-primary dark:bg-sky-500 text-white rounded-lg font-semibold hover:opacity-90 transition-all">
             Continuar
           </button>
@@ -88,12 +82,12 @@ export default function DiagnosticFlow() {
       )}
 
       {step === 5 && selectedDeviceType && selectedBrand && selectedModel && diagnosticMode === 'ia' && (
-        <Step5
+        <Step6_AIDiagnostic
           deviceType={selectedDeviceType}
           brand={selectedBrand}
           model={selectedModel}
           damageDescription={damageDescription}
-          onComplete={(result) => {
+          onDiagnosisComplete={(_sessionId, result) => {
             if (result.diagnosis) setDiagnosis(result.diagnosis);
             if (result.estimated_min_price) setEstimatedMinPrice(result.estimated_min_price);
             if (result.estimated_max_price) setEstimatedMaxPrice(result.estimated_max_price);
@@ -105,11 +99,33 @@ export default function DiagnosticFlow() {
       )}
 
       {step === 6 && selectedModel && selectedBrand && (
-        <Step6 model={selectedModel} brand={selectedBrand} diagnosis={diagnosis} minPrice={estimatedMinPrice} maxPrice={estimatedMaxPrice} products={recommendedProducts} onContinue={nextStep} onBack={prevStep} />
+        <>
+          {diagnosis ? (
+            <Step7_Results model={selectedModel} brand={selectedBrand} diagnosis={diagnosis} minPrice={estimatedMinPrice} maxPrice={estimatedMaxPrice} recommendedProducts={recommendedProducts} onContinue={nextStep} onBack={prevStep} />
+          ) : (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary dark:border-sky-400 mx-auto"></div>
+              <p className="text-slate-500 dark:text-slate-400 mt-4">Generando diagnóstico...</p>
+            </div>
+          )}
+        </>
       )}
 
-      {step === 8 && (
-        <Step7 diagnosis={diagnosis} model={selectedModel} brand={selectedBrand} deviceType={selectedDeviceType} minPrice={estimatedMinPrice} maxPrice={estimatedMaxPrice} products={recommendedProducts} />
+      {step === 7 && diagnosis && selectedModel && selectedBrand && selectedDeviceType && (
+        <DiagnosticStep5
+          ticketId={`TKT-${Date.now()}`}
+          deviceType={selectedDeviceType}
+          terminalNode={{ preliminary_result: diagnosis, estimated_min: estimatedMinPrice || 0, estimated_max: estimatedMaxPrice || 0 }}
+          symptomPath={[]}
+          suggestedProducts={recommendedProducts || []}
+          clientName=""
+          serialNumber=""
+          deviceModel={selectedModel}
+          appointmentDate={new Date().toISOString().split('T')[0]}
+          appointmentTime="09:00"
+          selectedBranch="Laboratorio Central"
+          failurePhoto={null}
+        />
       )}
     </div>
   );
