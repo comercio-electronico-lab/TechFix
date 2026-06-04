@@ -126,3 +126,21 @@ export async function createRestockOrder(token: string, orderInput: { proveedor_
   supplierOrders.unshift(newOrder as any);
   return newOrder;
 }
+
+// --- REPAIR SCHEDULING ---
+
+export async function scheduleRepairAction(token: string, repairData: { deviceName: string; notes: string; deviceSerial: string }) {
+  const user = await getCurrentUser(token);
+  const newRepair = {
+    id: `TKT-${Date.now()}`,
+    deviceName: repairData.deviceName,
+    notes: repairData.notes,
+    deviceSerial: repairData.deviceSerial,
+    status: 'pending' as const,
+    customerEmail: user.email,
+    createdAt: new Date().toISOString(),
+    estimatedCompletion: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+  };
+  repairs.unshift(newRepair as any);
+  return newRepair;
+}
