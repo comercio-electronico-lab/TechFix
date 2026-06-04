@@ -4,7 +4,7 @@ import { Package } from 'lucide-react';
 interface SummaryItem {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   quantity: number;
   price: number;
   image: string;

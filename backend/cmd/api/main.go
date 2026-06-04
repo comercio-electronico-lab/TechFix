@@ -9,6 +9,7 @@ import (
 
 	"backend/internal/auth"
 	"backend/internal/db"
+	"backend/internal/diagnostic"
 	"backend/internal/handlers"
 	"backend/internal/payment"
 	"github.com/gin-gonic/gin"
@@ -63,6 +64,8 @@ func startServer() {
 
 	// Crear router con logger personalizado
 	r := gin.New()
+	// Confiar en TODOS los proxies para obtener IP real
+	r.SetTrustedProxies(nil)
 	r.Use(customLogger())
 	r.Use(gin.Recovery())
 
@@ -86,6 +89,18 @@ func startServer() {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
+	// Debug: mostrar headers y IP
+	r.GET("/debug/headers", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"client_ip":          c.ClientIP(),
+			"remote_addr":        c.Request.RemoteAddr,
+			"x-forwarded-for":    c.GetHeader("X-Forwarded-For"),
+			"x-real-ip":          c.GetHeader("X-Real-IP"),
+			"x-client-ip":        c.GetHeader("X-Client-IP"),
+			"trusted_proxies":    "nil (confía en todos)",
+		})
+	})
+
 	// Grupo de rutas de la API
 	api := r.Group("/api")
 	{
@@ -93,6 +108,33 @@ func startServer() {
 		pig := api.Group("/pig")
 		{
 			pig.GET("/nodes", handlers.GetPigNodes)
+		}
+
+		// Rutas de Diagnóstico por IA (públicas, sin autenticación)
+		diagnosticHandlers := diagnostic.NewDiagnosticHandlers(db.DB)
+		{
+			api.POST("/diagnostic/start", diagnosticHandlers.StartDiagnostic)
+			api.POST("/diagnostic/answer", diagnosticHandlers.AnswerQuestion)
+			api.GET("/diagnostic/:sessionId", diagnosticHandlers.GetSession)
+			api.GET("/diagnostic/:sessionId/history", diagnosticHandlers.GetSessionHistory)
+			api.GET("/diagnostic/:sessionId/products", diagnosticHandlers.GetRecommendedProducts)
+		}
+
+		// Rutas de Catálogo de Dispositivos (públicas, sin autenticación)
+		{
+			api.GET("/catalog/devices", handlers.GetDeviceCatalog)
+			api.GET("/catalog/devices/:deviceType", handlers.GetDevicesByType)
+			api.GET("/catalog/devices/:deviceType/brands", handlers.GetDeviceBrands)
+			api.GET("/catalog/devices/:deviceType/brands/:brand/models", handlers.GetDeviceModels)
+		}
+
+		// Rutas de Productos (públicas, optimizadas para búsqueda)
+		productsHandlers := handlers.NewProductsHandler(db.DB)
+		{
+			api.GET("/products/search", productsHandlers.SearchProducts)
+			api.GET("/products/categories", productsHandlers.GetCategories)
+			api.GET("/products/category/:categoryName", productsHandlers.GetProductsByCategory)
+			api.GET("/products/:productId", productsHandlers.GetProductByID)
 		}
 
 		// Rutas públicas de Autenticación
@@ -114,6 +156,16 @@ func startServer() {
 			user.POST("/devices", handlers.CreateDevice)
 			user.PUT("/devices/:id", handlers.UpdateDevice)
 			user.DELETE("/devices/:id", handlers.DeleteDevice)
+		}
+
+		// Rutas de Reparaciones (protegidas por AuthMiddleware)
+		repairs := api.Group("/repairs")
+		repairs.Use(auth.AuthMiddleware())
+		{
+			repairs.GET("/user/:userId", handlers.GetRepairsByUser)
+			repairs.GET("/:id", handlers.GetRepairByID)
+			repairs.POST("/:id/confirm", handlers.ConfirmRepair)
+			repairs.PATCH("/:id/status", handlers.UpdateRepairStatus)
 		}
 
 		// Rutas de Pagos (protegidas por AuthMiddleware)
@@ -141,6 +193,8 @@ func customLogger() gin.HandlerFunc {
 	return gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 		statusColor := getStatusColor(param.StatusCode)
 		methodColor := getMethodColor(param.Method)
+		// El ClientIP en param ya contiene la IP correcta del middleware
+		clientIP := param.ClientIP
 
 		return fmt.Sprintf("[%s] %s %s%s%s %s %s → %d %s\n",
 			param.TimeStamp.Format("15:04:05"),
@@ -148,7 +202,7 @@ func customLogger() gin.HandlerFunc {
 			statusColor,
 			param.Path,
 			"\033[0m",
-			param.ClientIP,
+			clientIP,
 			param.Latency,
 			param.StatusCode,
 			param.ErrorMessage,

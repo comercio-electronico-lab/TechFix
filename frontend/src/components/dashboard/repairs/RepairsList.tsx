@@ -2,18 +2,10 @@
 
 import React from 'react';
 import RepairCard from './RepairCard';
-
-interface Repair {
-  id: string;
-  device?: { brand: string; model: string };
-  status: string;
-  diagnosis_final: string;
-  created_at: string;
-  final_price?: number;
-}
+import { ClientRepair } from '@/mock/repairs';
 
 interface RepairsListProps {
-  repairs: Repair[];
+  repairs: ClientRepair[];
 }
 
 const RepairsList = ({ repairs }: RepairsListProps) => {

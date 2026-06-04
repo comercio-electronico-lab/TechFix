@@ -6,13 +6,13 @@ interface CatalogoFiltersProps {
   filters: {
     searchQuery: string;
     selectedCategories: string[];
-    maxPrice: number;
+    maxPrice: string;
     sortBy: SortOption;
   };
   categoriesList: string[];
   setSearchQuery: (query: string) => void;
   handleCategoryToggle: (category: string) => void;
-  setMaxPrice: (price: string | number) => void;
+  setMaxPrice: (price: string) => void;
   setSortBy: (sort: SortOption) => void;
   handleClearFilters: () => void;
   filteredProductsCount: number;
@@ -31,7 +31,7 @@ export default function CatalogoFilters({
   return (
     <>
       {/* FILTROS LATERALES */}
-      <aside className="lg:col-span-3 space-y-8 bg-white dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm">
+      <aside className="space-y-8 bg-white dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm">
         <div className="flex items-center gap-2 text-primary dark:text-white border-b border-outline-variant/20 dark:border-slate-800 pb-3">
           <SlidersHorizontal className="w-4 h-4" />
           <h2 className="text-sm font-black uppercase tracking-wider">Filtros de Búsqueda</h2>
@@ -45,7 +45,7 @@ export default function CatalogoFilters({
             placeholder="Ej. Batería, SSD..."
             value={filters.searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="!py-2.5"
+            className="py-2.5!"
           />
         </div>
 
@@ -101,7 +101,7 @@ export default function CatalogoFilters({
       </aside>
 
       {/* HEADER CON ORDENAMIENTO */}
-      <div className="lg:col-span-6 flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white dark:bg-slate-900 border border-outline-variant/65 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white dark:bg-slate-900 border border-outline-variant/65 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
         <p className="text-on-surface-variant dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
           Resultados: <span className="text-primary dark:text-sky-400 font-black font-mono">{filteredProductsCount}</span> repuestos encontrados
         </p>

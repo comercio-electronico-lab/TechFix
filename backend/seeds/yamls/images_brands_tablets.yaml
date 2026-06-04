@@ -1,0 +1,100 @@
+# Product Images for Tablet Brands
+# Imágenes específicas por marca de tablet
+
+category: tablets_brands
+device_type: "Tablet"
+
+brands:
+  # ====== APPLE IPAD ======
+  apple:
+    keywords: ["apple", "ipad", "ipad pro", "ipad air", "ipad mini"]
+    components:
+      display:
+        keywords: ["pantalla", "retina", "liquid retina"]
+        images:
+          - "https://images.unsplash.com/photo-1544716278-ca5e3af4abd8?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería"]
+        images:
+          - "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=400&h=300&fit=crop"
+      charging:
+        keywords: ["cargador", "lightning", "usb-c"]
+        images:
+          - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+
+  # ====== SAMSUNG TAB ======
+  samsung:
+    keywords: ["samsung", "galaxy tab", "tab s", "tab a"]
+    components:
+      display:
+        keywords: ["pantalla", "amoled", "lcd"]
+        images:
+          - "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería"]
+        images:
+          - "https://images.unsplash.com/photo-1581092162562-40038f46eaa6?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+      speaker:
+        keywords: ["altavoz", "speaker"]
+        images:
+          - "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=300&fit=crop"
+
+  # ====== LENOVO TAB ======
+  lenovo:
+    keywords: ["lenovo", "tab m", "tab p", "yoga tab"]
+    components:
+      display:
+        keywords: ["pantalla", "lcd", "ips"]
+        images:
+          - "https://images.unsplash.com/photo-1544716278-ca5e3af4abd8?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería"]
+        images:
+          - "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=400&h=300&fit=crop"
+
+  # ====== MICROSOFT SURFACE ======
+  microsoft:
+    keywords: ["microsoft", "surface go", "surface pro"]
+    components:
+      display:
+        keywords: ["pantalla", "touchscreen"]
+        images:
+          - "https://images.unsplash.com/photo-1544716278-ca5e3af4abd8?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería"]
+        images:
+          - "https://images.unsplash.com/photo-1581092162562-40038f46eaa6?w=400&h=300&fit=crop"
+
+  # ====== AMAZON FIRE ======
+  amazon:
+    keywords: ["amazon", "fire tablet", "fire hd"]
+    components:
+      display:
+        keywords: ["pantalla", "lcd"]
+        images:
+          - "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería"]
+        images:
+          - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+
+  # ====== HUAWEI MATEPAD ======
+  huawei:
+    keywords: ["huawei", "matepad", "mediapad"]
+    components:
+      display:
+        keywords: ["pantalla", "lcd", "amoled"]
+        images:
+          - "https://images.unsplash.com/photo-1544716278-ca5e3af4abd8?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería"]
+        images:
+          - "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=400&h=300&fit=crop"

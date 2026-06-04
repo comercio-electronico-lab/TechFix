@@ -7,7 +7,7 @@ import Button from '../ui/Button';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { getMockPhone, getMockAddress, getMockZipCode } from '@/data/mock';
+import { getMockPhone, getMockAddress, getMockZipCode } from '@/mock';
 
 const mockShippingData = {
   phone: getMockPhone(),

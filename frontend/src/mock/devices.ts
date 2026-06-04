@@ -9,31 +9,30 @@ export interface Device {
   purchase_date: string | null;
 }
 
-// Para compatibilidad con el dashboard original de cliente (HEAD)
 export const mockDevices: Device[] = [
-  { 
-    id: 'DEV-001', 
-    brand: 'Apple', 
-    model: 'MacBook Pro M2', 
-    serial_number: 'SN-AAPL-1234', 
-    device_type: 'Laptop', 
-    purchase_date: '2023-05-15' 
+  {
+    id: 'DEV-001',
+    brand: 'Apple',
+    model: 'MacBook Pro M2',
+    serial_number: 'SN-AAPL-1234',
+    device_type: 'Laptop',
+    purchase_date: '2023-05-15'
   },
-  { 
-    id: 'DEV-002', 
-    brand: 'Samsung', 
-    model: 'Galaxy S23 Ultra', 
-    serial_number: 'SN-SAMS-5678', 
-    device_type: 'Smartphone', 
-    purchase_date: '2023-10-20' 
+  {
+    id: 'DEV-002',
+    brand: 'Samsung',
+    model: 'Galaxy S23 Ultra',
+    serial_number: 'SN-SAMS-5678',
+    device_type: 'Smartphone',
+    purchase_date: '2023-10-20'
   },
-  { 
-    id: 'DEV-003', 
-    brand: 'Dell', 
-    model: 'XPS 15', 
-    serial_number: 'SN-DELL-9012', 
-    device_type: 'Laptop', 
-    purchase_date: '2022-12-05' 
+  {
+    id: 'DEV-003',
+    brand: 'Dell',
+    model: 'XPS 15',
+    serial_number: 'SN-DELL-9012',
+    device_type: 'Laptop',
+    purchase_date: '2022-12-05'
   },
 ];
 
@@ -42,7 +41,6 @@ const AVATAR_URLS = {
   other: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAiJbsxZYM-Q-iUazYn9janOEsVbVQXh0ImXh5rkHiCmzn9pmIe2t25MpF_3XHAQYh8Xf_XFK890Ab_iMSUCyXBrKFJMWp03mu1GI_uaK6EMrK0vSFm3CDaLvPlam61lX5jYM2q-RAci9J70cr_DDYJM0AQHgQxRrh2ObbiMhm3am_szZ7Og4fIbv0Vh_SN7HfIbIckxLrqnr36bYkFzdJeVJryoFEkotuig18bqE60k71HdZt0lnXLM13MxT5YAUBQOp6I-uvyXeAy',
 };
 
-// Para compatibilidad con el nuevo Portal de Clientes (branch parker)
 export const mockCustomerDevices: CustomerDevice[] = [
   {
     id: '1',
@@ -78,3 +76,20 @@ export const mockCustomerDevices: CustomerDevice[] = [
     image: AVATAR_URLS.mac,
   },
 ];
+
+export const getMockDeviceModel = () => {
+  const model = mockCustomerDevices[Math.floor(Math.random() * mockCustomerDevices.length)];
+  return `${model.brand} ${model.model}`;
+};
+
+export const getMockSerialNumber = () => {
+  return mockCustomerDevices[Math.floor(Math.random() * mockCustomerDevices.length)].serialNumber;
+};
+
+export const getMockDevice = () => {
+  const device = mockCustomerDevices[Math.floor(Math.random() * mockCustomerDevices.length)];
+  return {
+    deviceModel: `${device.brand} ${device.model}`,
+    serialNumber: device.serialNumber,
+  };
+};

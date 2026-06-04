@@ -189,7 +189,10 @@ type RepairOrder struct {
 	Technician   *Usuario   `gorm:"foreignKey:TechnicianID" json:"technician,omitempty"`
 	AppointmentDatetime time.Time `json:"appointment_datetime" yaml:"appointment_datetime"`
 	Status       string     `gorm:"size:30;default:'pending'" json:"status" yaml:"status"`
+	PartType     string     `gorm:"size:20" json:"part_type" yaml:"part_type"` // original, compatible, economic
 	DiagnosisFinal string   `gorm:"type:text" json:"diagnosis_final" yaml:"diagnosis_final"`
+	EstimatedPriceMin float64 `json:"estimated_price_min" yaml:"estimated_price_min"`
+	EstimatedPriceMax float64 `json:"estimated_price_max" yaml:"estimated_price_max"`
 	FinalPrice   float64    `json:"final_price" yaml:"final_price"`
 	Notes        string     `gorm:"type:text" json:"notes" yaml:"notes"`
 }
@@ -295,4 +298,72 @@ type Payment struct {
 
 func (Payment) TableName() string {
 	return "techfix_payments"
+}
+
+type DiagnosticSession struct {
+	Base
+	UserID            *uuid.UUID `gorm:"type:uuid" json:"user_id" yaml:"user_id"`
+	User              *Usuario   `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	DeviceID          *uuid.UUID `gorm:"type:uuid" json:"device_id" yaml:"device_id"`
+	Device            *Device    `gorm:"foreignKey:DeviceID" json:"device,omitempty"`
+	DeviceType        string     `gorm:"size:50;not null" json:"device_type" yaml:"device_type"`
+	Brand             string     `gorm:"size:100" json:"brand" yaml:"brand"`
+	Model             string     `gorm:"size:200" json:"model" yaml:"model"`
+	InitialIssue      string     `gorm:"type:text;not null" json:"initial_issue" yaml:"initial_issue"`
+	FinalDiagnosis    string     `gorm:"type:text" json:"final_diagnosis" yaml:"final_diagnosis"`
+	EstimatedMinPrice float64    `json:"estimated_min_price" yaml:"estimated_min_price"`
+	EstimatedMaxPrice float64    `json:"estimated_max_price" yaml:"estimated_max_price"`
+	ClientIP          string     `gorm:"size:45;index" json:"client_ip" yaml:"client_ip"`
+	Status            string     `gorm:"size:20;default:'in_progress'" json:"status" yaml:"status"`
+	IsCompleted       bool       `gorm:"default:false" json:"is_completed" yaml:"is_completed"`
+}
+
+func (DiagnosticSession) TableName() string {
+	return "techfix_diagnostic_sessions"
+}
+
+type DiagnosticTurn struct {
+	ID                  uuid.UUID         `gorm:"type:uuid;primaryKey" json:"id"`
+	DiagnosticSessionID uuid.UUID         `gorm:"type:uuid;not null;index" json:"diagnostic_session_id" yaml:"diagnostic_session_id"`
+	DiagnosticSession   DiagnosticSession `gorm:"foreignKey:DiagnosticSessionID" json:"diagnostic_session,omitempty"`
+	Question            string            `gorm:"type:text;not null" json:"question" yaml:"question"`
+	UserAnswer          string            `gorm:"type:text" json:"user_answer" yaml:"user_answer"`
+	TurnNumber          int               `json:"turn_number" yaml:"turn_number"`
+	CreatedAt           time.Time         `json:"created_at" yaml:"created_at"`
+}
+
+func (DiagnosticTurn) TableName() string {
+	return "techfix_diagnostic_turns"
+}
+
+func (d *DiagnosticTurn) BeforeCreate(tx *gorm.DB) error {
+	if d.ID == uuid.Nil {
+		d.ID = uuid.New()
+	}
+	return nil
+}
+
+type AIRecommendedProduct struct {
+	ID                  uuid.UUID         `gorm:"type:uuid;primaryKey" json:"id"`
+	DiagnosticSessionID uuid.UUID         `gorm:"type:uuid;not null;index" json:"diagnostic_session_id" yaml:"diagnostic_session_id"`
+	DiagnosticSession   DiagnosticSession `gorm:"foreignKey:DiagnosticSessionID" json:"diagnostic_session,omitempty"`
+	ProductoID          *uuid.UUID        `gorm:"type:uuid;index" json:"producto_id" yaml:"producto_id"`
+	Producto            *Producto         `gorm:"foreignKey:ProductoID" json:"producto,omitempty"`
+	Name                string            `gorm:"size:255;not null" json:"name" yaml:"name"`
+	Description         string            `gorm:"type:text" json:"description" yaml:"description"`
+	Category            string            `gorm:"size:100" json:"category" yaml:"category"`
+	EstimatedPrice      float64           `json:"estimated_price" yaml:"estimated_price"`
+	AIReasoning         string            `gorm:"type:text" json:"ai_reasoning" yaml:"ai_reasoning"`
+	CreatedAt           time.Time         `json:"created_at" yaml:"created_at"`
+}
+
+func (AIRecommendedProduct) TableName() string {
+	return "techfix_ai_recommended_products"
+}
+
+func (a *AIRecommendedProduct) BeforeCreate(tx *gorm.DB) error {
+	if a.ID == uuid.Nil {
+		a.ID = uuid.New()
+	}
+	return nil
 }

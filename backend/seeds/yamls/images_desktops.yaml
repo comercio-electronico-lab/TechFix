@@ -1,0 +1,145 @@
+# Product Images for Desktop PCs
+# Imágenes específicas para componentes y reparaciones de computadoras de escritorio
+
+category: desktops
+device_type: "Desktop/PC Escritorio"
+
+components:
+  # ====== MONITORES ======
+  monitor:
+    keywords: ["monitor", "pantalla", "display", "screen"]
+    images:
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1559056199-641a0ac8b3f4?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+
+  # ====== PLACA BASE / MOTHERBOARD ======
+  motherboard:
+    keywords: ["placa base", "motherboard", "placa madre", "circuito"]
+    images:
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1531492746076-161ca9bcad58?w=400&h=300&fit=crop"
+
+  # ====== PROCESADOR / CPU ======
+  cpu:
+    keywords: ["procesador", "cpu", "chip", "intel", "amd"]
+    images:
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== MEMORIA RAM ======
+  ram:
+    keywords: ["memoria", "ram", "ddr", "dimm"]
+    images:
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== DISCO DURO / SSD ======
+  storage:
+    keywords: ["ssd", "disco duro", "hard drive", "almacenamiento", "nvme", "hdd"]
+    images:
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== TARJETA GRÁFICA / GPU ======
+  gpu:
+    keywords: ["tarjeta gráfica", "gpu", "video card", "nvidia", "amd", "rtx", "gtx"]
+    images:
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== FUENTE DE PODER ======
+  power_supply:
+    keywords: ["fuente", "power supply", "psu", "alimentación", "watts"]
+    images:
+      - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515573-a808e45fad26?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1622181451923-24a88e6b4ffd?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+
+  # ====== VENTILADORES / COOLER ======
+  cooling:
+    keywords: ["ventilador", "fan", "cooler", "enfriamiento", "disipador", "refrigeración"]
+    images:
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== CARCASA / CASE ======
+  case:
+    keywords: ["carcasa", "case", "gabinete", "chassis"]
+    images:
+      - "https://images.unsplash.com/photo-1588872657840-218e412ee5ff?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1559163853-a84c7ccf82b8?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+
+  # ====== TECLADO ======
+  keyboard:
+    keywords: ["teclado", "keyboard", "mecánico", "mecánica"]
+    images:
+      - "https://images.unsplash.com/photo-1587829191301-b65e2931e439?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1587829191294-a675e7ca4537?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1544169897-17290ca913eb?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1610945415295-d9bbf01b98e7?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1619983081563-430f63602796?w=400&h=300&fit=crop"
+
+  # ====== MOUSE / RATÓN ======
+  mouse:
+    keywords: ["mouse", "ratón", "sensor óptico"]
+    images:
+      - "https://images.unsplash.com/photo-1527814050087-3793815479db?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+
+  # ====== ALTAVOCES ======
+  speakers:
+    keywords: ["altavoz", "parlante", "speaker", "audio"]
+    images:
+      - "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+
+  # ====== PUERTOS / CONECTORES ======
+  ports:
+    keywords: ["puerto", "usb", "hdmi", "vga", "ethernet", "jack", "conector"]
+    images:
+      - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1622181451923-24a88e6b4ffd?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515573-a808e45fad26?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+
+  # ====== CABLE POWER ======
+  cables:
+    keywords: ["cable", "sata", "power", "conector"]
+    images:
+      - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1625948515573-a808e45fad26?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1622181451923-24a88e6b4ffd?w=400&h=300&fit=crop"
+      - "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&h=300&fit=crop"

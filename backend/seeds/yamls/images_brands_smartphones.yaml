@@ -1,0 +1,137 @@
+# Product Images for Smartphone Brands
+# Imágenes específicas por marca de teléfono
+
+category: smartphones_brands
+device_type: "Smartphone"
+
+brands:
+  # ====== APPLE IPHONE ======
+  apple:
+    keywords: ["apple", "iphone", "ios"]
+    components:
+      display:
+        keywords: ["pantalla", "display", "screen", "retina", "oled"]
+        images:
+          - "https://images.unsplash.com/photo-1511707267537-b85faf00021e?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería", "battery"]
+        images:
+          - "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1556742208-999815fca738?w=400&h=300&fit=crop"
+      camera:
+        keywords: ["cámara", "camera", "lente"]
+        images:
+          - "https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=300&fit=crop"
+
+  # ====== SAMSUNG ======
+  samsung:
+    keywords: ["samsung", "galaxy", "android"]
+    components:
+      display:
+        keywords: ["pantalla", "amoled", "lcd"]
+        images:
+          - "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería", "battery"]
+        images:
+          - "https://images.unsplash.com/photo-1581092162562-40038f46eaa6?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+      charging_port:
+        keywords: ["puerto", "cargador", "usb"]
+        images:
+          - "https://images.unsplash.com/photo-1625948515573-a808e45fad26?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1622181451923-24a88e6b4ffd?w=400&h=300&fit=crop"
+
+  # ====== GOOGLE PIXEL ======
+  google:
+    keywords: ["google", "pixel", "nexus"]
+    components:
+      display:
+        keywords: ["pantalla", "oled"]
+        images:
+          - "https://images.unsplash.com/photo-1511707267537-b85faf00021e?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería"]
+        images:
+          - "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1581092162562-40038f46eaa6?w=400&h=300&fit=crop"
+      camera:
+        keywords: ["cámara", "sensor"]
+        images:
+          - "https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=400&h=300&fit=crop"
+
+  # ====== XIAOMI ======
+  xiaomi:
+    keywords: ["xiaomi", "redmi", "poco"]
+    components:
+      display:
+        keywords: ["pantalla", "amoled"]
+        images:
+          - "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería", "carga rápida"]
+        images:
+          - "https://images.unsplash.com/photo-1581092162562-40038f46eaa6?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop"
+
+  # ====== MOTOROLA ======
+  motorola:
+    keywords: ["motorola", "moto", "razr"]
+    components:
+      display:
+        keywords: ["pantalla", "lcd", "oled"]
+        images:
+          - "https://images.unsplash.com/photo-1511707267537-b85faf00021e?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería"]
+        images:
+          - "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=400&h=300&fit=crop"
+
+  # ====== ONEPLUS ======
+  oneplus:
+    keywords: ["oneplus", "one plus"]
+    components:
+      display:
+        keywords: ["pantalla", "amoled", "144hz"]
+        images:
+          - "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería", "carga"]
+        images:
+          - "https://images.unsplash.com/photo-1581092162562-40038f46eaa6?w=400&h=300&fit=crop"
+
+  # ====== LG ======
+  lg:
+    keywords: ["lg", "lg mobile"]
+    components:
+      display:
+        keywords: ["pantalla", "oled"]
+        images:
+          - "https://images.unsplash.com/photo-1511707267537-b85faf00021e?w=400&h=300&fit=crop"
+      battery:
+        keywords: ["batería"]
+        images:
+          - "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=400&h=300&fit=crop"
+
+  # ====== HUAWEI ======
+  huawei:
+    keywords: ["huawei", "mate", "p-series"]
+    components:
+      display:
+        keywords: ["pantalla", "amoled"]
+        images:
+          - "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop"
+      camera:
+        keywords: ["cámara", "sensor"]
+        images:
+          - "https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=400&h=300&fit=crop"

@@ -1,0 +1,137 @@
+# Product Images for Desktop Brands
+# Imágenes específicas por marca de PC de escritorio
+
+category: desktops_brands
+device_type: "Desktop"
+
+brands:
+  # ====== DELL ======
+  dell:
+    keywords: ["dell", "inspiron", "optiplex", "alienware", "xps"]
+    components:
+      cpu:
+        keywords: ["procesador", "intel", "amd", "ryzen"]
+        images:
+          - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      motherboard:
+        keywords: ["placa base", "motherboard"]
+        images:
+          - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+      gpu:
+        keywords: ["tarjeta gráfica", "nvidia", "rtx", "gtx"]
+        images:
+          - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1531492746076-161ca9bcad58?w=400&h=300&fit=crop"
+
+  # ====== HP ======
+  hp:
+    keywords: ["hp", "pavilion", "prodesk", "omen"]
+    components:
+      cpu:
+        keywords: ["procesador"]
+        images:
+          - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      motherboard:
+        keywords: ["placa base"]
+        images:
+          - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      gpu:
+        keywords: ["tarjeta gráfica"]
+        images:
+          - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== LENOVO ======
+  lenovo:
+    keywords: ["lenovo", "thinkcentre", "legion", "idea"]
+    components:
+      cpu:
+        keywords: ["procesador", "intel", "amd"]
+        images:
+          - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      motherboard:
+        keywords: ["placa base", "circuito"]
+        images:
+          - "https://images.unsplash.com/photo-1569163139394-de4798aa62b2?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+      ram:
+        keywords: ["memoria", "ddr"]
+        images:
+          - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+
+  # ====== ASUS ======
+  asus:
+    keywords: ["asus", "vivopc", "g20", "m32"]
+    components:
+      cpu:
+        keywords: ["procesador"]
+        images:
+          - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      motherboard:
+        keywords: ["placa base", "tuf"]
+        images:
+          - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
+      gpu:
+        keywords: ["tarjeta gráfica"]
+        images:
+          - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== CORSAIR ======
+  corsair:
+    keywords: ["corsair", "gaming", "crystal series"]
+    components:
+      case:
+        keywords: ["carcasa", "gabinete"]
+        images:
+          - "https://images.unsplash.com/photo-1588872657840-218e412ee5ff?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+      cpu:
+        keywords: ["procesador"]
+        images:
+          - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      gpu:
+        keywords: ["tarjeta gráfica"]
+        images:
+          - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== NZXT ======
+  nzxt:
+    keywords: ["nzxt", "h510", "kraken", "bld"]
+    components:
+      case:
+        keywords: ["carcasa", "gabinete"]
+        images:
+          - "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+          - "https://images.unsplash.com/photo-1559163853-a84c7ccf82b8?w=400&h=300&fit=crop"
+      cooling:
+        keywords: ["cooler", "kraken", "ventilador"]
+        images:
+          - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+
+  # ====== APPLE MAC MINI ======
+  apple:
+    keywords: ["apple", "mac mini", "mac studio"]
+    components:
+      cpu:
+        keywords: ["m1", "m2", "apple silicon"]
+        images:
+          - "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
+      gpu:
+        keywords: ["gpu", "gráficos"]
+        images:
+          - "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&h=300&fit=crop"
+
+  # ====== ACER ======
+  acer:
+    keywords: ["acer", "aspire", "veriton"]
+    components:
+      cpu:
+        keywords: ["procesador"]
+        images:
+          - "https://images.unsplash.com/photo-1516321318423-f06f70504466?w=400&h=300&fit=crop"
+      motherboard:
+        keywords: ["placa base"]
+        images:
+          - "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"

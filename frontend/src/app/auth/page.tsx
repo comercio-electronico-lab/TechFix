@@ -7,14 +7,15 @@ import { useCart } from '@/context/CartContext';
 import { Mail, Lock, User, AlertCircle } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import { scheduleRepairAction } from '@/app/actions';
 
 export default function AuthPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect');
 
-  const { isAuthenticated, loading, user, login, register, error, setError } = useAuth();
-  const { items } = useCart();
+  const { isAuthenticated, loading, user, token, login, register, error, setError } = useAuth();
+  const { items: cartItems } = useCart();
 
   const [isLoginTab, setIsLoginTab] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,14 +31,29 @@ export default function AuthPage() {
   const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && isAuthenticated && user) {
+    if (!loading && isAuthenticated && user && token) {
+      const processPendingRepair = async () => {
+        const pendingRepair = localStorage.getItem('techfix_pending_repair');
+        if (pendingRepair && user.role === 'cliente') {
+          try {
+            const repairData = JSON.parse(pendingRepair);
+            await scheduleRepairAction(token, repairData);
+            localStorage.removeItem('techfix_pending_repair');
+          } catch (repairError) {
+            console.error('Error scheduling pending repair:', repairError);
+          }
+        }
+      };
+
+      processPendingRepair();
+
       if (redirectUrl) {
         router.push(redirectUrl);
       } else {
         router.push('/cliente/dashboard');
       }
     }
-  }, [isAuthenticated, loading, user, redirectUrl, router]);
+  }, [isAuthenticated, loading, user, token, redirectUrl, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,29 +83,9 @@ export default function AuthPage() {
     setIsSubmitting(true);
     try {
       if (isLoginTab) {
-        const user = await login(email, password);
-        if (redirectUrl) {
-          router.push(redirectUrl);
-        } else if (user.rol === 'Admin') {
-          router.push('/admin/dashboard');
-        } else if (user.rol === 'Técnico') {
-          router.push('/tecnico/dashboard');
-        } else {
-          if (items.length > 0) {
-            router.push('/checkout/envio');
-          } else {
-            router.push('/cliente/dashboard');
-          }
-        }
+        await login(email, password);
       } else {
         await register(nombre, email, password);
-        if (redirectUrl) {
-          router.push(redirectUrl);
-        } else if (items.length > 0) {
-          router.push('/checkout/envio');
-        } else {
-          router.push('/cliente/dashboard');
-        }
       }
     } catch (e: any) {
       // Error is handled
@@ -102,6 +98,7 @@ export default function AuthPage() {
     setIsLoginTab(isLogin);
     setError(null);
     setValidationError(null);
+    
     setEmail('');
     setPassword('');
     setNombre('');
