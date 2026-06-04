@@ -33,16 +33,14 @@ export default function AsistenteDiagnosticoClient() {
     setDamageDescription,
     diagnosticMode,
     setDiagnosticMode,
-    clientName,
     setClientName,
-    clientEmail,
     setClientEmail,
-    clientPhone,
-    setClientPhone,
     diagnosis,
     estimatedMinPrice,
     estimatedMaxPrice,
     recommendedProducts,
+    setDiagnosis,
+    setRecommendedProducts,
     setEstimatedMinPrice,
     setEstimatedMaxPrice,
     progress,
@@ -50,7 +48,7 @@ export default function AsistenteDiagnosticoClient() {
 
   useEffect(() => {
     if (user) {
-      setClientName(user.nombre);
+      setClientName(user.name);
       setClientEmail(user.email);
     }
   }, [user, setClientName, setClientEmail]);
@@ -175,7 +173,7 @@ export default function AsistenteDiagnosticoClient() {
             brand={selectedBrand}
             model={selectedModel}
             damageDescription={damageDescription}
-            onDiagnosisComplete={(sessionId, result) => {
+            onDiagnosisComplete={(_sessionId, result) => {
               if (result.diagnosis) setDiagnosis(result.diagnosis);
               if (result.estimated_min_price) setEstimatedMinPrice(result.estimated_min_price);
               if (result.estimated_max_price) setEstimatedMaxPrice(result.estimated_max_price);
