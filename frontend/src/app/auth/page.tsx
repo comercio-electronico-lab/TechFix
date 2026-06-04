@@ -7,7 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { Mail, Lock, User, AlertCircle } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import { scheduleRepairAction } from '@/app/actions';
+import { scheduleRepairAction } from '@/actions';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -15,7 +15,7 @@ export default function AuthPage() {
   const redirectUrl = searchParams.get('redirect');
 
   const { isAuthenticated, loading, user, token, login, register, error, setError } = useAuth();
-  const { items } = useCart();
+  const { items: cartItems } = useCart();
 
   const [isLoginTab, setIsLoginTab] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -98,6 +98,7 @@ export default function AuthPage() {
     setIsLoginTab(isLogin);
     setError(null);
     setValidationError(null);
+    
     setEmail('');
     setPassword('');
     setNombre('');

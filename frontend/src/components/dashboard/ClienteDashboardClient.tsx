@@ -9,7 +9,7 @@ import {
   getClientRepairsAction,
   getClientWarrantiesAction,
   scheduleRepairAction
-} from '@/app/actions';
+} from '@/actions';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardTabs from '@/components/dashboard/DashboardTabs';
 import DevicesSection from '@/components/dashboard/DevicesSection';

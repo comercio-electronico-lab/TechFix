@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { getClientRepairsAction, getClientWarrantiesAction, scheduleRepairAction } from '@/app/actions';
+import { getClientRepairsAction, getClientWarrantiesAction, scheduleRepairAction } from '@/actions';
 import { IRepair } from '@/interfaces/domain';
 
 // Extendemos IRepair para incluir campos específicos de la orden si es necesario

@@ -18,7 +18,7 @@ import {
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { scheduleRepairAction } from '@/app/actions';
+import { scheduleRepairAction } from '@/actions';
 
 interface Step5Props {
   ticketId: string;
@@ -65,7 +65,7 @@ export function DiagnosticStep5({
   const taxCost = subtotalCost * 0.18; // 18% IVA/IGV
   const totalCost = subtotalCost + taxCost;
 
-  const formattedEstimate = `$${totalCost.toFixed(2)} USD`;
+  const formattedEstimate = `$${totalCost.toFixed(2)}S\.`;
 
   // Lógica DIY: Agregar repuestos al carrito y redirigir al catálogo
   const handleAddAllToCart = () => {
@@ -206,29 +206,29 @@ export function DiagnosticStep5({
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between items-center">
                   <span className="text-on-surface-variant dark:text-slate-400">Mano de Obra Certificada (Evaluación + Labor):</span>
-                  <span className="font-mono text-on-surface dark:text-slate-200 font-bold">${laborCost.toFixed(2)} USD</span>
+                  <span className="font-mono text-on-surface dark:text-slate-200 font-bold">${laborCost.toFixed(2)}S\.</span>
                 </div>
                 
                 {partsCost > 0 && (
                   <div className="flex justify-between items-center">
                     <span className="text-on-surface-variant dark:text-slate-400">Repuestos OEM Sugeridos:</span>
-                    <span className="font-mono text-on-surface dark:text-slate-200 font-bold">${partsCost.toFixed(2)} USD</span>
+                    <span className="font-mono text-on-surface dark:text-slate-200 font-bold">${partsCost.toFixed(2)}S\.</span>
                   </div>
                 )}
                 
                 <div className="border-t border-slate-100 dark:border-slate-850 pt-2 flex justify-between items-center font-semibold">
                   <span className="text-on-surface-variant dark:text-slate-400">Subtotal Neto:</span>
-                  <span className="font-mono text-on-surface dark:text-slate-200">${subtotalCost.toFixed(2)} USD</span>
+                  <span className="font-mono text-on-surface dark:text-slate-200">${subtotalCost.toFixed(2)}S\.</span>
                 </div>
 
                 <div className="flex justify-between items-center text-[11px] text-on-surface-variant/80 dark:text-slate-500">
                   <span>Impuesto de Ley Aplicado (18% IGV/IVA):</span>
-                  <span className="font-mono">${taxCost.toFixed(2)} USD</span>
+                  <span className="font-mono">${taxCost.toFixed(2)}S\.</span>
                 </div>
 
                 <div className="border-t-2 border-dashed border-slate-200 dark:border-slate-800 pt-2.5 flex justify-between items-center font-bold text-sm">
                   <span className="text-primary dark:text-sky-400">Total Presupuestado Estimado:</span>
-                  <span className="font-mono text-base text-primary dark:text-sky-400">${totalCost.toFixed(2)} USD</span>
+                  <span className="font-mono text-base text-primary dark:text-sky-400">${totalCost.toFixed(2)}S\.</span>
                 </div>
               </div>
             </div>
@@ -303,11 +303,11 @@ export function DiagnosticStep5({
           {suggestedProducts && suggestedProducts.length > 0 ? (
             <div className="space-y-4">
               <div className="flex flex-col gap-4">
-                {suggestedProducts.map((product) => {
+                {suggestedProducts.map((product, idx) => {
                   const hasStock = product.status !== 'Out of Stock';
                   return (
-                    <div 
-                      key={product.id}
+                    <div
+                      key={product.id || idx}
                       className="group bg-white dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 rounded-xl p-4 flex gap-4 hover:shadow-md hover:border-primary dark:hover:border-sky-500 transition-all duration-300 relative overflow-hidden"
                     >
                       {/* Imagen Repuesto */}
@@ -344,7 +344,7 @@ export function DiagnosticStep5({
 
                         <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-50 dark:border-slate-850">
                           <span className="text-xs font-black text-primary dark:text-sky-400">
-                            ${product.price.toFixed(2)} USD
+                            ${((product.price || product.estimated_price) || 0).toFixed(2)}S\.
                           </span>
                         </div>
                       </div>

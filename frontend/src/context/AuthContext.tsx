@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authenticate, register, getCurrentUser } from '@/app/actions';
+import { authenticate, register, getCurrentUser } from '@/actions';
 import { IUser } from '@/interfaces/domain';
 
 interface AuthContextType {

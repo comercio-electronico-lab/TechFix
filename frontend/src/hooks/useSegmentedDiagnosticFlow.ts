@@ -47,7 +47,7 @@ export interface UseSegmentedFlowReturn {
   setDiagnosis: (diagnosis: string) => void;
   setEstimatedMinPrice: (price: number) => void;
   setEstimatedMaxPrice: (price: number) => void;
-  setRecommendedProducts: (products: IProduct[]) => void;
+  setRecommendedProducts: (products: any[]) => void;
 
   // Progress
   progress: number;

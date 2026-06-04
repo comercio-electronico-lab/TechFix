@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { IAdminRepairTicket, RepairStatus } from '@/interfaces/domain';
-import { getRepairTickets, updateRepairStatus, assignPartToRepair } from '@/app/actions';
+import { getRepairTickets, updateRepairStatus, assignPartToRepair } from '@/actions';
 
 export interface UseRepairQueueReturn {
   tickets: IAdminRepairTicket[];

@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { IProduct } from '@/interfaces/domain';
-import { getProducts } from '@/app/actions';
+import { getProducts } from '@/actions';
 
 export type SortOption = 'Relevance' | 'Price: Low to High' | 'Price: High to Low' | 'Newest Arrivals';
 

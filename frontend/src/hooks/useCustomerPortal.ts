@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ICustomerDevice } from '@/interfaces/domain';
 import { useAuth } from '@/context/AuthContext';
-import { getCustomerDevicesList } from '@/app/actions';
+import { getCustomerDevicesList } from '@/actions';
 
 export type PortalTab = 'Devices' | 'Purchases' | 'Repairs';
 

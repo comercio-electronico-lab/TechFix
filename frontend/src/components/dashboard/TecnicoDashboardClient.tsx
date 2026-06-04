@@ -10,7 +10,7 @@ import {
   getAdminProductsAction,
   addPartToRepairAction,
   updateProductAction
-} from '@/app/actions';
+} from '@/actions';
 
 export default function TecnicoDashboardClient() {
   const { token, user } = useAuth();

@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import { ChevronLeft, Package, DollarSign, CheckCircle } from 'lucide-react';
+import { IProduct } from '@/interfaces/domain';
 
 interface Step7Props {
   model: string;
@@ -9,18 +9,9 @@ interface Step7Props {
   diagnosis: string;
   minPrice?: number;
   maxPrice?: number;
-  recommendedProducts?: RecommendedProduct[];
+  recommendedProducts?: IProduct[];
   onContinue: () => void;
   onBack: () => void;
-}
-
-interface RecommendedProduct {
-  name: string;
-  category: string;
-  estimated_price: number;
-  reasoning: string;
-  image_url?: string;
-  producto_id?: string;
 }
 
 export function Step7_Results({
@@ -92,31 +83,40 @@ export function Step7_Results({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {recommendedProducts.map((product, idx) => (
-              <div
-                key={idx}
-                className="border-2 border-outline-variant/40 dark:border-slate-800 rounded-lg p-4 space-y-3 hover:border-primary dark:hover:border-sky-400 transition-colors"
-              >
-                <div>
-                  <p className="font-semibold text-on-surface dark:text-white">
-                    {product.name}
-                  </p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
-                    {product.category}
-                  </p>
-                </div>
+            {recommendedProducts.map((product, idx) => {
+              const productName = product.name || '';
+              const productCategory = typeof product.category === 'string' ? product.category : product.category?.name || '';
+              const productDescription = product.description || product.reasoning || '';
+              const productPrice = product.price || product.estimated_price || 0;
 
-                <p className="text-sm text-slate-700 dark:text-slate-300">
-                  {product.reasoning}
-                </p>
+              return (
+                <div
+                  key={idx}
+                  className="border-2 border-outline-variant/40 dark:border-slate-800 rounded-lg p-4 space-y-3 hover:border-primary dark:hover:border-sky-400 transition-colors"
+                >
+                  <div>
+                    <p className="font-semibold text-on-surface dark:text-white">
+                      {productName}
+                    </p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      {productCategory}
+                    </p>
+                  </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-outline-variant/20 dark:border-slate-700">
-                  <span className="font-bold text-primary dark:text-sky-400">
-                    ${product.estimated_price.toLocaleString()}
-                  </span>
+                  {productDescription && (
+                    <p className="text-sm text-slate-700 dark:text-slate-300">
+                      {productDescription}
+                    </p>
+                  )}
+
+                  <div className="flex items-center justify-between pt-2 border-t border-outline-variant/20 dark:border-slate-700">
+                    <span className="font-bold text-primary dark:text-sky-400">
+                      ${typeof productPrice === 'number' ? productPrice.toLocaleString() : productPrice}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
