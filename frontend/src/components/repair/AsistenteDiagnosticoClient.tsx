@@ -54,7 +54,19 @@ export default function AsistenteDiagnosticoClient() {
   }, [user, setClientName, setClientEmail]);
 
   useEffect(() => {
-    if (!loading && step === 6 && !isAuthenticated) {
+    if (!diagnosticMode) {
+      setDiagnosticMode('ia');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (diagnosis && step === 5) {
+      nextStep();
+    }
+  }, [diagnosis, step, nextStep]);
+
+  useEffect(() => {
+    if (!loading && step === 5 && !isAuthenticated) {
       router.push('/auth?redirect=/reparaciones');
     }
   }, [step, isAuthenticated, loading, router]);
@@ -128,45 +140,8 @@ export default function AsistenteDiagnosticoClient() {
         </div>
       )}
 
-      {/* Step 5: Diagnostic Mode Selection */}
-      {step === 5 && selectedDeviceType && selectedBrand && selectedModel && damageDescription && (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="text-center space-y-3">
-            <h1 className="text-3xl md:text-[40px] font-bold text-on-surface dark:text-white tracking-tight">
-              ¿Cómo deseas diagnosticar?
-            </h1>
-            <p className="text-base text-on-surface-variant dark:text-slate-400">
-              Puedes usar nuestro árbol de decisión (PIG) o diagnóstico por IA.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
-            <button
-              onClick={() => {
-                setDiagnosticMode('pig');
-                nextStep();
-              }}
-              className="p-6 rounded-xl border-2 border-outline-variant/40 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary dark:hover:border-sky-400 transition-all text-center space-y-2"
-            >
-              <h3 className="font-bold text-on-surface dark:text-white">Árbol de Decisión</h3>
-              <p className="text-sm text-on-surface-variant dark:text-slate-400">Preguntas guiadas paso a paso</p>
-            </button>
-            <button
-              onClick={() => {
-                setDiagnosticMode('ia');
-                nextStep();
-              }}
-              className="p-6 rounded-xl border-2 border-primary dark:border-sky-400 bg-primary/10 dark:bg-sky-400/10 text-primary dark:text-sky-400 transition-all text-center space-y-2 font-semibold"
-            >
-              <h3 className="font-bold">Diagnóstico por IA ✨</h3>
-              <p className="text-sm">Análisis inteligente inmediato</p>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Step 6: AI Diagnostic Questions */}
-      {step === 6 && diagnosticMode === 'ia' && selectedDeviceType && selectedBrand && selectedModel && (
+      {/* Step 5: AI Diagnostic Questions */}
+      {step === 5 && diagnosticMode === 'ia' && selectedDeviceType && selectedBrand && selectedModel && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
           <Step6_AIDiagnostic
             deviceType={selectedDeviceType}
@@ -186,27 +161,46 @@ export default function AsistenteDiagnosticoClient() {
       )}
 
       {/* Step 7: Diagnostic Results */}
-      {step === 7 && diagnosis && selectedModel && selectedBrand && (
+      {step === 6 && selectedModel && selectedBrand && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <Step7_Results
-            model={selectedModel}
-            brand={selectedBrand}
-            diagnosis={diagnosis}
-            minPrice={estimatedMinPrice}
-            maxPrice={estimatedMaxPrice}
-            recommendedProducts={recommendedProducts}
-            onContinue={nextStep}
-            onBack={prevStep}
-          />
+          {diagnosis ? (
+            <Step7_Results
+              model={selectedModel}
+              brand={selectedBrand}
+              diagnosis={diagnosis}
+              minPrice={estimatedMinPrice}
+              maxPrice={estimatedMaxPrice}
+              recommendedProducts={recommendedProducts}
+              onContinue={nextStep}
+              onBack={prevStep}
+            />
+          ) : (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary dark:border-sky-400 mx-auto"></div>
+              <p className="text-slate-500 dark:text-slate-400 mt-4">Generando diagnóstico...</p>
+            </div>
+          )}
         </div>
       )}
 
       {/* Step 8: Contact & Confirmation */}
-      {step >= 8 && (
-        <div className="text-center py-12 text-slate-500 dark:text-slate-400">
-          <p>Paso {step} - Confirmación de reparación</p>
-          <p className="text-sm mt-2">Dispositivo: {selectedModel} ({selectedBrand})</p>
-          <p className="text-sm">Diagnóstico completado ✓</p>
+      {/* Step 8: Confirmation & Repair Booking */}
+      {step === 8 && diagnosis && selectedModel && selectedBrand && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <DiagnosticStep5
+            ticketId={`TKT-${Date.now()}`}
+            deviceType={selectedDeviceType}
+            terminalNode={{ preliminary_result: diagnosis, estimated_min: estimatedMinPrice, estimated_max: estimatedMaxPrice }}
+            symptomPath={[]}
+            suggestedProducts={recommendedProducts}
+            clientName=""
+            serialNumber=""
+            deviceModel={selectedModel}
+            appointmentDate={new Date().toISOString().split('T')[0]}
+            appointmentTime="09:00"
+            selectedBranch="Laboratorio Central"
+            failurePhoto={null}
+          />
         </div>
       )}
     </div>
