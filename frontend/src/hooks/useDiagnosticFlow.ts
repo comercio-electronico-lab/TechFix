@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { getDiagnosticNodeById } from '@/app/actions';
+import { getDiagnosticNodeById } from '@/actions';
 import { IDiagnosticNode, IDiagnosticOption, IDiagnosticHistory, IProduct } from '@/interfaces/domain';
 
 export interface UseDiagnosticFlowReturn {

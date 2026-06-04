@@ -7,7 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { Mail, Lock, User, AlertCircle } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import { scheduleRepairAction } from '@/app/actions';
+import { scheduleRepairAction } from '@/actions';
 
 export default function AuthPage() {
   const router = useRouter();

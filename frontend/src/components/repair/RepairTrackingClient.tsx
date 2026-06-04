@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { getRepairTrackingAction } from '@/app/actions';
+import { getRepairTrackingAction } from '@/actions';
 import RepairTimeline, { TimelineStep } from '@/components/repair/RepairTimeline';
 import DeviceSummaryCard from '@/components/repair/DeviceSummaryCard';
 import WarrantyCertificateCard from '@/components/repair/WarrantyCertificateCard';

@@ -18,7 +18,7 @@ import {
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { scheduleRepairAction } from '@/app/actions';
+import { scheduleRepairAction } from '@/actions';
 
 interface Step5Props {
   ticketId: string;

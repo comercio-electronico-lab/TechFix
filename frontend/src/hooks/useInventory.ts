@@ -9,7 +9,7 @@ import {
   createRestockOrder,
   createProduct,
   updateProduct
-} from '@/app/actions';
+} from '@/actions';
 
 export interface UseInventoryReturn {
   inventory: IInventoryItem[];
