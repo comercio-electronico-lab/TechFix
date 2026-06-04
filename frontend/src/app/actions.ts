@@ -85,6 +85,11 @@ export async function getCustomerRepairs(token: string) {
   return repairs.filter(r => (r as any).customerEmail === user.email);
 }
 
+export async function getClientRepairsAction(token: string) {
+  const user = await getCurrentUser(token);
+  return repairs.filter(r => (r as any).customerEmail === user.email);
+}
+
 export async function getCustomerDevicesList(token: string) {
   await getCurrentUser(token);
   return devices;
@@ -143,4 +148,19 @@ export async function scheduleRepairAction(token: string, repairData: { deviceNa
   };
   repairs.unshift(newRepair as any);
   return newRepair;
+}
+
+export async function getClientWarrantiesAction(token: string) {
+  const user = await getCurrentUser(token);
+  const clientRepairs = repairs.filter(r => (r as any).customerEmail === user.email);
+  return clientRepairs
+    .filter(r => (r as any).status === 'completado' || (r as any).status === 'reparado')
+    .map(r => ({
+      id: `WAR-${(r as any).id}`,
+      repairId: (r as any).id,
+      device: (r as any).device,
+      warrantyType: 'reparación',
+      expiryDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
+      status: 'activa'
+    }));
 }
