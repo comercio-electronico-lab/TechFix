@@ -65,51 +65,51 @@ export async function initializeData() {
 }
 
 // --- GETTERS ---
-export function getUsers() {
+export async function getUsers() {
   return users;
 }
 
-export function getProducts() {
+export async function getProducts() {
   return products;
 }
 
-export function getRepairs() {
+export async function getRepairs() {
   return repairs;
 }
 
-export function getDevices() {
+export async function getDevices() {
   return devices;
 }
 
-export function getSuppliers() {
+export async function getSuppliers() {
   return suppliers;
 }
 
-export function getSupplierOrders() {
+export async function getSupplierOrders() {
   return supplierOrders;
 }
 
 // --- SETTERS ---
-export function setUsers(newUsers: any[]) {
+export async function setUsers(newUsers: any[]) {
   users = newUsers;
 }
 
-export function setProducts(newProducts: any[]) {
+export async function setProducts(newProducts: any[]) {
   products = newProducts;
 }
 
-export function setRepairs(newRepairs: any[]) {
+export async function setRepairs(newRepairs: any[]) {
   repairs = newRepairs;
 }
 
-export function setDevices(newDevices: any[]) {
+export async function setDevices(newDevices: any[]) {
   devices = newDevices;
 }
 
-export function setSuppliers(newSuppliers: any[]) {
+export async function setSuppliers(newSuppliers: any[]) {
   suppliers = newSuppliers;
 }
 
-export function setSupplierOrders(newOrders: any[]) {
+export async function setSupplierOrders(newOrders: any[]) {
   supplierOrders = newOrders;
 }

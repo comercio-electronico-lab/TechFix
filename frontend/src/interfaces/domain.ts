@@ -1,7 +1,11 @@
 export interface IUser {
   id: string;
   email: string;
-  name: string;
+  nombre: string;
+  teléfono?: string;
+  dirección?: string;
+  ciudad?: string;
+  documentId?: string;
   role: 'admin' | 'tecnico' | 'cliente';
   createdAt: string;
 }
@@ -70,25 +74,40 @@ export interface ICategory {
 export interface IProduct {
   id: string;
   name: string;
-  description: string;
-  price: number;
-  stock: number;
-  image: string;
-  category: ICategory;
-  status: 'active' | 'out_of_stock' | 'discontinued';
+  description?: string;
+  price?: number;
+  stock?: number;
+  image?: string;
+  category?: ICategory | string;
+  status?: 'active' | 'out_of_stock' | 'discontinued';
+  reasoning?: string;
+  estimated_price?: number;
 }
 
 export type RepairStatus = 'pending' | 'diagnosing' | 'waiting_parts' | 'repairing' | 'testing' | 'ready' | 'delivered';
 
 export interface IRepair {
   id: string;
-  customerName: string;
-  deviceName: string;
-  serialNumber: string;
-  issueDescription: string;
+  customerName?: string;
+  deviceName?: string;
+  serialNumber?: string;
+  issueDescription?: string;
   status: RepairStatus;
-  createdAt: string;
+  createdAt?: string;
+  created_at?: string;
   estimatedDate?: string;
+  estimated_price_min?: number;
+  estimated_price_max?: number;
+  final_price?: number;
+  diagnosis_final?: string;
+  appointment_datetime?: string;
+  notes?: string;
+  customerEmail?: string;
+  device?: {
+    brand: string;
+    model: string;
+    serial_number: string;
+  };
 }
 
 export interface IAppointment {

@@ -41,7 +41,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Badges */}
         <div className="flex flex-wrap gap-2 mb-4">
           <span className="border border-outline rounded-md px-2 py-0.5 text-[10px] font-bold uppercase text-on-surface-variant tracking-wider">
-            {product.category}
+            {typeof product.category === 'object' ? product.category.name : product.category}
           </span>
           <span className="border border-outline rounded-md px-2 py-0.5 text-[10px] font-bold uppercase text-on-surface-variant tracking-wider">
             {product.status}
@@ -68,10 +68,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             onClick={() => addItem({
               id: product.id,
               name: product.name,
-              price: product.price,
-              image: product.image,
+              price: product.price || 0,
+              image: product.image || '',
               description: product.description,
-              tags: [product.status, product.category]
+              tags: [product.status || '', typeof product.category === 'object' ? product.category.name : (product.category || '')]
             })}
             variant="primary"
           >

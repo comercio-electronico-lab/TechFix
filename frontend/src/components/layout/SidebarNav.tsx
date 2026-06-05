@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { LucideIcon, ChevronRight } from 'lucide-react';
@@ -16,7 +16,7 @@ interface SidebarNavProps {
   className?: string;
 }
 
-const SidebarNav = ({ links, className = '' }: SidebarNavProps) => {
+const SidebarNavContent = ({ links, className = '' }: SidebarNavProps) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -50,6 +50,14 @@ const SidebarNav = ({ links, className = '' }: SidebarNavProps) => {
         );
       })}
     </nav>
+  );
+};
+
+const SidebarNav = (props: SidebarNavProps) => {
+  return (
+    <Suspense fallback={<nav className={`flex-1 space-y-1 ${props.className || ''}`} />}>
+      <SidebarNavContent {...props} />
+    </Suspense>
   );
 };
 

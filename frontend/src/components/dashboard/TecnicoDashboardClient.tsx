@@ -22,8 +22,8 @@ export default function TecnicoDashboardClient() {
     if (!token) return;
     setLoading(true);
     try {
-      const repairsData = await getAdminRepairsAction(token);
-      const productsData = await getAdminProductsAction(token);
+      const repairsData = await getAdminRepairsAction();
+      const productsData = await getAdminProductsAction();
 
       const adaptedRepairs = repairsData.map((r: any) => ({
         ...r,

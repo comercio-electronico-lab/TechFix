@@ -27,8 +27,8 @@ const Navbar = () => {
 
   const getDashboardLink = () => {
     if (!isAuthenticated || !user) return "/auth";
-    if (user.rol === "Admin") return "/admin/dashboard";
-    if (user.rol === "Técnico") return "/tecnico/dashboard";
+    if (user.role === "admin") return "/admin/dashboard";
+    if (user.role === "tecnico") return "/tecnico/dashboard";
     return "/cliente/dashboard";
   };
 
@@ -94,7 +94,7 @@ const Navbar = () => {
               <User className="w-6 h-6" />
               {isAuthenticated && user && (
                 <span className="hidden sm:inline text-xs font-bold bg-white/10 px-2 py-0.5 rounded-full">
-                  {user.name.split(' ')[0]}
+                  {user.nombre.split(' ')[0]}
                 </span>
               )}
             </Link>

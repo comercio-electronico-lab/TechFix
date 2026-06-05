@@ -3,7 +3,6 @@ import { IIconProps } from '@/interfaces/components';
 import { icons } from 'lucide-react';
 
 export const Icon = ({ name, size = 24, color = 'currentColor', className = '' }: IIconProps) => {
-  // @ts-expect-error - Lucide icons map access
   const LucideIcon = icons[name as keyof typeof icons];
 
   if (!LucideIcon) {
