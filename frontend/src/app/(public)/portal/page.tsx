@@ -42,7 +42,7 @@ export default function CustomerPortal() {
   // Redirección automática si el usuario es Admin o Técnico
   useEffect(() => {
     if (isAuthenticated && user) {
-      const userRole = user.rol?.toLowerCase();
+      const userRole = user.role?.toLowerCase();
       if (userRole === 'admin' || userRole === 'tecnico' || userRole === 'técnico') {
         router.push('/admin/dashboard');
       }

@@ -6,7 +6,7 @@ import {
   ShoppingCart,
   Package,
   Calendar,
-  BarChart3,
+  BarChart,
   Users,
   Settings,
   Ticket,
@@ -21,7 +21,7 @@ const AdminSidebar = () => {
     { name: 'Órdenes', href: '/admin/ordenes', icon: ShoppingCart },
     { name: 'Inventario', href: '/admin/inventario', icon: Package },
     { name: 'Citas', href: '/admin/citas', icon: Calendar },
-    { name: 'Reportes', href: '/admin/reportes', icon: BarChart3 },
+    { name: 'Reportes', href: '/admin/reportes', icon: BarChart },
     { name: 'Usuarios', href: '/admin/usuarios', icon: Users },
   ];
 

@@ -203,10 +203,10 @@ export const mockClientRepairs: ClientRepair[] = [
   }
 ];
 
-// Mantener compatibilidad con AdminRepairTicket para taller
-import { AdminRepairTicket } from '@/hooks/useRepairQueue';
+// Mantener compatibilidad con IAdminRepairTicket para taller
+import { IAdminRepairTicket } from '@/interfaces/domain';
 
-export const mockRepairTickets: AdminRepairTicket[] = [
+export const mockRepairTickets: IAdminRepairTicket[] = [
   {
     id: 'WO-2026-0041',
     customerName: 'Carlos González',

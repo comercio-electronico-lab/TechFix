@@ -187,7 +187,7 @@ export default function RepairsTab() {
                         <span className="text-on-surface-variant/60 dark:text-slate-550 block mb-0.5 uppercase tracking-wider text-[9px]">FECHA DE INGRESO / CITA</span>
                         <span className="text-xs font-bold text-on-surface dark:text-slate-300 flex items-center gap-1.5">
                           <Calendar className="w-4 h-4 text-slate-400" />
-                          {formatDate(repair.appointment_datetime)}
+                          {formatDate(repair.appointment_datetime || repair.created_at || '')}
                         </span>
                       </div>
                     </div>
@@ -196,10 +196,10 @@ export default function RepairsTab() {
                   {/* Call to Action Tracking */}
                   <div className="mt-6 pt-4 border-t border-outline-variant/20 dark:border-slate-800/40 flex justify-between items-center">
                     <span className="text-[10px] text-slate-400 font-mono">
-                      Ingreso: {formatDate(repair.created_at)}
+                      Ingreso: {formatDate(repair.created_at || '')}
                     </span>
                     <Link
-                      href={`/reparaciones/seguimiento?ticket=${repair.id}&device=${repair.device?.brand} ${repair.device?.model}&specs=${repair.device?.specs}&serial=${repair.device?.serial_number}`}
+                      href={`/reparaciones/seguimiento?ticket=${repair.id}&device=${repair.device?.brand} ${repair.device?.model}&serial=${repair.device?.serial_number}`}
                       className="inline-flex items-center gap-1 text-xs font-extrabold text-primary dark:text-sky-400 hover:text-primary-dark dark:hover:text-sky-300 transition-colors uppercase tracking-wider group"
                     >
                       Seguimiento en Vivo 

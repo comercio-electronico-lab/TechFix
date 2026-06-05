@@ -1,8 +1,7 @@
 'use client';
 
-import React from 'react';
 import { InventoryTable } from '@/components/features/inventory/InventoryTable';
-import { Button } from '@/components/ui/Button';
+import Button from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { IProduct } from '@/interfaces/domain';
 
@@ -18,7 +17,8 @@ export const InventoryView = ({ initialProducts }: IInventoryViewProps) => {
           <h1 className="text-3xl font-bold tracking-tight">Inventario</h1>
           <p className="text-[var(--color-muted)]">Gestiona el stock de productos y equipos.</p>
         </div>
-        <Button leftIcon={<Icon name="Plus" size={20} />}>
+        <Button>
+          <Icon name="Plus" size={20} />
           Nuevo Producto
         </Button>
       </div>
@@ -31,13 +31,13 @@ export const InventoryView = ({ initialProducts }: IInventoryViewProps) => {
         <div className="p-6 bg-white rounded-xl border border-[var(--color-border)] shadow-sm">
           <p className="text-sm font-medium text-[var(--color-muted)]">Bajo Stock</p>
           <p className="text-2xl font-bold text-red-600">
-            {initialProducts.filter(p => p.stock < 5).length}
+            {initialProducts.filter(p => (p.stock ?? 0) < 5).length}
           </p>
         </div>
         <div className="p-6 bg-white rounded-xl border border-[var(--color-border)] shadow-sm">
           <p className="text-sm font-medium text-[var(--color-muted)]">Valor Inventario</p>
           <p className="text-2xl font-bold">
-            ${initialProducts.reduce((acc, p) => acc + (p.price * p.stock), 0).toLocaleString()}
+            ${initialProducts.reduce((acc, p) => acc + ((p.price ?? 0) * (p.stock ?? 0)), 0).toLocaleString()}
           </p>
         </div>
       </div>

@@ -38,7 +38,7 @@ export default function DiagnosticFlow() {
 
   useEffect(() => {
     if (user) {
-      setClientName(user.name);
+      setClientName(user.nombre);
       setClientEmail(user.email);
     }
   }, [user, setClientName, setClientEmail]);

@@ -14,19 +14,19 @@ export interface RepairOrder extends IRepair {
 export interface Warranty {
   id: string;
   repair_id: string;
-  user_id: string;
   device_id: string;
   device?: {
     brand: string;
     model: string;
     serial_number: string;
   };
-  repair_order?: RepairOrder;
-  warranty_days: number;
+  warranty_token: string;
   start_date: string;
   end_date: string;
   is_active: boolean;
-  warranty_token: string;
+  status?: string;
+  repair_order?: RepairOrder;
+  warranty_days?: number;
 }
 
 export interface ScheduleRepairInput {

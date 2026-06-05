@@ -68,19 +68,22 @@ export function useCatalog(): UseCatalogReturn {
   }, [fetchCatalog]);
 
   const categoriesList = useMemo(() =>
-    Array.from(new Set(products.map(p => p.category.name))), [products]);
+    Array.from(new Set(products.map(p => typeof p.category === 'object' ? p.category.name : (p.category || '')))), [products]);
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(p => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
+      result = result.filter(p => p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q));
     }
     if (selectedCategories.length > 0) {
-      result = result.filter(p => selectedCategories.includes(p.category.name));
+      result = result.filter(p => {
+        const catName = typeof p.category === 'object' ? p.category.name : p.category;
+        return selectedCategories.includes(catName || '');
+      });
     }
-    if (sortBy === 'Price: Low to High') result.sort((a, b) => a.price - b.price);
-    else if (sortBy === 'Price: High to Low') result.sort((a, b) => b.price - a.price);
+    if (sortBy === 'Price: Low to High') result.sort((a, b) => (a.price || 0) - (b.price || 0));
+    else if (sortBy === 'Price: High to Low') result.sort((a, b) => (b.price || 0) - (a.price || 0));
     return result;
   }, [products, searchQuery, selectedCategories, sortBy]);
 

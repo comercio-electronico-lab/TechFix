@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 const mockStats: IDashboardStats[] = [
   { label: 'Ventas Totales', value: '$12,450', change: 12, icon: 'DollarSign', trend: 'up' },
-  { label: 'Reparaciones Activas', value: '24', change: -5, icon: 'Tool', trend: 'down' },
+  { label: 'Reparaciones Activas', value: '24', change: -5, icon: 'Wrench', trend: 'down' },
   { label: 'Citas Hoy', value: '8', icon: 'Calendar', trend: 'neutral' },
   { label: 'Nuevos Clientes', value: '45', change: 25, icon: 'Users', trend: 'up' },
 ];

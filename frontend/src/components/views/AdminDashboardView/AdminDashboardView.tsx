@@ -34,7 +34,7 @@ export const AdminDashboardView = ({ stats, activities }: IAdminDashboardViewPro
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white p-8 rounded-2xl border border-[var(--color-border)] h-80 flex flex-col items-center justify-center text-center">
-            <Icon name="BarChart3" size={48} className="text-[var(--color-muted)] mb-4" />
+            <Icon name="BarChart" size={48} className="text-[var(--color-muted)] mb-4" />
             <h3 className="text-lg font-bold">Gráfico de Ingresos</h3>
             <p className="text-[var(--color-muted)] max-w-xs">Las métricas de ventas se actualizarán en tiempo real conforme se procesen los pagos.</p>
           </div>
