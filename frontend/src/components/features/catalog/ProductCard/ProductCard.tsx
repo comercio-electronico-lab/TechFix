@@ -35,7 +35,7 @@ export const ProductCard = ({ product, onAddToCart }: IProductCardProps) => {
         
         <div className="flex items-center justify-between mt-auto">
           <span className="text-xl font-black text-[var(--color-primary)]">
-             ${(product.price || 0).toLocaleString()}
+             S/. {(product.price || 0).toLocaleString()}
           </span>
           <Button 
             size="sm" 

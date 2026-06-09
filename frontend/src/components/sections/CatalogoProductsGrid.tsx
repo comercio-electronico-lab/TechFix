@@ -1,8 +1,8 @@
 import ProductCard from '@/components/cards/ProductCard';
-import type { Product } from '@/types';
+import { IProduct } from '@/interfaces/domain';
 
 interface CatalogoProductsGridProps {
-  paginatedProducts: Product[];
+  paginatedProducts: IProduct[];
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;

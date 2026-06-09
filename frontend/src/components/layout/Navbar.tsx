@@ -130,87 +130,47 @@ const Navbar = () => {
               );
             })}
           </nav>
+        </div>
 
-          {/* BUSCADOR DE ESCRITORIO EXPANDIBLE */}
-          <NavbarSearch 
-            ref={searchInputRef}
-            isOpen={isSearchOpen} 
-            onClose={() => setIsSearchOpen(false)} 
-            searchQuery={searchQuery} 
-            setSearchQuery={setSearchQuery} 
-            onSubmit={handleSearchSubmit} 
-          />
-
-          {/* MENÚ DE ACCIONES */}
-          <div className="flex items-center gap-3.5 text-slate-700 dark:text-slate-200">
-            
-            {/* Botón Lupa */}
-            <button
-              onClick={() => setIsSearchOpen(true)}
-              className={`hidden md:flex hover:text-slate-950 dark:hover:text-sky-400 transition-all duration-300 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer ${
-                isSearchOpen ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
-              }`}
-              onMouseEnter={() => handleMouseEnterLink(undefined)}
-              aria-label="Buscar"
-            >
-              <Search className="w-4.5 h-4.5 text-slate-650 dark:text-slate-355" />
-            </button>
-
-            {/* Alternador de Tema */}
-            <div className={`${isSearchOpen ? 'hidden md:block opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'} transition-all duration-300`}>
-              {mounted && (
-                <button 
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className="hover:text-slate-950 dark:hover:text-sky-400 transition-colors focus:outline-none p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer"
-                  onMouseEnter={() => handleMouseEnterLink(undefined)}
-                  aria-label="Alternar tema"
-                >
-                  {theme === 'dark' ? (
-                    <Sun className="w-4.5 h-4.5 text-yellow-400" />
-                  ) : (
-                    <Moon className="w-4.5 h-4.5 text-slate-600" />
-                  )}
-                </button>
-              )}
-            </div>
-
-            {/* Carrito */}
-            <div className={`${isSearchOpen ? 'hidden md:block opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'} transition-all duration-300`} onMouseEnter={() => handleMouseEnterLink(undefined)}>
-              <CartDropdown />
-            </div>
-
-            {/* Enlace Perfil */}
-            <div className={`${isSearchOpen ? 'hidden md:block opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'} transition-all duration-300`}>
-              <Link 
-                href={getDashboardLink()} 
-                className="hover:text-slate-955 dark:hover:text-sky-400 transition-colors flex items-center gap-1.5"
-                onMouseEnter={() => handleMouseEnterLink(undefined)}
-                title={isAuthenticated ? `Mi Perfil: ${user?.nombre}` : "Iniciar Sesión"}
+        <div className="flex items-center gap-stack-md">
+          <div className="relative hidden lg:block">
+            <input 
+              className="bg-primary-container border border-outline/30 text-white rounded-lg px-4 py-2 w-64 focus:ring-2 focus:ring-secondary-container focus:outline-none placeholder:text-white/40"
+              placeholder="Buscar componentes..."
+              type="text"
+            />
+            <Search className="absolute right-3 top-2.5 w-5 h-5 text-white/60" />
+          </div>
+          <div className="flex items-center gap-4 text-white">
+            {mounted && (
+              <button 
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="hover:text-secondary-container transition-colors focus:outline-none p-1.5 rounded-full hover:bg-white/10 flex items-center justify-center"
+                aria-label="Alternar tema"
               >
-                <User className="w-4.5 h-4.5 text-slate-650 dark:text-slate-300" />
-                {isAuthenticated && user && (
-                  <span className="hidden lg:inline text-[9px] font-black bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-white px-2 py-0.5 rounded-full uppercase tracking-wider">
-                    {user.nombre.split(' ')[0]}
-                  </span>
+                {theme === 'dark' ? (
+                  <Sun className="w-5 h-5 text-yellow-300" />
+                ) : (
+                  <Moon className="w-5 h-5 text-white" />
                 )}
-              </Link>
-            </div>
-
-            {/* Menú Móvil */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden flex flex-col justify-center items-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer relative z-50"
-              aria-label="Menú principal"
+              </button>
+            )}
+            {!mounted && (
+              <div className="w-8 h-8" />
+            )}
+            <CartDropdown />
+            <Link 
+              href={getDashboardLink()} 
+              className="hover:text-secondary-container transition-colors flex items-center gap-1.5"
+              title={isAuthenticated ? `Mi Perfil: ${user?.nombre}` : "Iniciar Sesión"}
             >
-              <div className="w-4.5 flex flex-col gap-1.5">
-                <span className={`h-0.5 w-full bg-slate-800 dark:bg-white transition-all duration-350 rounded-full transform origin-center ${
-                  isMenuOpen ? 'rotate-45 translate-y-1' : ''
-                }`} />
-                <span className={`h-0.5 w-full bg-slate-800 dark:bg-white transition-all duration-350 rounded-full transform origin-center ${
-                  isMenuOpen ? '-rotate-45 -translate-y-1' : ''
-                }`} />
-              </div>
-            </button>
+              <User className="w-6 h-6" />
+              {isAuthenticated && user && (
+                <span className="hidden sm:inline text-xs font-bold bg-white/10 px-2 py-0.5 rounded-full">
+                  {user.nombre.split(' ')[0]}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
 
