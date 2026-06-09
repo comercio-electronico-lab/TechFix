@@ -10,63 +10,62 @@
 
 @layer base {
   :root {
-    --background: #f8f9ff;
-    --on-background: #0b1c30;
-    --surface: #f8f9ff;
-    --surface-dim: #cbdbf5;
-    --surface-bright: #f8f9ff;
+    /* Ice-blue and signature TechFix light brand colors */
+    --background: #ffffff;
+    --on-background: #0b1a30;
+    --surface: #ffffff;
+    --surface-dim: #f3f7ff;
+    --surface-bright: #ffffff;
     --surface-container-lowest: #ffffff;
-    --surface-container-low: #eff4ff;
-    --surface-container: #e5eeff;
-    --surface-container-high: #dce9ff;
-    --surface-container-highest: #d3e4fe;
-    --on-surface: #0b1c30;
-    --on-surface-variant: #43474e;
+    --surface-container-low: #f3f7ff;
+    --surface-container: #e9efff;
+    --surface-container-high: #deebff;
+    --surface-container-highest: #d2e4ff;
+    --on-surface: #0b1a30;
+    --on-surface-variant: #40587c;
     
-    --primary: #022448;
+    --primary: #0b61a1; /* Royal electric blue */
     --on-primary: #ffffff;
-    --primary-container: #1e3a5f;
-    --on-primary-container: #8aa4cf;
+    --primary-container: #deebff;
+    --on-primary-container: #0b61a1;
     
     --secondary: #0b61a1;
     --on-secondary: #ffffff;
-    --secondary-container: #7cbaff;
-    --on-secondary-container: #004a7d;
+    --secondary-container: #deebff;
+    --on-secondary-container: #0b61a1;
     
-    --outline: #74777f;
-    --outline-variant: #c4c6cf;
+    --outline: #6e88b2;
+    --outline-variant: #cbdcff;
   }
 
   .dark {
-    /* Rich, deep electric-navy space backgrounds */
-    --background: #020816; /* deep electric midnight blue */
+    /* Deep electric midnight navy backgrounds */
+    --background: #020816;
     --on-background: #f8fafc;
     
-    --surface: #0a1b3a; /* beautiful deep electric navy surface */
-    --surface-dim: #040c1c;
-    --surface-bright: #12284c;
-    --surface-container-lowest: #01040a;
-    --surface-container-low: #06132b;
-    --surface-container: #0a1b3a;
-    --surface-container-high: #142f5e;
-    --surface-container-highest: #1d3e7a;
-    --on-surface: #f1f5f9;
-    --on-surface-variant: #a5b4fc; /* beautiful light indigo/blue text */
+    --surface: #061533; /* Rich electric navy surface */
+    --surface-dim: #010512;
+    --surface-bright: #0a2252;
+    --surface-container-lowest: #01030d;
+    --surface-container-low: #030c24;
+    --surface-container: #061533;
+    --surface-container-high: #09204c;
+    --surface-container-highest: #0d2c69;
+    --on-surface: #f8fafc;
+    --on-surface-variant: #93c5fd; /* Electric light blue text */
     
-    /* MAINTAIN the original deep navy primary brand color */
-    --primary: #022448;
+    --primary: #0b61a1; /* Royal electric blue brand */
     --on-primary: #ffffff;
-    --primary-container: #06132b;
-    --on-primary-container: #cbd5e1;
+    --primary-container: #030d24;
+    --on-primary-container: #93c5fd;
     
-    /* MAINTAIN the original royal electric blue secondary */
-    --secondary: #0b61a1;
-    --on-secondary: #ffffff;
-    --secondary-container: #7cbaff; /* Keep light blue container for stunning active items contrast */
-    --on-secondary-container: #001d36;
+    --secondary: #00bcff; /* Vibrant electric cyan secondary */
+    --on-secondary: #020816;
+    --secondary-container: #005080;
+    --on-secondary-container: #ffffff;
     
-    --outline: #1b3b6f; /* gorgeous electric navy outline */
-    --outline-variant: #0e2246;
+    --outline: #13306d; /* Electric navy border */
+    --outline-variant: #091e4a;
   }
 }
 
