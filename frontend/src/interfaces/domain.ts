@@ -147,3 +147,70 @@ export interface IDiagnosticHistory {
   node: IDiagnosticNode;
   options: IDiagnosticOption[];
 }
+
+export interface RepairOrderProduct {
+  id: string;
+  nombre: string;
+  cantidad: number;
+  precio_unitario: number;
+  subtotal: number;
+}
+
+export interface ClientRepair {
+  id: string;
+  device?: {
+    brand: string;
+    model: string;
+    serial_number: string;
+  };
+  status: 'pending' | 'agendado' | 'en_reparacion' | 'reparado' | 'completado';
+  diagnosis_final: string;
+  created_at: string;
+  appointment_datetime?: string;
+  final_price: number;
+  estimated_price_min?: number;
+  estimated_price_max?: number;
+  productos?: RepairOrderProduct[];
+  notes?: string;
+  warranty?: {
+    warranty_days: number;
+    start_date?: string;
+    end_date?: string;
+    is_active: boolean;
+  };
+  payment_status?: 'pending' | 'approved' | 'failed';
+}
+
+export interface Device {
+  id: string;
+  brand: string;
+  model: string;
+  serial_number: string;
+  device_type: string;
+  purchase_date: string | null;
+}
+
+export interface OrderItem {
+  id: string;
+  name: string;
+  description?: string;
+  quantity: number;
+  price: number;
+  image: string;
+}
+
+export interface OrderData {
+  orderNumber: string;
+  email: string;
+  clientName: string;
+  address: string;
+  estimatedDate: string;
+  courier: string;
+  items: OrderItem[];
+  subtotal: number;
+  shipping: number;
+  tax: number;
+}
+
+
+
