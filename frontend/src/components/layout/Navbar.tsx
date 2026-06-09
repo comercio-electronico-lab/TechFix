@@ -108,28 +108,104 @@ const Navbar = () => {
             onMouseEnter={() => handleMouseEnterLink(undefined)} 
           />
 
-          {/* ENLACES DE NAVEGACIÓN DESKTOP */}
-          <nav className={`hidden md:flex items-center gap-gutter transition-all duration-300 ${
-            isSearchOpen ? 'opacity-0 scale-95 pointer-events-none w-0' : 'opacity-100 scale-100'
-          }`}>
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href;
-              return (
+          {/* WRAPPER DERECHO: NAVEGACIÓN Y ACCIONES */}
+          <div className="flex items-center gap-8">
+            {/* ENLACES DE NAVEGACIÓN DESKTOP */}
+            <nav className={`hidden md:flex items-center gap-gutter transition-all duration-300 ${
+              isSearchOpen ? 'opacity-0 scale-95 pointer-events-none w-0' : 'opacity-100 scale-100'
+            }`}>
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link 
+                    key={link.href}
+                    href={link.href}
+                    onMouseEnter={() => handleMouseEnterLink(link.id)}
+                    className={`transition-all duration-200 font-semibold text-[11px] uppercase tracking-widest py-4 ${
+                      isActive 
+                        ? 'text-secondary dark:text-sky-400' 
+                        : 'text-slate-650 dark:text-slate-355 hover:text-slate-950 dark:hover:text-white'
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* MENÚ DE ACCIONES */}
+            <div className="flex items-center gap-3.5 text-slate-700 dark:text-slate-200">
+              
+              {/* Botón Lupa */}
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className={`hidden md:flex hover:text-slate-955 dark:hover:text-sky-400 transition-all duration-300 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer ${
+                  isSearchOpen ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
+                }`}
+                onMouseEnter={() => handleMouseEnterLink(undefined)}
+                aria-label="Buscar"
+              >
+                <Search className="w-4.5 h-4.5 text-slate-650 dark:text-slate-355" />
+              </button>
+
+              {/* Alternador de Tema */}
+              <div className={`${isSearchOpen ? 'hidden md:block opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'} transition-all duration-300`}>
+                {mounted && (
+                  <button 
+                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    className="hover:text-slate-955 dark:hover:text-sky-400 transition-colors focus:outline-none p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer"
+                    onMouseEnter={() => handleMouseEnterLink(undefined)}
+                    aria-label="Alternar tema"
+                  >
+                    {theme === 'dark' ? (
+                      <Sun className="w-4.5 h-4.5 text-yellow-400" />
+                    ) : (
+                      <Moon className="w-4.5 h-4.5 text-slate-600" />
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {/* Carrito */}
+              <div className={`${isSearchOpen ? 'hidden md:block opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'} transition-all duration-300`} onMouseEnter={() => handleMouseEnterLink(undefined)}>
+                <CartDropdown />
+              </div>
+
+              {/* Enlace Perfil */}
+              <div className={`${isSearchOpen ? 'hidden md:block opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'} transition-all duration-300`}>
                 <Link 
-                  key={link.href}
-                  href={link.href}
-                  onMouseEnter={() => handleMouseEnterLink(link.id)}
-                  className={`transition-all duration-200 font-semibold text-[11px] uppercase tracking-widest py-4 ${
-                    isActive 
-                      ? 'text-secondary dark:text-sky-400' 
-                      : 'text-slate-650 dark:text-slate-355 hover:text-slate-950 dark:hover:text-white'
-                  }`}
+                  href={getDashboardLink()} 
+                  className="hover:text-slate-955 dark:hover:text-sky-400 transition-colors flex items-center gap-1.5"
+                  onMouseEnter={() => handleMouseEnterLink(undefined)}
+                  title={isAuthenticated ? `Mi Perfil: ${user?.nombre}` : "Iniciar Sesión"}
                 >
-                  {link.name}
+                  <User className="w-4.5 h-4.5 text-slate-650 dark:text-slate-300" />
+                  {isAuthenticated && user && (
+                    <span className="hidden lg:inline text-[9px] font-black bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-white px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      {user.nombre.split(' ')[0]}
+                    </span>
+                  )}
                 </Link>
-              );
-            })}
-          </nav>
+              </div>
+
+              {/* Menú Móvil */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="md:hidden flex flex-col justify-center items-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer relative z-50"
+                aria-label="Menú principal"
+              >
+                <div className="w-4.5 flex flex-col gap-1.5">
+                  <span className={`h-0.5 w-full bg-slate-800 dark:bg-white transition-all duration-350 rounded-full transform origin-center ${
+                    isMenuOpen ? 'rotate-45 translate-y-1' : ''
+                  }`} />
+                  <span className={`h-0.5 w-full bg-slate-800 dark:bg-white transition-all duration-350 rounded-full transform origin-center ${
+                    isMenuOpen ? '-rotate-45 -translate-y-1' : ''
+                  }`} />
+                </div>
+              </button>
+            </div>
+          </div>
+
           {/* BUSCADOR DE ESCRITORIO EXPANDIBLE */}
           <NavbarSearch 
             ref={searchInputRef}
@@ -139,78 +215,6 @@ const Navbar = () => {
             setSearchQuery={setSearchQuery} 
             onSubmit={handleSearchSubmit} 
           />
-
-          {/* MENÚ DE ACCIONES */}
-          <div className="flex items-center gap-3.5 text-slate-700 dark:text-slate-200">
-            
-            {/* Botón Lupa */}
-            <button
-              onClick={() => setIsSearchOpen(true)}
-              className={`hidden md:flex hover:text-slate-955 dark:hover:text-sky-400 transition-all duration-300 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer ${
-                isSearchOpen ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
-              }`}
-              onMouseEnter={() => handleMouseEnterLink(undefined)}
-              aria-label="Buscar"
-            >
-              <Search className="w-4.5 h-4.5 text-slate-650 dark:text-slate-355" />
-            </button>
-
-            {/* Alternador de Tema */}
-            <div className={`${isSearchOpen ? 'hidden md:block opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'} transition-all duration-300`}>
-              {mounted && (
-                <button 
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className="hover:text-slate-955 dark:hover:text-sky-400 transition-colors focus:outline-none p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer"
-                  onMouseEnter={() => handleMouseEnterLink(undefined)}
-                  aria-label="Alternar tema"
-                >
-                  {theme === 'dark' ? (
-                    <Sun className="w-4.5 h-4.5 text-yellow-400" />
-                  ) : (
-                    <Moon className="w-4.5 h-4.5 text-slate-600" />
-                  )}
-                </button>
-              )}
-            </div>
-
-            {/* Carrito */}
-            <div className={`${isSearchOpen ? 'hidden md:block opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'} transition-all duration-300`} onMouseEnter={() => handleMouseEnterLink(undefined)}>
-              <CartDropdown />
-            </div>
-
-            {/* Enlace Perfil */}
-            <div className={`${isSearchOpen ? 'hidden md:block opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'} transition-all duration-300`}>
-              <Link 
-                href={getDashboardLink()} 
-                className="hover:text-slate-955 dark:hover:text-sky-400 transition-colors flex items-center gap-1.5"
-                onMouseEnter={() => handleMouseEnterLink(undefined)}
-                title={isAuthenticated ? `Mi Perfil: ${user?.nombre}` : "Iniciar Sesión"}
-              >
-                <User className="w-4.5 h-4.5 text-slate-650 dark:text-slate-300" />
-                {isAuthenticated && user && (
-                  <span className="hidden lg:inline text-[9px] font-black bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-white px-2 py-0.5 rounded-full uppercase tracking-wider">
-                    {user.nombre.split(' ')[0]}
-                  </span>
-                )}
-              </Link>
-            </div>
-
-            {/* Menú Móvil */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden flex flex-col justify-center items-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer relative z-50"
-              aria-label="Menú principal"
-            >
-              <div className="w-4.5 flex flex-col gap-1.5">
-                <span className={`h-0.5 w-full bg-slate-800 dark:bg-white transition-all duration-350 rounded-full transform origin-center ${
-                  isMenuOpen ? 'rotate-45 translate-y-1' : ''
-                }`} />
-                <span className={`h-0.5 w-full bg-slate-800 dark:bg-white transition-all duration-350 rounded-full transform origin-center ${
-                  isMenuOpen ? '-rotate-45 -translate-y-1' : ''
-                }`} />
-              </div>
-            </button>
-          </div>
         </div>
 
         {/* MEGA MENUS MODULARES */}
