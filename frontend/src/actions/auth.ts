@@ -41,3 +41,8 @@ export async function getCurrentUser(token: string): Promise<IUser> {
     createdAt: found.joinedDate
   };
 }
+
+export async function getAllUsers() {
+  await initializeData();
+  return await getUsers();
+}

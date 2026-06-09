@@ -1,6 +1,6 @@
 'use server';
 
-import { mockProducts } from '@/mock/products';
+import { initializeData, getProducts } from './data';
 
 interface ProductDetail {
   id: string;
@@ -21,7 +21,9 @@ interface ProductDetail {
 }
 
 export async function getProductById(id: string): Promise<ProductDetail | null> {
-  const baseProduct = mockProducts.find(p => p.id === id);
+  await initializeData();
+  const products = await getProducts();
+  const baseProduct = products.find(p => p.id === id);
 
   if (!baseProduct) {
     return null;
