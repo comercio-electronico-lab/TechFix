@@ -19,7 +19,7 @@ const RepairsTracker = () => {
 
   return (
     <Container as="section">
-      <div className="bg-gradient-to-br from-primary-container to-slate-900 dark:from-slate-900/40 dark:to-slate-950 border border-outline-variant/10 dark:border-slate-850 p-8 md:p-12 rounded-3xl shadow-xl flex flex-col lg:flex-row justify-between items-center gap-8 text-white relative overflow-hidden">
+      <div className="bg-gradient-to-br from-secondary to-sky-500 dark:from-[#061533] dark:to-[#020816] border border-outline-variant/20 dark:border-slate-850 p-8 md:p-12 rounded-3xl shadow-xl flex flex-col lg:flex-row justify-between items-center gap-8 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-[80px] pointer-events-none" />
         
         <div className="space-y-4 max-w-xl text-center lg:text-left">

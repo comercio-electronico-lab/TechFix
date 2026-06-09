@@ -15,7 +15,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addItem } = useCart();
 
   return (
-    <div className="bg-white rounded-[2rem] p-4 shadow-sm hover:shadow-xl transition-all border border-outline-variant/10 group flex flex-col h-full">
+    <div className="bg-surface dark:bg-slate-900 rounded-[2rem] p-4 shadow-sm hover:shadow-xl hover:border-secondary dark:hover:border-sky-500 transition-all border border-outline-variant/60 dark:border-slate-800/80 group flex flex-col h-full">
       {/* Image Section */}
       <div className="relative rounded-[1.5rem] h-64 overflow-hidden mb-5">
         <Link href={`/catalogo/${product.id}`} className="w-full h-full block">
