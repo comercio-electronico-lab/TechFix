@@ -28,7 +28,6 @@ const AdminSidebar = () => {
   return (
     <aside className="fixed left-0 top-0 h-full flex flex-col p-4 border-r border-outline-variant bg-surface-container-low w-64 shadow-md z-40">
       <SidebarHeader
-        icon={Settings}
         title="TechFix Pro"
         subtitle="Enterprise Repair Mgmt"
         bgColor="bg-primary"
