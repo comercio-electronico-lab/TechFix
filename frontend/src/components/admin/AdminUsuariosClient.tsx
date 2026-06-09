@@ -1,12 +1,21 @@
 "use client";
 
+import React, { useState, useEffect } from 'react';
 import Table from '@/components/ui/Table';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { mockUsers } from '@/mock/users';
-import { User } from '@/mock/users';
+import { getAllUsers } from '@/actions';
 import { Edit, UserPlus, Search, ShieldCheck, Mail, Calendar } from 'lucide-react';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  joinedDate: string;
+  status: string;
+}
 
 export default function AdminUsuariosClient() {
   const columns = [
@@ -72,6 +81,23 @@ export default function AdminUsuariosClient() {
     }
   ];
 
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadUsers() {
+      try {
+        const data = await getAllUsers();
+        setUsers(data as any[]);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadUsers();
+  }, []);
+
   return (
     <div className="space-y-stack-lg">
       <header className="flex justify-between items-end">
@@ -100,7 +126,13 @@ export default function AdminUsuariosClient() {
         </div>
 
         <div className="p-2">
-          <Table columns={columns} data={mockUsers} />
+          {loading ? (
+            <div className="py-12 text-center text-sm font-semibold text-on-surface-variant/60">
+              Cargando lista de usuarios...
+            </div>
+          ) : (
+            <Table columns={columns} data={users} />
+          )}
         </div>
 
         <div className="p-4 bg-surface-container-lowest border-t border-outline-variant/10">
