@@ -35,7 +35,7 @@ export const InventoryTable = ({ products, onEdit, onDelete }: IInventoryTablePr
               </td>
               <td className="px-6 py-4 text-right flex justify-end gap-2">
                 <Button variant="outline" size="sm" onClick={() => onEdit?.(product)}>
-                  <Icon name="Edit" size={16} />
+                  <Icon name="Pencil" size={16} />
                 </Button>
                 <Button variant="danger" size="sm" onClick={() => onDelete?.(product.id)}>
                   <Icon name="Trash2" size={16} />

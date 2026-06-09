@@ -17,7 +17,7 @@ export const ActivityList = ({ activities }: IActivityListProps) => {
             }`}>
               <Icon name={
                 activity.type === 'success' ? 'Check' :
-                activity.type === 'warning' ? 'AlertTriangle' : 'Info'
+                activity.type === 'warning' ? 'CircleAlert' : 'Info'
               } size={16} />
             </div>
             <div className="flex-1">

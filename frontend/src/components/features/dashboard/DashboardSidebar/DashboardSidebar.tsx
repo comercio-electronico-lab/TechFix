@@ -10,7 +10,7 @@ const menuItems = [
   { label: 'Inventario', href: '/admin/inventario', icon: 'Package' },
   { label: 'Citas', href: '/admin/citas', icon: 'Calendar' },
   { label: 'Usuarios', href: '/admin/usuarios', icon: 'Users' },
-  { label: 'Reportes', href: '/admin/reportes', icon: 'BarChart' },
+  { label: 'Reportes', href: '/admin/reportes', icon: 'ChartBar' },
 ];
 
 export const DashboardSidebar = () => {
