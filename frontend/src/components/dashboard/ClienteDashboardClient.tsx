@@ -4,11 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import DeviceModal from '@/components/ui/DeviceModal';
-import { Device, mockDevices } from '@/mock/devices';
+import { Device } from '@/interfaces/domain';
 import {
   getClientRepairsAction,
   getClientWarrantiesAction,
-  scheduleRepairAction
+  scheduleRepairAction,
+  getCustomerDevicesList
 } from '@/actions';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardTabs from '@/components/dashboard/DashboardTabs';
@@ -118,13 +119,16 @@ export default function ClienteDashboardClient() {
   };
 
   const fetchDevices = async () => {
+    if (!token) return;
     setDevicesLoading(true);
-    setTimeout(() => {
-      if (devices.length === 0) {
-        setDevices(mockDevices);
-      }
+    try {
+      const data = await getCustomerDevicesList(token);
+      setDevices(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
       setDevicesLoading(false);
-    }, 600);
+    }
   };
 
   const fetchRepairs = async () => {

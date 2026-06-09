@@ -2,7 +2,7 @@
 
 import React from 'react';
 import RepairCard from './RepairCard';
-import { ClientRepair } from '@/mock/repairs';
+import { ClientRepair } from '@/interfaces/domain';
 
 interface RepairsListProps {
   repairs: ClientRepair[];

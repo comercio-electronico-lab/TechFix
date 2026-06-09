@@ -1,12 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { mockProducts } from "@/mock/products";
+import { getProducts } from "@/actions/catalog";
 import ProductCard from "@/components/cards/ProductCard";
 
 import Container from '../ui/Container';
 
-const FeaturedProducts = () => {
+const FeaturedProducts = async () => {
+  const products = await getProducts();
+  
   return (
     <Container as="section" className="py-4">
       <div className="flex justify-between items-end mb-8 border-b border-outline-variant/20 dark:border-slate-800 pb-4">
@@ -20,7 +22,7 @@ const FeaturedProducts = () => {
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {mockProducts.slice(0, 4).map((product) => (
+        {products.slice(0, 4).map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>

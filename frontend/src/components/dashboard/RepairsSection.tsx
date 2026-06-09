@@ -5,7 +5,7 @@ import RepairsHeader from './repairs/RepairsHeader';
 import RepairsLoading from './repairs/RepairsLoading';
 import RepairsEmpty from './repairs/RepairsEmpty';
 import RepairsList from './repairs/RepairsList';
-import { ClientRepair } from '@/mock/repairs';
+import { ClientRepair } from '@/interfaces/domain';
 
 interface RepairsSectionProps {
   repairs: ClientRepair[];

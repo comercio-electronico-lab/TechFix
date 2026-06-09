@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import RepairTimeline, { TimelineStep } from '@/components/repair/RepairTimeline';
 import ConfirmRepairForm, { ConfirmRepairOptions } from './ConfirmRepairForm';
-import { ClientRepair } from '@/mock/repairs';
+import { ClientRepair } from '@/interfaces/domain';
 
 interface RepairCardProps {
   repair: ClientRepair;
