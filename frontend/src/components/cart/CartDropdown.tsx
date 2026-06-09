@@ -47,12 +47,12 @@ const CartDropdown = () => {
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className={`hover:text-secondary-container transition-all relative p-2 rounded-lg ${
+        className={`group transition-all duration-300 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer relative ${
           isAnimating ? 'animate-cart-bounce' : ''
-        } ${isOpen ? 'bg-white/10' : 'hover:bg-white/5'}`}
+        } ${isOpen ? 'bg-slate-100 dark:bg-white/10' : ''}`}
         aria-label="Carrito de compras"
       >
-        <ShoppingCart className="w-6 h-6 text-white" />
+        <ShoppingCart className="w-4.5 h-4.5 text-slate-650 dark:text-slate-355 group-hover:text-slate-955 dark:group-hover:text-sky-400 transition-colors" />
         {totalItems > 0 && (
           <span className="absolute -top-1 -right-1 bg-accent text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center shadow-lg animate-badge-pulse">
             {totalItems}
