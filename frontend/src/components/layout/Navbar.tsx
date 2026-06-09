@@ -92,7 +92,7 @@ const Navbar = () => {
               title={isAuthenticated ? `Mi Perfil: ${user?.nombre}` : "Iniciar Sesión"}
             >
               <User className="w-6 h-6" />
-              {isAuthenticated && user && (
+              {isAuthenticated && user && user.nombre && (
                 <span className="hidden sm:inline text-xs font-bold bg-white/10 px-2 py-0.5 rounded-full">
                   {user.nombre.split(' ')[0]}
                 </span>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, ChangeEvent } from 'react';
-import { ProductCard } from '@/components/features/catalog/ProductCard';
+import ProductCard from '@/components/cards/ProductCard';
 import { Input, Icon } from '@/components/ui';
 import { IProduct } from '@/interfaces/domain';
 
@@ -35,10 +35,9 @@ export const CatalogView = ({ initialProducts }: ICatalogViewProps) => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {filteredProducts.map(product => (
-          <ProductCard 
-            key={product.id} 
-            product={product} 
-            onAddToCart={(p) => console.log('Added to cart:', p)}
+          <ProductCard
+            key={product.id}
+            product={product as any}
           />
         ))}
       </div>

@@ -2,13 +2,14 @@
 
 import React from 'react';
 import { Product } from '@/types';
+import { IProduct } from '@/interfaces/domain';
 import { ShoppingCart, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import Button from '../ui/Button';
 
 interface ProductCardProps {
-  product: Product;
+  product: Product | IProduct;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
