@@ -7,7 +7,7 @@ import DeliveryDetailsCard from '@/components/checkout/DeliveryDetailsCard';
 import NextStepsCard from '@/components/checkout/NextStepsCard';
 import WarrantyCard from '@/components/checkout/WarrantyCard';
 import { useAuth } from '@/context/AuthContext';
-import { OrderData } from '@/mock/orders';
+import { OrderData } from '@/interfaces/domain';
 
 interface Props {
   defaultOrder: OrderData;

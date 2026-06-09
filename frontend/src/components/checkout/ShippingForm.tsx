@@ -7,30 +7,25 @@ import Button from '../ui/Button';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { getMockPhone, getMockAddress, getMockZipCode } from '@/mock';
-
-const mockShippingData = {
-  phone: getMockPhone(),
-  address: getMockAddress(),
-  zipCode: getMockZipCode(),
-};
-
 const ShippingForm = () => {
   const router = useRouter();
   const { user } = useAuth();
 
   const [fullName, setFullName] = useState(user?.nombre || 'Cliente Laboratorio');
-  const [phone, setPhone] = useState(mockShippingData.phone);
-  const [address, setAddress] = useState(mockShippingData.address);
-  const [city, setCity] = useState('Lima');
+  const [phone, setPhone] = useState(user?.teléfono || '');
+  const [address, setAddress] = useState(user?.dirección || '');
+  const [city, setCity] = useState(user?.ciudad || 'Lima');
   const [stateProv, setStateProv] = useState('Lima');
-  const [zipCode, setZipCode] = useState(mockShippingData.zipCode);
+  const [zipCode, setZipCode] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Pre-fill name from authenticated user details
+  // Pre-fill name and details from authenticated user details
   useEffect(() => {
-    if (user?.nombre) {
-      setFullName(user.nombre);
+    if (user) {
+      if (user.nombre) setFullName(user.nombre);
+      if (user.teléfono) setPhone(user.teléfono);
+      if (user.dirección) setAddress(user.dirección);
+      if (user.ciudad) setCity(user.ciudad);
     }
   }, [user]);
 
@@ -41,9 +36,9 @@ const ShippingForm = () => {
       try {
         const parsed = JSON.parse(saved);
         setFullName(parsed.fullName || user?.nombre || '');
-        setPhone(parsed.phone || '');
-        setAddress(parsed.address || '');
-        setCity(parsed.city || '');
+        setPhone(parsed.phone || user?.teléfono || '');
+        setAddress(parsed.address || user?.dirección || '');
+        setCity(parsed.city || user?.ciudad || 'Lima');
         setStateProv(parsed.stateProv || 'Lima');
         setZipCode(parsed.zipCode || '');
       } catch (e) {
