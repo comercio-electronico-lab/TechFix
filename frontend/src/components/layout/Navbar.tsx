@@ -217,22 +217,40 @@ const Navbar = () => {
           />
         </div>
 
-        {/* MEGA MENUS MODULARES */}
-        <MegaMenuCatalog 
-          isOpen={activeDropdown === 'catalogo'} 
+        {/* MEGA MENU DRAWER UNIFICADO */}
+        <div 
           onMouseEnter={handleMouseEnterDropdown} 
-          onMouseLeave={handleMouseLeaveLink} 
-        />
-        <MegaMenuRepairs 
-          isOpen={activeDropdown === 'reparaciones'} 
-          onMouseEnter={handleMouseEnterDropdown} 
-          onMouseLeave={handleMouseLeaveLink} 
-        />
-        <MegaMenuNosotros 
-          isOpen={activeDropdown === 'nosotros'} 
-          onMouseEnter={handleMouseEnterDropdown} 
-          onMouseLeave={handleMouseLeaveLink} 
-        />
+          onMouseLeave={handleMouseLeaveLink}
+          className={`absolute left-0 right-0 top-14 bg-surface dark:bg-[#020816] border-b border-slate-200/60 dark:border-slate-900/80 z-45 transition-all duration-300 ease-out origin-top overflow-hidden shadow-2xl ${
+            activeDropdown !== null 
+              ? 'opacity-100 scale-y-100 max-h-[380px] py-10 pointer-events-auto' 
+              : 'opacity-0 scale-y-95 max-h-0 py-0 pointer-events-none'
+          }`}
+        >
+          <div className="grid grid-cols-1 grid-rows-1 w-full">
+            <div className={`col-start-1 row-start-1 transition-opacity duration-200 ease-out ${
+              activeDropdown === 'catalogo' 
+                ? 'opacity-100 pointer-events-auto' 
+                : 'opacity-0 pointer-events-none'
+            }`}>
+              <MegaMenuCatalog />
+            </div>
+            <div className={`col-start-1 row-start-1 transition-opacity duration-200 ease-out ${
+              activeDropdown === 'reparaciones' 
+                ? 'opacity-100 pointer-events-auto' 
+                : 'opacity-0 pointer-events-none'
+            }`}>
+              <MegaMenuRepairs />
+            </div>
+            <div className={`col-start-1 row-start-1 transition-opacity duration-200 ease-out ${
+              activeDropdown === 'nosotros' 
+                ? 'opacity-100 pointer-events-auto' 
+                : 'opacity-0 pointer-events-none'
+            }`}>
+              <MegaMenuNosotros />
+            </div>
+          </div>
+        </div>
 
         {/* PANEL DE NAVEGACIÓN MÓVIL DESPLEGABLE */}
         <NavbarMobileMenu 

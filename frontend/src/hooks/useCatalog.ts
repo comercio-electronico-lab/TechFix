@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { IProduct } from '@/interfaces/domain';
 import { getProducts } from '@/actions';
+import { useSearchParams } from 'next/navigation';
 
 export type SortOption = 'Relevance' | 'Price: Low to High' | 'Price: High to Low' | 'Newest Arrivals';
 
@@ -37,6 +38,10 @@ export interface UseCatalogReturn {
 const ITEMS_PER_PAGE = 8;
 
 export function useCatalog(): UseCatalogReturn {
+  const searchParams = useSearchParams();
+  const paramCategory = searchParams?.get('category');
+  const paramSearch = searchParams?.get('search');
+
   const [products, setProducts] = useState<IProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +53,26 @@ export function useCatalog(): UseCatalogReturn {
   const [inStockOnly, setInStockOnlyState] = useState(false);
   const [sortBy, setSortByState] = useState<SortOption>('Relevance');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Sincronizar búsqueda desde URL
+  useEffect(() => {
+    if (paramSearch) {
+      setSearchQueryState(paramSearch);
+    } else {
+      setSearchQueryState('');
+    }
+    setCurrentPage(1);
+  }, [paramSearch]);
+
+  // Sincronizar categoría desde URL
+  useEffect(() => {
+    if (paramCategory) {
+      setSelectedCategories([paramCategory]);
+    } else {
+      setSelectedCategories([]);
+    }
+    setCurrentPage(1);
+  }, [paramCategory]);
 
   const fetchCatalog = useCallback(async () => {
     setLoading(true);
