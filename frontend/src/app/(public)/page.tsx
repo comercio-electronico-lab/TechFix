@@ -2,7 +2,7 @@ import React from 'react';
 import Hero from "@/components/sections/Hero";
 import DualEntryCards from "@/components/sections/DualEntryCards";
 import ServiceBentoGrid from "@/components/sections/ServiceBentoGrid";
-import FeaturedProducts from "@/components/sections/FeaturedProducts";
+import AppleProductShowcase from "@/components/sections/AppleProductShowcase";
 import RepairsTracker from "@/components/sections/RepairsTracker";
 
 export default function Home() {
@@ -11,8 +11,9 @@ export default function Home() {
       <Hero />
       <DualEntryCards />
       <ServiceBentoGrid />
-      <FeaturedProducts />
+      <AppleProductShowcase />
       <RepairsTracker />
     </div>
   );
 }
+

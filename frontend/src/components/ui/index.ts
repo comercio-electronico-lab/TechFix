@@ -3,3 +3,5 @@ export { Input } from './Input/Input';
 export { Card } from './Card/Card';
 export { Icon } from './Icon/Icon';
 export { Badge } from './Badge/Badge';
+export { ScrollReveal } from './ScrollReveal';
+
