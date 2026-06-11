@@ -1,18 +1,20 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSegmentedDiagnosticFlow } from '@/hooks/useSegmentedDiagnosticFlow';
 import { useAuth } from '@/context/AuthContext';
 import { Step1_DeviceType, Step2_Brand, Step3_Model, Step4_Damage, Step6_AIDiagnostic, Step7_Results, DiagnosticStep5 } from '@/components/repair/DiagnosticSteps';
 
 export default function DiagnosticFlow() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isAuthenticated, loading, user } = useAuth();
   const {
     step,
     nextStep,
     prevStep,
+    goToStep,
     selectedDeviceType,
     setSelectedDeviceType,
     selectedBrand,
@@ -35,6 +37,14 @@ export default function DiagnosticFlow() {
     setEstimatedMaxPrice,
     progress,
   } = useSegmentedDiagnosticFlow();
+
+  useEffect(() => {
+    const typeParam = searchParams?.get('type');
+    if (typeParam && !selectedDeviceType) {
+      setSelectedDeviceType(typeParam);
+      goToStep(2);
+    }
+  }, [searchParams, selectedDeviceType, setSelectedDeviceType, goToStep]);
 
   useEffect(() => {
     if (user) {
