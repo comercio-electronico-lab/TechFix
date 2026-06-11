@@ -61,7 +61,7 @@ export default {
       },
       spacing: {
         unit: "8px",
-        "container-max": "1280px",
+        "container-max": "1440px",
         gutter: "24px",
         "section-padding": "80px",
         "stack-sm": "12px",

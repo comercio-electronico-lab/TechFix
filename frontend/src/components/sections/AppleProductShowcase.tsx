@@ -1,7 +1,8 @@
 import React from 'react';
-import Link from 'next/link';
 import { getProducts } from "@/actions/catalog";
 import { ScrollReveal } from '../ui';
+import Container from '../ui/Container';
+import ShowcaseButtons from './ShowcaseButtons';
 
 export const AppleProductShowcase = async () => {
   // Fetch products dynamically from the catalog
@@ -9,8 +10,8 @@ export const AppleProductShowcase = async () => {
   const displayProducts = products.slice(0, 4);
 
   return (
-    <section className="w-full bg-background max-w-container-max mx-auto px-gutter py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <Container as="section" className="py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {displayProducts.map((product, index) => {
           // Rule: First 2 products are White cards, next 2 products are Black cards
           const isDark = index >= 2;
@@ -41,18 +42,7 @@ export const AppleProductShowcase = async () => {
                   </p>
                   
                   {/* Action Buttons */}
-                  <div className="flex justify-center items-center gap-3 pt-2">
-                    <Link href={`/catalogo/${product.id}`}>
-                      <button className="bg-[#0071e3] text-white hover:bg-[#0077ed] text-sm font-normal px-4 py-1.5 rounded-full transition-all duration-200 cursor-pointer active:scale-95">
-                        Más información
-                      </button>
-                    </Link>
-                    <Link href="/carrito">
-                      <button className="border border-[#0071e3] text-[#0071e3] bg-transparent hover:bg-[#0071e3] hover:text-white text-sm font-normal px-4 py-1.5 rounded-full transition-all duration-300 cursor-pointer active:scale-95">
-                        Comprar
-                      </button>
-                    </Link>
-                  </div>
+                  <ShowcaseButtons product={product} />
                 </div>
 
                 {/* Centered Image Area */}
@@ -68,7 +58,7 @@ export const AppleProductShowcase = async () => {
           );
         })}
       </div>
-    </section>
+    </Container>
   );
 };
 
