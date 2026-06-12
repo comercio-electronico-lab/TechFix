@@ -1,5 +1,5 @@
 import React from 'react';
-import AppleBanner from './AppleBanner';
+import PremiumBanner from './PremiumBanner';
 
 const DualEntryCards = () => {
   const cards = [
@@ -30,7 +30,7 @@ const DualEntryCards = () => {
   return (
     <div className="w-full flex flex-col gap-6 bg-background">
       {cards.map((card) => (
-        <AppleBanner
+        <PremiumBanner
           key={card.id}
           id={card.id}
           tagline={card.tagline}

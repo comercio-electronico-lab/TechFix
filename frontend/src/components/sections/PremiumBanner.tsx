@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ScrollReveal } from '../ui';
 
-interface AppleBannerProps {
+interface PremiumBannerProps {
   id: string;
   tagline: string;
   title: string;
@@ -17,7 +17,7 @@ interface AppleBannerProps {
   delay?: '0' | '100' | '200' | '300' | '400' | '500';
 }
 
-export const AppleBanner: React.FC<AppleBannerProps> = ({
+export const PremiumBanner: React.FC<PremiumBannerProps> = ({
   tagline,
   title,
   description,
@@ -94,4 +94,4 @@ export const AppleBanner: React.FC<AppleBannerProps> = ({
   );
 };
 
-export default AppleBanner;
+export default PremiumBanner;

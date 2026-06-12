@@ -71,7 +71,7 @@ const Hero = () => {
           </Link>
         </div>
 
-        {/* Image Showcase framed like Apple device presentation */}
+        {/* Image Showcase framed like a premium device presentation */}
         <div 
           className={`w-full max-w-4xl rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-slate-950/40 backdrop-blur-sm p-2 transition-all duration-1200 delay-800 ease-out transform ${
             mounted ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-16'

@@ -14,7 +14,7 @@ import {
 const MegaMenuRepairs: React.FC = () => {
   return (
     <MegaMenuLayout>
-      {/* Columna Principal - Estilo Apple */}
+      {/* Columna Principal - Estilo Premium */}
       <div className="space-y-4">
         <span className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest block">Servicios de Soporte</span>
         <ul className="flex flex-col gap-3">

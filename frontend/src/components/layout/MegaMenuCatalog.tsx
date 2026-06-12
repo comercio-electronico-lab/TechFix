@@ -14,7 +14,7 @@ import {
 const MegaMenuCatalog: React.FC = () => {
   return (
     <MegaMenuLayout>
-      {/* Columna Principal - Estilo Apple */}
+      {/* Columna Principal - Estilo Premium */}
       <div className="space-y-4">
         <MegaMenuSectionTitle>Explorar Catálogo</MegaMenuSectionTitle>
         <ul className="flex flex-col gap-3">

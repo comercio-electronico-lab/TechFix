@@ -15,7 +15,7 @@ export const MegaMenuSectionTitle: React.FC<{ children: React.ReactNode }> = ({ 
   </span>
 );
 
-// Enlace grande y destacado estilo Apple
+// Enlace grande y destacado estilo Premium
 export const MegaMenuLargeLink: React.FC<{ href: string; children: React.ReactNode }> = ({ href, children }) => (
   <Link 
     href={href} 

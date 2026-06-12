@@ -13,7 +13,7 @@ import {
 const MegaMenuNosotros: React.FC = () => {
   return (
     <MegaMenuLayout>
-      {/* Columna Principal - Estilo Apple */}
+      {/* Columna Principal - Estilo Premium */}
       <div className="space-y-4">
         <MegaMenuSectionTitle>Conoce TechFix</MegaMenuSectionTitle>
         <ul className="flex flex-col gap-3">

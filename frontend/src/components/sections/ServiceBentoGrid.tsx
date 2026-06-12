@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import AppleBanner from './AppleBanner';
+import PremiumBanner from './PremiumBanner';
 import { ScrollReveal } from '../ui';
 
 interface ServiceBanner {
@@ -60,7 +60,7 @@ const ServiceBentoGrid = () => {
   ];
 
   return (
-    <section className="w-full flex flex-col gap-6 py-6 bg-background">
+    <section className="w-full flex flex-col gap-6 pt-6 pb-0 bg-background">
       {/* Title block of the section */}
       <ScrollReveal variant="fade-up" className="w-full">
         <div className="text-center py-10 max-w-2xl mx-auto px-6">
@@ -78,7 +78,7 @@ const ServiceBentoGrid = () => {
 
       {/* Vertical banners list */}
       {banners.map((banner, index) => (
-        <AppleBanner
+        <PremiumBanner
           key={banner.id}
           id={banner.id}
           tagline="Especialidad de Ingeniería"
