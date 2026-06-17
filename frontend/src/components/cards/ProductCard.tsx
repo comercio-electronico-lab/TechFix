@@ -7,6 +7,7 @@ import { ShoppingCart, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import Button from '../ui/Button';
+import { showCartHud } from '@/components/cart/showCartHud';
 
 interface ProductCardProps {
   product: Product | IProduct;
@@ -66,14 +67,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
 
           <Button 
-            onClick={() => addItem({
-              id: product.id,
-              name: product.name,
-              price: product.price || 0,
-              image: product.image || '',
-              description: product.description,
-              tags: [product.status || '', typeof product.category === 'object' ? product.category.name : (product.category || '')]
-            })}
+            onClick={() => {
+              showCartHud(product.name);
+              addItem({
+                id: product.id,
+                name: product.name,
+                price: product.price || 0,
+                image: product.image || '',
+                description: product.description,
+                tags: [product.status || '', typeof product.category === 'object' ? product.category.name : (product.category || '')]
+              });
+            }}
             variant="primary"
           >
             Añadir al carrito

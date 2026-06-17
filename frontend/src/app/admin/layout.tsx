@@ -1,12 +1,32 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { DashboardSidebar } from '@/components/features/dashboard/DashboardSidebar/DashboardSidebar';
 import { Icon } from '@/components/ui';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user } = useAuth();
+  const [dateStr, setDateStr] = useState('Cargando fecha...');
+
+  useEffect(() => {
+    const today = new Date();
+    const formatted = today.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+    setDateStr(formatted.charAt(0).toUpperCase() + formatted.slice(1));
+  }, []);
+
+  const adminName = user?.nombre || 'Parker Admin';
+  const adminInitial = adminName.charAt(0).toUpperCase();
+
   return (
     <div className="flex min-h-screen bg-[var(--color-background)]">
       <DashboardSidebar />
@@ -14,7 +34,7 @@ export default function AdminLayout({
         <header className="h-16 border-b border-[var(--color-border)] bg-white sticky top-0 z-10 px-8 flex items-center justify-between">
           <div className="flex items-center gap-4 text-[var(--color-muted)]">
             <Icon name="Menu" size={24} className="lg:hidden" />
-            <span className="text-sm font-medium">miércoles, 3 de junio de 2026</span>
+            <span className="text-sm font-medium">{dateStr}</span>
           </div>
           <div className="flex items-center gap-4">
             <button className="p-2 text-[var(--color-muted)] hover:bg-[var(--color-accent)] rounded-lg transition-colors relative">
@@ -23,11 +43,11 @@ export default function AdminLayout({
             </button>
             <div className="flex items-center gap-3 border-l border-[var(--color-border)] pl-4">
               <div className="text-right hidden sm:block">
-                <p className="text-xs font-bold leading-none">Parker Admin</p>
+                <p className="text-xs font-bold leading-none">{adminName}</p>
                 <p className="text-[10px] text-[var(--color-muted)] mt-1 uppercase font-black tracking-widest">Administrator</p>
               </div>
               <div className="w-9 h-9 bg-[var(--color-primary)] rounded-lg flex items-center justify-center text-white font-bold">
-                P
+                {adminInitial}
               </div>
             </div>
           </div>

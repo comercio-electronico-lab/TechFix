@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Button from '@/components/ui/Button';
 import { ShoppingCart, Minus, Plus } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { showCartHud } from '@/components/cart/showCartHud';
 
 interface ProductActionsProps {
   product: {
@@ -29,6 +30,8 @@ export default function ProductActions({ product }: ProductActionsProps) {
   };
 
   const handleAddToCart = () => {
+    showCartHud(product.name);
+
     // We add the item 'quantity' times, or if your context supports quantity, pass it.
     // Assuming addItem just adds one or handles existing, we'll loop for simplicity if quantity isn't supported, 
     // or ideally your cart context should support quantity. For now, matching original logic.
