@@ -1,6 +1,6 @@
 'use server';
 
-import { initializeData, getProducts } from './data';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 interface ProductDetail {
   id: string;
@@ -21,29 +21,40 @@ interface ProductDetail {
 }
 
 export async function getProductById(id: string): Promise<ProductDetail | null> {
-  await initializeData();
-  const products = await getProducts();
-  const baseProduct = products.find(p => p.id === id);
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/products/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
+    });
 
-  if (!baseProduct) {
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      throw new Error('Error al obtener el producto');
+    }
+
+    const data = await response.json();
+    return {
+      id: data.id,
+      name: data.nombre,
+      price: data.precio_venta,
+      description: data.descripcion || 'Sin descripción',
+      category: data.categoria,
+      image: (data.imagen_url || 'https://placehold.co/300').replace('via.placeholder.com', 'placehold.co'),
+      sku: data.sku || `TF-PRX-${data.id}`,
+      rating: 4.8,
+      reviews: 94,
+      specs: {
+        processor: 'Componente/Repuesto OEM',
+        graphics: 'Compatibilidad certificada',
+        ram: 'Probado en laboratorio',
+        storage: 'Garantía oficial TechFix'
+      }
+    };
+  } catch (error) {
+    console.error('Error in getProductById action:', error);
     return null;
   }
-
-  return {
-    id: baseProduct.id,
-    name: baseProduct.name,
-    price: baseProduct.price,
-    description: baseProduct.description,
-    category: baseProduct.category,
-    image: baseProduct.image,
-    sku: `TF-PRX-${baseProduct.id}`,
-    rating: 4.5,
-    reviews: 128,
-    specs: {
-      processor: 'Intel i9-14900HX',
-      graphics: 'RTX 4080 12GB',
-      ram: '64GB DDR5 RAM',
-      storage: '2TB NVMe SSD'
-    }
-  };
 }

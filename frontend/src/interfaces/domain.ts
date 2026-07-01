@@ -80,6 +80,7 @@ export interface IProduct {
   image?: string;
   category?: ICategory | string;
   status?: 'active' | 'out_of_stock' | 'discontinued';
+  sku?: string;
   reasoning?: string;
   estimated_price?: number;
 }
