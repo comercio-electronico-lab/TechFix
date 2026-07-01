@@ -8,7 +8,7 @@ productos:
     stock_actual: 8
     stock_minimo: 2
     categoria: "Baterías"
-    imagen_url: "https://via.placeholder.com/300?text=Dell+Battery"
+    imagen_url: "https://placehold.co/300?text=Dell+Battery"
     estado_comercial: "In Stock"
 
   - nombre: "Batería MacBook Pro 16"
@@ -19,7 +19,7 @@ productos:
     stock_actual: 5
     stock_minimo: 1
     categoria: "Baterías"
-    imagen_url: "https://via.placeholder.com/300?text=MacBook+Battery"
+    imagen_url: "https://placehold.co/300?text=MacBook+Battery"
     estado_comercial: "In Stock"
 
   - nombre: "Batería HP Pavilion 15"
@@ -30,7 +30,7 @@ productos:
     stock_actual: 6
     stock_minimo: 2
     categoria: "Baterías"
-    imagen_url: "https://via.placeholder.com/300?text=HP+Battery"
+    imagen_url: "https://placehold.co/300?text=HP+Battery"
     estado_comercial: "In Stock"
 
   - nombre: "Batería Lenovo ThinkPad"
@@ -41,7 +41,7 @@ productos:
     stock_actual: 7
     stock_minimo: 2
     categoria: "Baterías"
-    imagen_url: "https://via.placeholder.com/300?text=ThinkPad+Battery"
+    imagen_url: "https://placehold.co/300?text=ThinkPad+Battery"
     estado_comercial: "In Stock"
 
   - nombre: "Batería iPhone 14"
@@ -52,7 +52,7 @@ productos:
     stock_actual: 15
     stock_minimo: 5
     categoria: "Baterías"
-    imagen_url: "https://via.placeholder.com/300?text=iPhone+Battery"
+    imagen_url: "https://placehold.co/300?text=iPhone+Battery"
     estado_comercial: "In Stock"
 
   - nombre: "Batería Samsung Galaxy S23"
@@ -63,7 +63,7 @@ productos:
     stock_actual: 12
     stock_minimo: 4
     categoria: "Baterías"
-    imagen_url: "https://via.placeholder.com/300?text=Samsung+Battery"
+    imagen_url: "https://placehold.co/300?text=Samsung+Battery"
     estado_comercial: "In Stock"
 
   # Pantallas
@@ -75,7 +75,7 @@ productos:
     stock_actual: 3
     stock_minimo: 1
     categoria: "Pantallas"
-    imagen_url: "https://via.placeholder.com/300?text=XPS+Screen"
+    imagen_url: "https://placehold.co/300?text=XPS+Screen"
     estado_comercial: "In Stock"
 
   - nombre: "Pantalla OLED iPhone 14 Pro"
@@ -86,7 +86,7 @@ productos:
     stock_actual: 4
     stock_minimo: 1
     categoria: "Pantallas"
-    imagen_url: "https://via.placeholder.com/300?text=iPhone+Screen"
+    imagen_url: "https://placehold.co/300?text=iPhone+Screen"
     estado_comercial: "In Stock"
 
   - nombre: "Pantalla Samsung Galaxy Tab S8"
@@ -97,7 +97,7 @@ productos:
     stock_actual: 2
     stock_minimo: 1
     categoria: "Pantallas"
-    imagen_url: "https://via.placeholder.com/300?text=Tab+Screen"
+    imagen_url: "https://placehold.co/300?text=Tab+Screen"
     estado_comercial: "Low Stock"
 
   - nombre: "Pantalla HP Pavilion 15"
@@ -108,7 +108,7 @@ productos:
     stock_actual: 5
     stock_minimo: 2
     categoria: "Pantallas"
-    imagen_url: "https://via.placeholder.com/300?text=HP+Screen"
+    imagen_url: "https://placehold.co/300?text=HP+Screen"
     estado_comercial: "In Stock"
 
   # Almacenamiento
@@ -120,7 +120,7 @@ productos:
     stock_actual: 12
     stock_minimo: 3
     categoria: "Almacenamiento"
-    imagen_url: "https://via.placeholder.com/300?text=SSD+500GB"
+    imagen_url: "https://placehold.co/300?text=SSD+500GB"
     estado_comercial: "In Stock"
 
   - nombre: "SSD 1TB NVMe"
@@ -131,7 +131,7 @@ productos:
     stock_actual: 8
     stock_minimo: 2
     categoria: "Almacenamiento"
-    imagen_url: "https://via.placeholder.com/300?text=SSD+1TB"
+    imagen_url: "https://placehold.co/300?text=SSD+1TB"
     estado_comercial: "In Stock"
 
   - nombre: "HDD 1TB 2.5"
@@ -142,7 +142,7 @@ productos:
     stock_actual: 10
     stock_minimo: 3
     categoria: "Almacenamiento"
-    imagen_url: "https://via.placeholder.com/300?text=HDD+1TB"
+    imagen_url: "https://placehold.co/300?text=HDD+1TB"
     estado_comercial: "In Stock"
 
   # Conectores y Cables
@@ -154,7 +154,7 @@ productos:
     stock_actual: 25
     stock_minimo: 5
     categoria: "Cables"
-    imagen_url: "https://via.placeholder.com/300?text=USB-C+Cable"
+    imagen_url: "https://placehold.co/300?text=USB-C+Cable"
     estado_comercial: "In Stock"
 
   - nombre: "Cable Lightning iPhone"
@@ -165,7 +165,7 @@ productos:
     stock_actual: 30
     stock_minimo: 10
     categoria: "Cables"
-    imagen_url: "https://via.placeholder.com/300?text=Lightning+Cable"
+    imagen_url: "https://placehold.co/300?text=Lightning+Cable"
     estado_comercial: "In Stock"
 
   - nombre: "Puerto USB-C Replacement"
@@ -176,7 +176,7 @@ productos:
     stock_actual: 8
     stock_minimo: 2
     categoria: "Conectores"
-    imagen_url: "https://via.placeholder.com/300?text=USB-C+Port"
+    imagen_url: "https://placehold.co/300?text=USB-C+Port"
     estado_comercial: "In Stock"
 
   # Accesorios y Componentes
@@ -188,7 +188,7 @@ productos:
     stock_actual: 20
     stock_minimo: 5
     categoria: "Accesorios"
-    imagen_url: "https://via.placeholder.com/300?text=Thermal+Paste"
+    imagen_url: "https://placehold.co/300?text=Thermal+Paste"
     estado_comercial: "In Stock"
 
   - nombre: "Ventilador Laptop"
@@ -199,7 +199,7 @@ productos:
     stock_actual: 6
     stock_minimo: 2
     categoria: "Accesorios"
-    imagen_url: "https://via.placeholder.com/300?text=Laptop+Fan"
+    imagen_url: "https://placehold.co/300?text=Laptop+Fan"
     estado_comercial: "In Stock"
 
   - nombre: "RAM DDR4 8GB"
@@ -210,7 +210,7 @@ productos:
     stock_actual: 9
     stock_minimo: 2
     categoria: "Memoria"
-    imagen_url: "https://via.placeholder.com/300?text=RAM+8GB"
+    imagen_url: "https://placehold.co/300?text=RAM+8GB"
     estado_comercial: "In Stock"
 
   - nombre: "RAM DDR4 16GB"
@@ -221,7 +221,7 @@ productos:
     stock_actual: 5
     stock_minimo: 2
     categoria: "Memoria"
-    imagen_url: "https://via.placeholder.com/300?text=RAM+16GB"
+    imagen_url: "https://placehold.co/300?text=RAM+16GB"
     estado_comercial: "In Stock"
 
   # Servicios
@@ -233,7 +233,7 @@ productos:
     stock_actual: 999
     stock_minimo: 1
     categoria: "Servicios"
-    imagen_url: "https://via.placeholder.com/300?text=Diagnosis"
+    imagen_url: "https://placehold.co/300?text=Diagnosis"
     estado_comercial: "In Stock"
 
   - nombre: "Limpieza y Mantenimiento"
@@ -244,7 +244,7 @@ productos:
     stock_actual: 999
     stock_minimo: 1
     categoria: "Servicios"
-    imagen_url: "https://via.placeholder.com/300?text=Cleaning"
+    imagen_url: "https://placehold.co/300?text=Cleaning"
     estado_comercial: "In Stock"
 
   - nombre: "Instalación y Setup"
@@ -255,7 +255,7 @@ productos:
     stock_actual: 999
     stock_minimo: 1
     categoria: "Servicios"
-    imagen_url: "https://via.placeholder.com/300?text=Installation"
+    imagen_url: "https://placehold.co/300?text=Installation"
     estado_comercial: "In Stock"
 
   - nombre: "Backup y Recuperación"
@@ -266,5 +266,5 @@ productos:
     stock_actual: 999
     stock_minimo: 1
     categoria: "Servicios"
-    imagen_url: "https://via.placeholder.com/300?text=Backup"
+    imagen_url: "https://placehold.co/300?text=Backup"
     estado_comercial: "In Stock"
