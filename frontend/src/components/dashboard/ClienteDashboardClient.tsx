@@ -123,7 +123,7 @@ export default function ClienteDashboardClient() {
     setDevicesLoading(true);
     try {
       const data = await getCustomerDevicesList(token);
-      setDevices(data);
+      setDevices(data as any[]);
     } catch (e) {
       console.error(e);
     } finally {
