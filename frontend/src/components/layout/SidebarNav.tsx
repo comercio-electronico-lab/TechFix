@@ -34,7 +34,7 @@ const SidebarNavContent = ({ links, className = '' }: SidebarNavProps) => {
 
         return (
           <Link
-            key={link.name}
+            key={link.href}
             href={link.href}
             className={`
               flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200

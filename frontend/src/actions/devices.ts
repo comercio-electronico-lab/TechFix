@@ -1,7 +1,6 @@
 'use server';
 
 import { ICustomerDevice } from '@/interfaces/domain';
-import { cookies } from 'next/headers';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
@@ -88,40 +87,4 @@ export async function registerDeviceAction(token: string, deviceData: {
   }
 
   return await response.json();
-}
-
-export async function getAllDevices(): Promise<any[]> {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('techfix_token')?.value;
-    if (!token) throw new Error('Token requerido');
-
-    const response = await fetch(`${BACKEND_URL}/api/user/all-devices`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-store',
-    });
-
-    if (!response.ok) {
-      throw new Error('Error al obtener la lista de todos los dispositivos');
-    }
-
-    const data = await response.json();
-    return data.map((d: any) => ({
-      id: d.id,
-      brand: d.brand,
-      model: d.model,
-      serialNumber: d.serial_number,
-      deviceType: d.device_type,
-      purchaseDate: d.purchase_date ? new Date(d.purchase_date).toISOString().split('T')[0] : '',
-      ownerName: d.user?.nombre || 'Cliente Anónimo',
-      ownerEmail: d.user?.email || 'N/A'
-    }));
-  } catch (error) {
-    console.error('Error in getAllDevices action:', error);
-    return [];
-  }
 }

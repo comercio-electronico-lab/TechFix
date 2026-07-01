@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import { InventoryTable } from '@/components/features/inventory/InventoryTable';
-import { Button, Input, Icon } from '@/components/ui';
+import Button from '@/components/ui/Button';
+import { Icon } from '@/components/ui/Icon';
 import { IProduct } from '@/interfaces/domain';
 import Modal from '@/components/ui/Modal';
+import { Input } from '@/components/ui';
 import { useRouter } from 'next/navigation';
 import { createProduct, updateProduct, deleteProduct } from '@/actions/catalog';
 

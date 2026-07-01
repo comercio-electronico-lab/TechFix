@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	"backend/internal/auth"
 	"backend/internal/db"
 	"backend/internal/models"
 	"backend/internal/services"
@@ -240,28 +239,4 @@ func GetDeviceModels(c *gin.Context) {
 		"models":      models,
 		"total":       len(models),
 	})
-}
-
-// GetAllDevices devuelve todos los dispositivos registrados en el sistema (Admin/Tecnico only)
-func GetAllDevices(c *gin.Context) {
-	// Verificar si el solicitante es administrador o técnico
-	userRolVal, exists := c.Get("userRol")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No autorizado"})
-		return
-	}
-	role := auth.NormalizeRole(userRolVal.(string))
-	if role != "admin" && role != "tecnico" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado: permisos insuficientes"})
-		c.Abort()
-		return
-	}
-
-	var devices []models.Device
-	if err := db.DB.Preload("User").Find(&devices).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al consultar todos los dispositivos"})
-		return
-	}
-
-	c.JSON(http.StatusOK, devices)
 }

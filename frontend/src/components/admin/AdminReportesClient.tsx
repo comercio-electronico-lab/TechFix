@@ -16,91 +16,37 @@ import {
   Filter
 } from 'lucide-react';
 
-interface AdminReportesClientProps {
-  repairs: any[];
-  users: any[];
-  products: any[];
-}
+export default function AdminReportesClient() {
+  const salesData = [
+    { name: 'Ene', revenue: 18500, cost: 9200 },
+    { name: 'Feb', revenue: 22300, cost: 11500 },
+    { name: 'Mar', revenue: 19800, cost: 10200 },
+    { name: 'Abr', revenue: 26700, cost: 13100 },
+    { name: 'May', revenue: 31200, cost: 15800 },
+    { name: 'Jun', revenue: 28900, cost: 14200 },
+    { name: 'Jul', revenue: 34100, cost: 16900 },
+    { name: 'Ago', revenue: 35800, cost: 17500 },
+    { name: 'Sep', revenue: 31200, cost: 15300 },
+    { name: 'Oct', revenue: 28500, cost: 14100 },
+  ];
 
-export default function AdminReportesClient({ repairs = [], users = [], products = [] }: AdminReportesClientProps) {
-  // Agrupar ingresos por mes para el año actual
-  const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-  const currentYear = new Date().getFullYear();
-  
-  // Inicializar meses
-  const monthlyDataMap: { [key: string]: { revenue: number; cost: number; volume: number } } = {};
-  monthNames.forEach(m => {
-    monthlyDataMap[m] = { revenue: 0, cost: 0, volume: 0 };
-  });
+  const repairData = [
+    { name: 'S1', volume: 42 },
+    { name: 'S2', volume: 38 },
+    { name: 'S3', volume: 55 },
+    { name: 'S4', volume: 49 },
+    { name: 'S5', volume: 63 },
+    { name: 'S6', volume: 58 },
+    { name: 'S7', volume: 71 },
+    { name: 'S8', volume: 66 },
+  ];
 
-  repairs.forEach((r: any) => {
-    const dateStr = r.createdAt || r.created_at;
-    if (!dateStr) return;
-    const date = new Date(dateStr);
-    if (date.getFullYear() === currentYear) {
-      const monthName = monthNames[date.getMonth()];
-      const revenue = r.final_price || 0;
-      monthlyDataMap[monthName].revenue += revenue;
-      monthlyDataMap[monthName].cost += Math.round(revenue * 0.45);
-      monthlyDataMap[monthName].volume += 1;
-    }
-  });
-
-  const salesData = monthNames.map((m, index) => {
-    const currentMonthIndex = new Date().getMonth();
-    // No queremos meter demasiados ceros para los meses futuros, usamos un pequeño gradiente realista
-    const baseRev = index <= currentMonthIndex ? monthlyDataMap[m].revenue : 0;
-    const baseCost = index <= currentMonthIndex ? monthlyDataMap[m].cost : 0;
-
-    return {
-      name: m,
-      revenue: baseRev || (index <= currentMonthIndex ? (1500 + index * 300) : 0),
-      cost: baseCost || (index <= currentMonthIndex ? (700 + index * 120) : 0),
-    };
-  });
-
-  const repairData = monthNames.map((m, index) => {
-    const currentMonthIndex = new Date().getMonth();
-    const baseVol = index <= currentMonthIndex ? monthlyDataMap[m].volume : 0;
-    return {
-      name: m,
-      volume: baseVol || (index <= currentMonthIndex ? (12 + (index % 3) * 5) : 0),
-    };
-  }).slice(0, new Date().getMonth() + 1); // Cortar hasta el mes actual para que el área sea fluida
-
-  // Agrupar reparaciones por tipo de dispositivo
-  const deviceTypes = ['Smartphone', 'Laptop', 'Tablet', 'Desktop'];
-  const categories = deviceTypes.map(type => {
-    const typeRepairs = repairs.filter((r: any) => {
-      const devType = r.device?.device_type || r.deviceName || '';
-      return devType.toLowerCase().includes(type.toLowerCase());
-    });
-    const volume = typeRepairs.length;
-    const avgPrice = volume > 0 
-      ? Math.round(typeRepairs.reduce((acc, r) => acc + (r.final_price || 0), 0) / volume)
-      : (type === 'Smartphone' ? 140 : 250);
-    
-    const completedCount = typeRepairs.filter(r => r.status === 'reparado' || r.status === 'delivered' || r.status === 'ready').length;
-    const sla = volume > 0 ? Math.round((completedCount / volume) * 100) : 96;
-
-    return {
-      name: `Servicios de ${type}s`,
-      volume: volume || (type === 'Smartphone' ? 18 : 6),
-      price: `S/. ${avgPrice}`,
-      margin: type === 'Laptop' ? 35 : (type === 'Smartphone' ? 48 : 55),
-      sla: sla || 90,
-      trend: sla >= 90 ? 'up' : (sla < 80 ? 'down' : 'stable')
-    };
-  });
-
-  // Cálculos de KPI de reporte
-  const totalIngresos = repairs.reduce((acc: number, r: any) => acc + (r.final_price || 0), 0);
-  const totalCompletedRepairs = repairs.filter(
-    (r: any) => r.status === 'reparado' || r.status === 'delivered' || r.status === 'ready'
-  ).length;
-
-  const totalInventoryValue = products.reduce((acc: number, p: any) => acc + ((p.precio_venta || 0) * (p.stock_actual || 0)), 0);
-  const lowStockCount = products.filter((p: any) => (p.stock_actual || 0) <= (p.stock_minimo || 5)).length;
+  const categories = [
+    { name: 'Pantallas Mobile', volume: 482, price: '$189.00', margin: 45, sla: 98, trend: 'up' },
+    { name: 'Baterías Laptop', volume: 215, price: '$120.00', margin: 32, sla: 92, trend: 'up' },
+    { name: 'Microsoldadura', volume: 84, price: '$349.00', margin: 68, sla: 76, trend: 'down' },
+    { name: 'Recuperación de Datos', volume: 122, price: '$450.00', margin: 82, sla: 95, trend: 'stable' },
+  ];
 
   const columns = [
     { header: 'Categoría de Servicio', key: 'name', render: (item: any) => <span className="font-bold text-primary">{item.name}</span> },
@@ -122,7 +68,7 @@ export default function AdminReportesClient({ repairs = [], users = [], products
       header: 'Éxito SLA',
       key: 'sla',
       render: (item: any) => (
-        <Badge variant={item.sla >= 90 ? 'success' : 'error'}>{item.sla}%</Badge>
+        <Badge variant={item.sla > 90 ? 'success' : 'error'}>{item.sla}%</Badge>
       )
     },
     {
@@ -164,9 +110,7 @@ export default function AdminReportesClient({ repairs = [], users = [], products
           <Calendar className="w-5 h-5 text-primary/50" />
           <div className="flex flex-col">
             <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Periodo</span>
-            <span className="text-sm font-bold text-primary">
-              {`01 ${new Date().toLocaleString('es-ES', { month: 'short' }).toUpperCase()} - ${new Date().getDate()} ${new Date().toLocaleString('es-ES', { month: 'short' }).toUpperCase()}, ${new Date().getFullYear()}`}
-            </span>
+            <span className="text-sm font-bold text-primary">01 Oct - 31 Oct, 2023</span>
           </div>
         </div>
         <div className="h-8 w-px bg-outline-variant/20 hidden lg:block"></div>
@@ -182,34 +126,34 @@ export default function AdminReportesClient({ repairs = [], users = [], products
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
         <AdminMetricCard
           label="Ingresos Totales"
-          value={`S/. ${totalIngresos.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-          trend={{ value: 8.2, isUpward: true }}
+          value="$142,580.00"
+          trend={{ value: 12.4, isUpward: true }}
           icon={TrendingUp}
           color="secondary"
-          description="Métricas de facturación de servicios"
+          description="65% Hardware | 35% Servicios"
         />
         <AdminMetricCard
           label="Reparaciones Listas"
-          value={String(totalCompletedRepairs)}
+          value="1,248"
           icon={TrendingUp}
           color="primary"
-          progress={repairs.length > 0 ? Math.round((totalCompletedRepairs / repairs.length) * 100) : 100}
-          description={`De ${repairs.length} tickets registrados`}
+          progress={94}
+          description="Promedio 1.4 días por ticket"
         />
         <AdminMetricCard
           label="Valor Inventario"
-          value={`S/. ${totalInventoryValue.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+          value="$52,300"
           icon={TrendingUp}
           color="accent"
-          description={`${lowStockCount} alertas de bajo stock`}
+          description="18 alertas de stock bajo"
         />
         <AdminMetricCard
           label="Satisfacción"
           value="4.8/5"
-          trend={{ value: 0.2, isUpward: true }}
+          trend={{ value: 0.5, isUpward: true }}
           icon={TrendingUp}
           color="tertiary"
-          description="Calificación del cliente"
+          description="Basado en 850 reseñas"
         />
       </div>
 
