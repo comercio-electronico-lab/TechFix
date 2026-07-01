@@ -272,3 +272,31 @@ export async function addPartToRepairAction(token: string, repairId: string, pro
   // Por ahora dejamos esta acción interna simulada o podemos agregarla al backend si fuese necesario.
   return { success: true };
 }
+
+export async function assignTechnicianAction(repairId: string, technicianId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('techfix_token')?.value;
+    if (!token) throw new Error('Token requerido');
+
+    const response = await fetch(`${BACKEND_URL}/api/repairs/${repairId}/assign`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ technician_id: technicianId }),
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Error al asignar el técnico');
+    }
+
+    return { success: true };
+  } catch (e: any) {
+    console.error('Error assigning technician:', e);
+    return { success: false, error: e.message };
+  }
+}

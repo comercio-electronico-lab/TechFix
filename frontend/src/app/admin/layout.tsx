@@ -14,6 +14,7 @@ export default function AdminLayout({
   const { user, loading, isAuthenticated } = useAuth();
   const router = useRouter();
   const [dateStr, setDateStr] = useState('Cargando fecha...');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && (!isAuthenticated || user?.role !== 'admin')) {
@@ -53,11 +54,13 @@ export default function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-[var(--color-background)]">
-      <DashboardSidebar />
+      <DashboardSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <div className="flex-1 flex flex-col">
         <header className="h-16 border-b border-[var(--color-border)] bg-white sticky top-0 z-10 px-8 flex items-center justify-between">
           <div className="flex items-center gap-4 text-[var(--color-muted)]">
-            <Icon name="Menu" size={24} className="lg:hidden" />
+            <button type="button" onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-1 rounded-lg hover:bg-slate-100 flex items-center justify-center">
+              <Icon name="Menu" size={24} />
+            </button>
             <span className="text-sm font-medium">{dateStr}</span>
           </div>
           <div className="flex items-center gap-4">

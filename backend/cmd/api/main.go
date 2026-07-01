@@ -146,6 +146,9 @@ func startServer() {
 		suppliersHandlers := handlers.NewSuppliersHandler(db.DB)
 		{
 			api.GET("/suppliers", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.GetSuppliers)
+			api.POST("/suppliers", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.CreateSupplier)
+			api.PUT("/suppliers/:id", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.UpdateSupplier)
+			api.DELETE("/suppliers/:id", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.DeleteSupplier)
 			api.POST("/suppliers/orders", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.CreateRestockOrder)
 		}
 
@@ -163,6 +166,10 @@ func startServer() {
 			user.GET("/profile", handlers.GetProfile)
 			user.PUT("/profile", handlers.UpdateProfile)
 			user.GET("/all", auth.RoleMiddleware("Admin"), handlers.GetAllUsers)
+			user.GET("/all-devices", auth.RoleMiddleware("Admin", "Tecnico"), handlers.GetAllDevices)
+			user.PUT("/:id/role", auth.RoleMiddleware("Admin"), handlers.UpdateUserRole)
+			user.PUT("/:id/status", auth.RoleMiddleware("Admin"), handlers.UpdateUserStatus)
+			user.DELETE("/:id", auth.RoleMiddleware("Admin"), handlers.DeleteUser)
 
 			// CRUD de Equipos del usuario
 			user.GET("/devices", handlers.GetDevices)
@@ -180,6 +187,7 @@ func startServer() {
 			repairs.GET("/:id", handlers.GetRepairByID)
 			repairs.POST("/:id/confirm", handlers.ConfirmRepair)
 			repairs.PATCH("/:id/status", handlers.UpdateRepairStatus)
+			repairs.PUT("/:id/assign", handlers.AssignTechnician)
 			repairs.POST("", handlers.CreateRepair)
 		}
 
