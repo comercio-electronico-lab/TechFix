@@ -175,10 +175,12 @@ func startServer() {
 		repairs := api.Group("/repairs")
 		repairs.Use(auth.AuthMiddleware())
 		{
+			repairs.GET("", auth.RoleMiddleware("Admin", "Tecnico"), handlers.GetAllRepairs)
 			repairs.GET("/user/:userId", handlers.GetRepairsByUser)
 			repairs.GET("/:id", handlers.GetRepairByID)
 			repairs.POST("/:id/confirm", handlers.ConfirmRepair)
 			repairs.PATCH("/:id/status", handlers.UpdateRepairStatus)
+			repairs.POST("", handlers.CreateRepair)
 		}
 
 		// Rutas de Pagos (protegidas por AuthMiddleware)

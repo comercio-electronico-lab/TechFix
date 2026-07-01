@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"backend/internal/auth"
 	"backend/internal/db"
 	"backend/internal/models"
 
@@ -42,6 +43,25 @@ func ConfirmRepair(c *gin.Context) {
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
+		return
+	}
+
+	// Validar que el usuario que consulta sea el dueño o un Admin/Tecnico
+	requesterIDVal, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No autorizado"})
+		return
+	}
+	requesterRolVal, existsRol := c.Get("userRol")
+
+	requesterID := requesterIDVal.(uuid.UUID)
+	requesterRol := ""
+	if existsRol {
+		requesterRol = auth.NormalizeRole(requesterRolVal.(string))
+	}
+
+	if requesterID != repair.UserID && requesterRol != "admin" && requesterRol != "tecnico" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado: no puedes confirmar esta reparación"})
 		return
 	}
 
@@ -96,6 +116,29 @@ func UpdateRepairStatus(c *gin.Context) {
 		return
 	}
 
+	// Validar rol del usuario (solo admin o tecnico pueden actualizar estado)
+	requesterIDVal, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No autorizado"})
+		return
+	}
+	requesterRolVal, existsRol := c.Get("userRol")
+	requesterRol := ""
+	if existsRol {
+		requesterRol = auth.NormalizeRole(requesterRolVal.(string))
+	}
+	requesterID := requesterIDVal.(uuid.UUID)
+
+	// Solo admin/tecnico o el propio usuario si cancela su propia reparación
+	if requesterRol != "admin" && requesterRol != "tecnico" {
+		if input.Status == "cancelada" && requesterID == repair.UserID {
+			// Permitir cancelación por el cliente
+		} else {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado: no tienes permiso para modificar el estado de esta reparación"})
+			return
+		}
+	}
+
 	// Validation: Only allow transition to "en_reparacion" if payment is approved
 	if input.Status == "en_reparacion" {
 		var payment models.Payment
@@ -141,7 +184,7 @@ func UpdateRepairStatus(c *gin.Context) {
 		RepairID:       repair.ID,
 		PreviousStatus: previousStatus,
 		NewStatus:      input.Status,
-		ChangedBy:      uuid.New(), // Should be current user from JWT
+		ChangedBy:      requesterID,
 		Notes:          input.Notes,
 	}
 	db.DB.Create(&tracking)
@@ -152,6 +195,25 @@ func UpdateRepairStatus(c *gin.Context) {
 // GetRepairsByUser - Get all repairs for current user
 func GetRepairsByUser(c *gin.Context) {
 	userID := c.Param("userId")
+
+	// Validar que el usuario que consulta sea el mismo o un Admin/Tecnico
+	requesterIDVal, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No autorizado"})
+		return
+	}
+	requesterRolVal, existsRol := c.Get("userRol")
+
+	requesterID := requesterIDVal.(uuid.UUID).String()
+	requesterRol := ""
+	if existsRol {
+		requesterRol = auth.NormalizeRole(requesterRolVal.(string))
+	}
+
+	if requesterID != userID && requesterRol != "admin" && requesterRol != "tecnico" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado: no puedes ver las reparaciones de otro usuario"})
+		return
+	}
 
 	var repairs []models.RepairOrder
 	if err := db.DB.
@@ -185,5 +247,142 @@ func GetRepairByID(c *gin.Context) {
 		return
 	}
 
+	// Validar que el usuario que consulta sea el dueño o un Admin/Tecnico
+	requesterIDVal, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No autorizado"})
+		return
+	}
+	requesterRolVal, existsRol := c.Get("userRol")
+
+	requesterID := requesterIDVal.(uuid.UUID)
+	requesterRol := ""
+	if existsRol {
+		requesterRol = auth.NormalizeRole(requesterRolVal.(string))
+	}
+
+	if requesterID != repair.UserID && requesterRol != "admin" && requesterRol != "tecnico" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado: no tienes permiso para ver esta reparación"})
+		return
+	}
+
 	c.JSON(http.StatusOK, repair)
 }
+
+// CreateRepairInput represents input payload for creating a repair order
+type CreateRepairInput struct {
+	DeviceID            string `json:"device_id" binding:"required"`
+	PigSessionID        string `json:"pig_session_id"`
+	AppointmentDatetime string `json:"appointment_datetime" binding:"required"`
+	Notes               string `json:"notes"`
+}
+
+// CreateRepair schedules a new repair order for the authenticated user
+func CreateRepair(c *gin.Context) {
+	userIDVal, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No autorizado"})
+		return
+	}
+	userID := userIDVal.(uuid.UUID)
+
+	var input CreateRepairInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	deviceUUID, err := uuid.Parse(input.DeviceID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de dispositivo inválido"})
+		return
+	}
+
+	// Verificar que el dispositivo pertenezca al usuario
+	var device models.Device
+	if err := db.DB.Where("id = ? AND user_id = ?", deviceUUID, userID).First(&device).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Dispositivo no encontrado o no pertenece a tu usuario"})
+		return
+	}
+
+	appointmentTime, err := time.Parse(time.RFC3339, input.AppointmentDatetime)
+	if err != nil {
+		// Intentar parsing alternativo YYYY-MM-DD HH:MM
+		appointmentTime, err = time.Parse("2006-01-02 15:04:05", input.AppointmentDatetime)
+		if err != nil {
+			appointmentTime, err = time.Parse("2006-01-02T15:04:05", input.AppointmentDatetime)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Formato de fecha inválido. Use RFC3339 o YYYY-MM-DD HH:MM:SS"})
+				return
+			}
+		}
+	}
+
+	repair := models.RepairOrder{
+		UserID:              userID,
+		DeviceID:            deviceUUID,
+		AppointmentDatetime: appointmentTime,
+		Status:              "pending",
+		Notes:               input.Notes,
+	}
+
+	// Si hay sesión PIG, cargar estimaciones y diagnóstico preliminar
+	if input.PigSessionID != "" {
+		pigUUID, err := uuid.Parse(input.PigSessionID)
+		if err == nil {
+			var session models.PigSession
+			if err := db.DB.First(&session, "id = ?", pigUUID).Error; err == nil {
+				repair.PigSessionID = &pigUUID
+				repair.DiagnosisFinal = session.PreliminaryDiagnosis
+				repair.EstimatedPriceMin = session.EstimatedPriceMin
+				repair.EstimatedPriceMax = session.EstimatedPriceMax
+				
+				// Marcar la sesión PIG como convertida a orden
+				session.ConvertedToOrder = true
+				db.DB.Save(&session)
+			}
+		}
+	}
+
+	// Asignar un técnico disponible automáticamente si existe
+	var tech models.Usuario
+	if err := db.DB.Where("rol = ?", "Tecnico").First(&tech).Error; err == nil {
+		repair.TechnicianID = &tech.ID
+	}
+
+	// Guardar en la base de datos
+	if err := db.DB.Create(&repair).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al registrar la orden de reparación: " + err.Error()})
+		return
+	}
+
+	// Crear el primer registro de tracking
+	tracking := models.RepairTracking{
+		RepairID:       repair.ID,
+		PreviousStatus: "",
+		NewStatus:      "pending",
+		ChangedBy:      userID,
+		Notes:          "Orden de reparación creada y asignada en estado pendiente.",
+	}
+	db.DB.Create(&tracking)
+
+	c.JSON(http.StatusCreated, repair)
+}
+
+// GetAllRepairs - Get all repair orders for admin/technician
+// GET /api/repairs
+func GetAllRepairs(c *gin.Context) {
+	var repairs []models.RepairOrder
+	if err := db.DB.
+		Preload("Device").
+		Preload("User").
+		Preload("Technician").
+		Order("created_at DESC").
+		Find(&repairs).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, repairs)
+}
+
