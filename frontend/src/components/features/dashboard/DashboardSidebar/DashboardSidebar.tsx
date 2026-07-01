@@ -9,6 +9,8 @@ import { useAuth } from '@/context/AuthContext';
 const menuItems = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: 'LayoutDashboard' },
   { label: 'Inventario', href: '/admin/inventario', icon: 'Package' },
+  { label: 'Proveedores', href: '/admin/proveedores', icon: 'Truck' },
+  { label: 'Equipos', href: '/admin/dispositivos', icon: 'Laptop' },
   { label: 'Citas', href: '/admin/citas', icon: 'Calendar' },
   { label: 'Usuarios', href: '/admin/usuarios', icon: 'Users' },
   { label: 'Reportes', href: '/admin/reportes', icon: 'ChartBar' },

@@ -372,17 +372,183 @@ func CreateRepair(c *gin.Context) {
 // GetAllRepairs - Get all repair orders for admin/technician
 // GET /api/repairs
 func GetAllRepairs(c *gin.Context) {
+	// Extraer datos del JWT adjunto por AuthMiddleware
+	userRolVal, existsRol := c.Get("userRol")
+	userIDVal, existsUser := c.Get("userID")
+
 	var repairs []models.RepairOrder
-	if err := db.DB.
-		Preload("Device").
-		Preload("User").
-		Preload("Technician").
-		Order("created_at DESC").
-		Find(&repairs).Error; err != nil {
+	query := db.DB.Preload("Device").Preload("User").Preload("Technician").Order("created_at DESC")
+
+	if existsRol && existsUser {
+		role := auth.NormalizeRole(userRolVal.(string))
+		if role == "tecnico" {
+			// Los técnicos solo visualizan sus propios trabajos asignados
+			userID := userIDVal.(uuid.UUID)
+			query = query.Where("technician_id = ?", userID)
+		}
+	}
+
+	if err := query.Find(&repairs).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, repairs)
+}
+
+type AssignTechnicianInput struct {
+	TechnicianID string `json:"technician_id" binding:"required"`
+}
+
+// AssignTechnician assigns a technician to a repair order (Admin only)
+func AssignTechnician(c *gin.Context) {
+	// Verificar si el solicitante es administrador
+	userRolVal, exists := c.Get("userRol")
+	if !exists || auth.NormalizeRole(userRolVal.(string)) != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado: se requieren permisos de administrador"})
+		c.Abort()
+		return
+	}
+
+	repairIDStr := c.Param("id")
+	repairID, err := uuid.Parse(repairIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de reparación inválido"})
+		return
+	}
+
+	var input AssignTechnicianInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	techID, err := uuid.Parse(input.TechnicianID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de técnico inválido"})
+		return
+	}
+
+	// Verificar si el técnico existe y realmente tiene el rol de técnico o admin
+	var tecnico models.Usuario
+	if err := db.DB.First(&tecnico, "id = ?", techID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Técnico no encontrado"})
+		return
+	}
+	if auth.NormalizeRole(tecnico.Rol) != "tecnico" && auth.NormalizeRole(tecnico.Rol) != "admin" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "El usuario seleccionado no tiene el rol de Técnico"})
+		return
+	}
+
+	// Buscar la reparación
+	var repair models.RepairOrder
+	if err := db.DB.First(&repair, "id = ?", repairID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Orden de reparación no encontrada"})
+		return
+	}
+
+	repair.TechnicianID = &techID
+	if err := db.DB.Save(&repair).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al asignar el técnico"})
+		return
+	}
+
+	// Cargar relaciones para responder con el objeto completo
+	db.DB.Preload("User").Preload("Device").Preload("Technician").First(&repair, "id = ?", repair.ID)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Técnico asignado con éxito", "repair": repair})
+}
+
+type AddPartToRepairInput struct {
+	ProductID string `json:"product_id" binding:"required"`
+	Cantidad  int    `json:"cantidad" binding:"required,gt=0"`
+}
+
+// AddPartToRepair associates a product/part with a repair order, deducting inventory stock
+func AddPartToRepair(c *gin.Context) {
+	repairIDStr := c.Param("id")
+	repairID, err := uuid.Parse(repairIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de reparación inválido"})
+		return
+	}
+
+	var input AddPartToRepairInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	productID, err := uuid.Parse(input.ProductID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de producto/repuesto inválido"})
+		return
+	}
+
+	// Iniciar transacción de base de datos
+	tx := db.DB.Begin()
+
+	// 1. Verificar que la orden de reparación exista
+	var repair models.RepairOrder
+	if err := tx.First(&repair, "id = ?", repairID).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusNotFound, gin.H{"error": "Orden de reparación no encontrada"})
+		return
+	}
+
+	// 2. Verificar que el producto exista y tenga stock
+	var product models.Producto
+	if err := tx.First(&product, "id = ?", productID).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusNotFound, gin.H{"error": "Repuesto no encontrado en el catálogo"})
+		return
+	}
+
+	if product.StockActual < input.Cantidad {
+		tx.Rollback()
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Stock insuficiente para vincular este repuesto"})
+		return
+	}
+
+	// 3. Descontar del inventario
+	product.StockActual -= input.Cantidad
+	if err := tx.Save(&product).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al actualizar stock del repuesto"})
+		return
+	}
+
+	// 4. Registrar la vinculación
+	subtotal := product.PrecioVenta * float64(input.Cantidad)
+	link := models.RepairOrderProducto{
+		ID:             uuid.New(),
+		RepairID:       repairID,
+		ProductoID:     productID,
+		Cantidad:       input.Cantidad,
+		PrecioUnitario: product.PrecioVenta,
+		Subtotal:       subtotal,
+		CreatedAt:      time.Now(),
+	}
+
+	if err := tx.Create(&link).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al registrar vinculación del repuesto"})
+		return
+	}
+
+	// 5. Sumar costo al precio final de la orden de reparación
+	repair.FinalPrice += subtotal
+	if err := tx.Save(&repair).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al actualizar el precio final de la reparación"})
+		return
+	}
+
+	tx.Commit()
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Repuesto vinculado correctamente",
+		"part":    link,
+	})
 }
 

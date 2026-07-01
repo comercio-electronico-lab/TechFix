@@ -105,3 +105,77 @@ func (h *SuppliersHandler) CreateRestockOrder(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, order)
 }
+
+// CreateSupplier crea un nuevo proveedor (Admin only)
+func (h *SuppliersHandler) CreateSupplier(c *gin.Context) {
+	var input models.Proveedor
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	input.ID = uuid.New()
+	if err := h.db.Create(&input).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al registrar el proveedor"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, input)
+}
+
+// UpdateSupplier actualiza un proveedor existente (Admin only)
+func (h *SuppliersHandler) UpdateSupplier(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de proveedor inválido"})
+		return
+	}
+
+	var input models.Proveedor
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var supplier models.Proveedor
+	if err := h.db.First(&supplier, "id = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Proveedor no encontrado"})
+		return
+	}
+
+	supplier.Nombre = input.Nombre
+	supplier.Contacto = input.Contacto
+	supplier.Telefono = input.Telefono
+	supplier.Email = input.Email
+
+	if err := h.db.Save(&supplier).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al actualizar el proveedor"})
+		return
+	}
+
+	c.JSON(http.StatusOK, supplier)
+}
+
+// DeleteSupplier elimina un proveedor existente (Admin only)
+func (h *SuppliersHandler) DeleteSupplier(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de proveedor inválido"})
+		return
+	}
+
+	var supplier models.Proveedor
+	if err := h.db.First(&supplier, "id = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Proveedor no encontrado"})
+		return
+	}
+
+	if err := h.db.Delete(&supplier).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al eliminar el proveedor"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Proveedor eliminado con éxito"})
+}

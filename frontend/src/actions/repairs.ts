@@ -269,6 +269,56 @@ export async function getRepairTrackingAction(token: string, ticketId: string) {
 }
 
 export async function addPartToRepairAction(token: string, repairId: string, productId: string, quantity: number) {
-  // Por ahora dejamos esta acción interna simulada o podemos agregarla al backend si fuese necesario.
-  return { success: true };
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/repairs/${repairId}/parts`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        product_id: productId,
+        cantidad: quantity
+      }),
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Error al vincular el repuesto en el servidor');
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error in addPartToRepairAction:', error);
+    throw error;
+  }
+}
+
+export async function assignTechnicianAction(repairId: string, technicianId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('techfix_token')?.value;
+    if (!token) throw new Error('Token requerido');
+
+    const response = await fetch(`${BACKEND_URL}/api/repairs/${repairId}/assign`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ technician_id: technicianId }),
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Error al asignar el técnico');
+    }
+
+    return { success: true };
+  } catch (e: any) {
+    console.error('Error assigning technician:', e);
+    return { success: false, error: e.message };
+  }
 }

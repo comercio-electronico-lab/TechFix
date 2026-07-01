@@ -5,6 +5,13 @@ import { cookies } from 'next/headers';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
+function normalizeRole(rol: string): 'admin' | 'tecnico' | 'cliente' {
+  const r = rol?.toLowerCase() || '';
+  if (r === 'admin') return 'admin';
+  if (r === 'tecnico' || r === 'técnico') return 'tecnico';
+  return 'cliente';
+}
+
 export async function authenticate(email: string, password?: string): Promise<IAuthResponse> {
   const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
     method: 'POST',
@@ -25,7 +32,7 @@ export async function authenticate(email: string, password?: string): Promise<IA
     id: data.usuario.id,
     email: data.usuario.email,
     nombre: data.usuario.nombre,
-    role: (data.usuario.rol.toLowerCase() as 'admin' | 'tecnico' | 'cliente'),
+    role: normalizeRole(data.usuario.rol),
     createdAt: new Date().toISOString(),
   };
 
@@ -92,7 +99,7 @@ export async function getCurrentUser(token?: string): Promise<IUser> {
     id: data.id,
     email: data.email,
     nombre: data.nombre,
-    role: (data.rol.toLowerCase() as 'admin' | 'tecnico' | 'cliente'),
+    role: normalizeRole(data.rol),
     createdAt: data.joined_date || new Date().toISOString(),
   };
 }
@@ -131,5 +138,88 @@ export async function getAllUsers(): Promise<any[]> {
   } catch (error) {
     console.error('Error in getAllUsers:', error);
     return [];
+  }
+}
+
+export async function updateUserRole(id: string, role: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('techfix_token')?.value;
+    if (!token) throw new Error('Token requerido');
+
+    const response = await fetch(`${BACKEND_URL}/api/user/${id}/role`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ rol: role }),
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Error al actualizar el rol');
+    }
+
+    return { success: true };
+  } catch (e: any) {
+    console.error(e);
+    return { success: false, error: e.message };
+  }
+}
+
+export async function updateUserStatus(id: string, status: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('techfix_token')?.value;
+    if (!token) throw new Error('Token requerido');
+
+    const response = await fetch(`${BACKEND_URL}/api/user/${id}/status`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ estado: status }),
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Error al actualizar el estado');
+    }
+
+    return { success: true };
+  } catch (e: any) {
+    console.error(e);
+    return { success: false, error: e.message };
+  }
+}
+
+export async function deleteUser(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('techfix_token')?.value;
+    if (!token) throw new Error('Token requerido');
+
+    const response = await fetch(`${BACKEND_URL}/api/user/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Error al eliminar el usuario');
+    }
+
+    return { success: true };
+  } catch (e: any) {
+    console.error(e);
+    return { success: false, error: e.message };
   }
 }
