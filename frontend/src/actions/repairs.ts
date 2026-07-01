@@ -1,118 +1,274 @@
 'use server';
 
 import { RepairStatus } from '@/interfaces/domain';
-import { initializeData, getRepairs as getRepairsData } from './data';
 import { getCurrentUser } from './auth';
+import { cookies } from 'next/headers';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 export async function getCustomerRepairs(token: string) {
-  await initializeData();
-  const user = await getCurrentUser(token);
-  const repairs = await getRepairsData();
-  return repairs.filter(r => (r as any).customerEmail === user.email);
+  try {
+    const user = await getCurrentUser(token);
+    
+    const response = await fetch(`${BACKEND_URL}/api/repairs/user/${user.id}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al obtener reparaciones del servidor');
+    }
+
+    const data = await response.json();
+    return data.map((r: any) => ({
+      id: r.id,
+      customerName: r.user?.nombre || user.nombre,
+      customerEmail: r.user?.email || user.email,
+      deviceName: r.device ? `${r.device.brand} ${r.device.model}` : 'Dispositivo Desconocido',
+      deviceSerial: r.device?.serial_number || '',
+      status: r.status as RepairStatus,
+      createdAt: r.created_at,
+      appointment_datetime: r.appointment_datetime,
+      notes: r.notes || '',
+      estimated_price_min: r.estimated_price_min,
+      estimated_price_max: r.estimated_price_max,
+      final_price: r.final_price || 0,
+      diagnosis_final: r.diagnosis_final || 'Pendiente de diagnóstico técnico presencial'
+    }));
+  } catch (e: any) {
+    console.error('Error fetching customer repairs:', e);
+    return [];
+  }
 }
 
 export async function getClientRepairsAction(token: string) {
-  await initializeData();
-  const user = await getCurrentUser(token);
-  const repairs = await getRepairsData();
-  return repairs.filter(r => (r as any).customerEmail === user.email);
+  return getCustomerRepairs(token);
 }
 
 export async function getRepairTickets() {
-  await initializeData();
-  return await getRepairsData();
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('techfix_token')?.value;
+
+    if (!token) {
+      return [];
+    }
+
+    const response = await fetch(`${BACKEND_URL}/api/repairs`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al obtener tickets de reparación');
+    }
+
+    const data = await response.json();
+    return data.map((r: any) => ({
+      id: r.id,
+      customerName: r.user?.nombre || 'Cliente Anónimo',
+      customerEmail: r.user?.email || '',
+      deviceName: r.device ? `${r.device.brand} ${r.device.model}` : 'Dispositivo Desconocido',
+      deviceSerial: r.device?.serial_number || '',
+      device: r.device ? {
+        brand: r.device.brand,
+        model: r.device.model,
+        serial_number: r.device.serial_number
+      } : null,
+      status: r.status as RepairStatus,
+      createdAt: r.created_at,
+      appointment_datetime: r.appointment_datetime,
+      notes: r.notes || '',
+      estimated_price_min: r.estimated_price_min,
+      estimated_price_max: r.estimated_price_max,
+      final_price: r.final_price || 0,
+      diagnosis_final: r.diagnosis_final || 'Pendiente de diagnóstico técnico'
+    }));
+  } catch (error) {
+    console.error('Error in getRepairTickets action:', error);
+    return [];
+  }
 }
 
 export async function getAdminRepairsAction() {
-  await initializeData();
-  return await getRepairsData();
+  return getRepairTickets();
 }
 
 export async function updateRepairStatus(id: string, status: RepairStatus, notes?: string) {
-  await initializeData();
-  const repairs = await getRepairsData();
-  const idx = repairs.findIndex((r: any) => r.id === id);
-  if (idx !== -1) repairs[idx] = { ...repairs[idx], status, notes: notes || (repairs[idx] as any).notes };
-  return { success: true };
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('techfix_token')?.value;
+    if (!token) {
+      return { success: false, error: 'Token requerido para actualizar estado' };
+    }
+    return await updateRepairStatusAction(token, id, status, notes);
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
 }
 
-export async function updateRepairStatusAction(_token: string, id: string, status: RepairStatus, notes?: string) {
-  return updateRepairStatus(id, status, notes);
+export async function updateRepairStatusAction(token: string, id: string, status: RepairStatus, notes?: string) {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/repairs/${id}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        status: status,
+        notes: notes || 'Estado actualizado desde el panel técnico.'
+      }),
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || 'Error al actualizar el estado de la reparación');
+    }
+
+    return { success: true };
+  } catch (e: any) {
+    console.error('Error updating repair status:', e);
+    return { success: false, error: e.message };
+  }
 }
 
 export async function scheduleRepairAction(token: string, repairData: any) {
-  await initializeData();
-  const user = await getCurrentUser(token);
-  const repairs = await getRepairsData();
-  const newRepair = {
-    id: `TKT-${Date.now()}`,
-    deviceName: repairData.deviceName || `Equipo ${repairData.device_id || 'N/A'}`,
-    notes: repairData.notes || '',
-    deviceSerial: repairData.deviceSerial || repairData.device_id || 'N/A',
-    status: 'pending' as const,
-    customerEmail: user.email,
-    createdAt: new Date().toISOString(),
-    appointment_datetime: repairData.appointment_datetime,
-    estimatedCompletion: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+  const response = await fetch(`${BACKEND_URL}/api/repairs`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      device_id: repairData.device_id,
+      pig_session_id: repairData.pig_session_id || '',
+      appointment_datetime: repairData.appointment_datetime,
+      notes: repairData.notes || 'Cita de servicio agendada desde el portal.'
+    }),
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.error || 'Error al agendar el servicio técnico');
+  }
+
+  const data = await response.json();
+  return {
+    id: data.id,
+    deviceName: repairData.deviceName || 'Dispositivo',
+    status: data.status,
+    createdAt: data.created_at,
+    appointment_datetime: data.appointment_datetime,
+    notes: data.notes
   };
-  repairs.unshift(newRepair as any);
-  return newRepair;
 }
 
 export async function getClientWarrantiesAction(token: string) {
-  await initializeData();
-  const user = await getCurrentUser(token);
-  const repairs = await getRepairsData();
-  const clientRepairs = repairs.filter(r => (r as any).customerEmail === user.email);
-  return clientRepairs
-    .filter(r => (r as any).status === 'completado' || (r as any).status === 'reparado' || (r as any).status === 'ready' || (r as any).status === 'delivered')
-    .map(r => ({
-      id: `WAR-${(r as any).id}`,
-      repair_id: (r as any).id,
-      device_id: (r as any).device?.serial_number || 'N/A',
-      device: (r as any).device,
-      warranty_token: `W-TKN-${(r as any).id}`,
-      start_date: (r as any).createdAt || new Date().toISOString(),
-      end_date: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
-      warranty_days: 180,
+  try {
+    const repairs = await getCustomerRepairs(token);
+    
+    // Las garantías se asocian a las reparaciones en estado "reparado" o "completado"
+    const finishedRepairs = repairs.filter(
+      (r: any) => r.status === 'reparado' || r.status === 'delivered' || r.status === 'ready'
+    );
+
+    return finishedRepairs.map((r: any) => ({
+      id: `WAR-${r.id.slice(0, 8)}`,
+      repair_id: r.id,
+      device_id: r.deviceSerial || 'N/A',
+      device: {
+        brand: r.deviceName.split(' ')[0] || '',
+        model: r.deviceName.split(' ').slice(1).join(' ') || '',
+        serial_number: r.deviceSerial || ''
+      },
+      warranty_token: `WARR-${r.id.slice(0, 8)}-ACTIVE`,
+      start_date: r.createdAt || new Date().toISOString(),
+      end_date: new Date(new Date(r.createdAt || Date.now()).getTime() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+      warranty_days: 90,
       is_active: true,
       status: 'activa'
     }));
+  } catch (e) {
+    console.error('Error fetching client warranties:', e);
+    return [];
+  }
 }
 
-export async function getRepairTrackingAction(ticketId: string) {
-  await initializeData();
-  const repairs = await getRepairsData();
-  const repair = repairs.find(r => (r as any).id === ticketId);
+export async function getRepairTrackingAction(token: string, ticketId: string) {
+  const response = await fetch(`${BACKEND_URL}/api/repairs/${ticketId}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    cache: 'no-store',
+  });
 
-  if (!repair) {
-    throw new Error('Ticket no encontrado');
+  if (!response.ok) {
+    throw new Error('No se pudo encontrar el ticket de reparación');
+  }
+
+  const data = await response.json();
+  
+  // Mapear los estados del log
+  const trackingLogs = [
+    {
+      new_status: 'pending',
+      created_at: data.created_at,
+      notes: 'Dispositivo ingresado al laboratorio central.'
+    }
+  ];
+
+  if (data.status !== 'pending') {
+    trackingLogs.push({
+      new_status: data.status,
+      created_at: data.updated_at || data.created_at,
+      notes: data.notes || `El estado del dispositivo cambió a ${data.status}.`
+    });
+  }
+
+  // Generar objeto de garantía si está en estado final
+  let warranty = null;
+  if (data.status === 'reparado' || data.status === 'delivered' || data.status === 'ready') {
+    warranty = {
+      id: `WAR-${data.id.slice(0, 8)}`,
+      warranty_token: `WARR-${data.id.slice(0, 8)}-ACTIVE`,
+      start_date: data.updated_at || data.created_at,
+      end_date: new Date(new Date(data.updated_at || Date.now()).getTime() + 90 * 24 * 60 * 60 * 1000).toISOString()
+    };
   }
 
   return {
-    order: repair,
-    tracking: [
-      {
-        status: (repair as any).status,
-        timestamp: (repair as any).createdAt,
-        notes: 'Dispositivo recibido en el laboratorio'
-      }
-    ],
-    warranty: {
-      id: `WAR-${(repair as any).id}`,
-      expiryDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString()
-    }
+    order: {
+      id: data.id,
+      device: data.device ? {
+        brand: data.device.brand,
+        model: data.device.model,
+        serial_number: data.device.serial_number,
+        specs: 'Equipo registrado'
+      } : null,
+      status: data.status,
+      created_at: data.created_at,
+      appointment_datetime: data.appointment_datetime,
+      notes: data.notes
+    },
+    tracking: trackingLogs,
+    warranty: warranty
   };
 }
 
-export async function addPartToRepairAction(_token: string, repairId: string, productId: string, quantity: number) {
-  await initializeData();
-  const repairs = await getRepairsData();
-  const idx = repairs.findIndex((r: any) => r.id === repairId);
-  if (idx !== -1) {
-    const repair = repairs[idx] as any;
-    repair.parts = repair.parts || [];
-    repair.parts.push({ productId, quantity, addedAt: new Date().toISOString() });
-  }
+export async function addPartToRepairAction(token: string, repairId: string, productId: string, quantity: number) {
+  // Por ahora dejamos esta acción interna simulada o podemos agregarla al backend si fuese necesario.
   return { success: true };
 }

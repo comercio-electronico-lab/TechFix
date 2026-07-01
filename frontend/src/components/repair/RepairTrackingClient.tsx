@@ -48,7 +48,7 @@ export default function RepairTrackingClient() {
       setError(null);
 
       try {
-        const data = await getRepairTrackingAction(ticketId);
+        const data = await getRepairTrackingAction(token || '', ticketId);
         setOrder(data.order);
         setTrackingLogs(data.tracking || []);
         setWarranty(data.warranty);
