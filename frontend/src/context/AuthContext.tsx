@@ -79,10 +79,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleRegister = async (name: string, email: string, _password?: string): Promise<IUser> => {
+  const handleRegister = async (name: string, email: string, password?: string): Promise<IUser> => {
     setError(null);
     try {
-      const { user: userData, token: userToken } = await register(name, email);
+      const { user: userData, token: userToken } = await register(name, email, password);
       setToken(userToken);
       setUser(userData);
       localStorage.setItem('techfix_token', userToken);

@@ -50,7 +50,13 @@ export default function AuthPageClient() {
       if (redirectUrl) {
         router.push(redirectUrl);
       } else {
-        router.push('/cliente/dashboard');
+        if (user.role === 'admin') {
+          router.push('/admin/dashboard');
+        } else if (user.role === 'tecnico') {
+          router.push('/tecnico/dashboard');
+        } else {
+          router.push('/cliente/dashboard');
+        }
       }
     }
   }, [isAuthenticated, loading, user, token, redirectUrl, router]);
