@@ -5,13 +5,17 @@ import { MetricCard } from '@/components/features/dashboard/MetricCard/MetricCar
 import { ActivityList } from '@/components/features/dashboard/ActivityList/ActivityList';
 import { IDashboardStats, IActivityLog } from '@/interfaces/domain';
 import { Button, Icon } from '@/components/ui';
+import SalesBarChart from '@/components/admin/SalesBarChart';
+import RepairAreaChart from '@/components/admin/RepairAreaChart';
 
 interface IAdminDashboardViewProps {
   stats: IDashboardStats[];
   activities: IActivityLog[];
+  salesData: Array<{ name: string; revenue: number; cost: number }>;
+  repairData: Array<{ name: string; volume: number }>;
 }
 
-export const AdminDashboardView = ({ stats, activities }: IAdminDashboardViewProps) => {
+export const AdminDashboardView = ({ stats, activities, salesData, repairData }: IAdminDashboardViewProps) => {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -33,10 +37,23 @@ export const AdminDashboardView = ({ stats, activities }: IAdminDashboardViewPro
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-8 rounded-2xl border border-[var(--color-border)] h-80 flex flex-col items-center justify-center text-center">
-            <Icon name="ChartBar" size={48} className="text-[var(--color-muted)] mb-4" />
-            <h3 className="text-lg font-bold">Gráfico de Ingresos</h3>
-            <p className="text-[var(--color-muted)] max-w-xs">Las métricas de ventas se actualizarán en tiempo real conforme se procesen los pagos.</p>
+          <div className="bg-white p-6 rounded-2xl border border-[var(--color-border)] h-80 flex flex-col justify-between">
+            <div>
+              <h3 className="text-lg font-bold">Ingresos Recientes</h3>
+              <p className="text-xs text-[var(--color-muted)]">Evolución de ingresos y costos estimados por semana.</p>
+            </div>
+            <div className="flex-1 min-h-[180px] mt-4">
+              <SalesBarChart data={salesData} />
+            </div>
+          </div>
+          <div className="bg-white p-6 rounded-2xl border border-[var(--color-border)] h-80 flex flex-col justify-between">
+            <div>
+              <h3 className="text-lg font-bold">Volumen de Servicios</h3>
+              <p className="text-xs text-[var(--color-muted)]">Tickets de servicio procesados por semana.</p>
+            </div>
+            <div className="flex-1 min-h-[180px] mt-4">
+              <RepairAreaChart data={repairData} />
+            </div>
           </div>
         </div>
         
