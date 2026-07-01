@@ -150,6 +150,7 @@ func startServer() {
 		{
 			user.GET("/profile", handlers.GetProfile)
 			user.PUT("/profile", handlers.UpdateProfile)
+			user.GET("/all", auth.RoleMiddleware("Admin"), handlers.GetAllUsers)
 
 			// CRUD de Equipos del usuario
 			user.GET("/devices", handlers.GetDevices)

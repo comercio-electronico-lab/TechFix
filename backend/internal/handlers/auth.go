@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"backend/internal/auth"
 	"backend/internal/db"
 	"backend/internal/models"
 
@@ -191,6 +192,26 @@ func UpdateProfile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, usuario)
+}
+
+// GetAllUsers devuelve todos los usuarios
+// GET /api/user/all
+func GetAllUsers(c *gin.Context) {
+	// Verificar si el solicitante es administrador
+	userRolVal, exists := c.Get("userRol")
+	if !exists || auth.NormalizeRole(userRolVal.(string)) != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado: se requieren permisos de administrador"})
+		c.Abort()
+		return
+	}
+
+	var usuarios []models.Usuario
+	if err := db.DB.Order("joined_date desc").Find(&usuarios).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al consultar usuarios"})
+		return
+	}
+
+	c.JSON(http.StatusOK, usuarios)
 }
 
 // AuthMiddleware protects private routes
