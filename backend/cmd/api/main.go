@@ -135,6 +135,18 @@ func startServer() {
 			api.GET("/products/categories", productsHandlers.GetCategories)
 			api.GET("/products/category/:categoryName", productsHandlers.GetProductsByCategory)
 			api.GET("/products/:productId", productsHandlers.GetProductByID)
+			
+			// Modificación de productos protegida para Administrador
+			api.POST("/products", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), productsHandlers.CreateProduct)
+			api.PUT("/products/:productId", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), productsHandlers.UpdateProduct)
+			api.DELETE("/products/:productId", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), productsHandlers.DeleteProduct)
+		}
+
+		// Rutas de Proveedores (protegidas para Administrador)
+		suppliersHandlers := handlers.NewSuppliersHandler(db.DB)
+		{
+			api.GET("/suppliers", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.GetSuppliers)
+			api.POST("/suppliers/orders", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.CreateRestockOrder)
 		}
 
 		// Rutas públicas de Autenticación
