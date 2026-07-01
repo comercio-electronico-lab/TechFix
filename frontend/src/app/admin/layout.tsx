@@ -4,14 +4,22 @@ import React, { useEffect, useState } from 'react';
 import { DashboardSidebar } from '@/components/features/dashboard/DashboardSidebar/DashboardSidebar';
 import { Icon } from '@/components/ui';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
+  const router = useRouter();
   const [dateStr, setDateStr] = useState('Cargando fecha...');
+
+  useEffect(() => {
+    if (!loading && (!isAuthenticated || user?.role !== 'admin')) {
+      router.push('/auth');
+    }
+  }, [loading, isAuthenticated, user, router]);
 
   useEffect(() => {
     const today = new Date();
@@ -23,6 +31,22 @@ export default function AdminLayout({
     });
     setDateStr(formatted.charAt(0).toUpperCase() + formatted.slice(1));
   }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)]">
+        <p className="text-sm font-semibold text-[var(--color-muted)]">Verificando credenciales...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || user?.role !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)]">
+        <p className="text-sm font-semibold text-red-500">Acceso denegado. Redirigiendo...</p>
+      </div>
+    );
+  }
 
   const adminName = user?.nombre || 'Parker Admin';
   const adminInitial = adminName.charAt(0).toUpperCase();
