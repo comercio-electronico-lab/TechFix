@@ -71,7 +71,7 @@ export const PremiumBanner: React.FC<PremiumBannerProps> = ({
         {/* Action buttons */}
         <div className="flex justify-center items-center pt-3">
           <Link href={linkAction}>
-            <button className="bg-[#0071e3] text-white hover:bg-[#0077ed] text-sm font-normal px-6 py-2.5 rounded-full transition-all duration-200 cursor-pointer active:scale-95">
+            <button className="bg-[#0071e3] btn-sweep text-white hover:bg-[#0077ed] text-sm font-normal px-6 py-2.5 rounded-full transition-all duration-200 cursor-pointer active:scale-95">
               {actionText}
             </button>
           </Link>

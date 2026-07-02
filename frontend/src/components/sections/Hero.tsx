@@ -60,12 +60,12 @@ const Hero = () => {
           }`}
         >
           <Link href="/reparaciones">
-            <Button variant="primary" icon={Wrench} className="!py-3.5 !px-8 text-xs font-black uppercase tracking-wider shadow-lg hover:shadow-secondary/20 hover:scale-[1.02] transition-all">
+            <Button variant="primary" icon={Wrench} className="btn-sweep !py-3.5 !px-8 text-xs font-black uppercase tracking-wider shadow-lg hover:shadow-secondary/20 hover:scale-[1.02] transition-all">
               Reservar Reparación
             </Button>
           </Link>
           <Link href="/catalogo">
-            <Button variant="outline-white" icon={ShoppingCart} className="!py-3.5 !px-8 text-xs font-black uppercase tracking-wider hover:bg-white/10 hover:scale-[1.02] transition-all">
+            <Button variant="outline-white" icon={ShoppingCart} className="btn-sweep !py-3.5 !px-8 text-xs font-black uppercase tracking-wider hover:bg-white/10 hover:scale-[1.02] transition-all">
               Comprar Repuestos
             </Button>
           </Link>
