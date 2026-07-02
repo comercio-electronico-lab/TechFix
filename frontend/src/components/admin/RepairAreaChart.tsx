@@ -15,9 +15,9 @@ interface RepairAreaChartProps {
   data: Array<{ name: string; volume: number }>;
 }
 
-const RepairAreaChart = ({ data }: RepairAreaChartProps) => {
+const RepairAreaChart = ({ data, height = 220 }: RepairAreaChartProps & { height?: number }) => {
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height={height}>
       <AreaChart
         data={data}
         margin={{ top: 10, right: 10, left: -20, bottom: 0 }}

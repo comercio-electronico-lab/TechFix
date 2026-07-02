@@ -1,4 +1,4 @@
-@config "../../tailwind.config.ts";
+@config "../../tailwind.config.mts";
 
 /* Import fonts via standard CSS if not using next/font */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;600;700&display=swap');

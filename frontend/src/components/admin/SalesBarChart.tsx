@@ -16,9 +16,9 @@ interface SalesBarChartProps {
   data: Array<{ name: string; revenue: number; cost: number }>;
 }
 
-const SalesBarChart = ({ data }: SalesBarChartProps) => {
+const SalesBarChart = ({ data, height = 220 }: SalesBarChartProps & { height?: number }) => {
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height={height}>
       <BarChart
         data={data}
         margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
