@@ -125,3 +125,60 @@ export async function getAllDevices(): Promise<any[]> {
     return [];
   }
 }
+
+export async function updateDeviceAction(token: string, deviceId: string, deviceData: {
+  brand: string;
+  model: string;
+  serialNumber: string;
+  purchaseDate?: string;
+  device_type?: string;
+}): Promise<any> {
+  const modelLower = deviceData.model.toLowerCase();
+  let device_type = deviceData.device_type || 'Smartphone';
+  if (modelLower.includes('macbook') || modelLower.includes('xps') || modelLower.includes('laptop')) {
+    device_type = 'Laptop';
+  } else if (modelLower.includes('imac') || modelLower.includes('desktop') || modelLower.includes('pc')) {
+    device_type = 'PC';
+  }
+
+  const response = await fetch(`${BACKEND_URL}/api/user/devices/${deviceId}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      brand: deviceData.brand,
+      model: deviceData.model,
+      serial_number: deviceData.serialNumber,
+      device_type: device_type,
+      purchase_date: deviceData.purchaseDate || ''
+    }),
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Error al actualizar el dispositivo');
+  }
+
+  return await response.json();
+}
+
+export async function deleteDeviceAction(token: string, deviceId: string): Promise<any> {
+  const response = await fetch(`${BACKEND_URL}/api/user/devices/${deviceId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Error al eliminar el dispositivo');
+  }
+
+  return await response.json();
+}

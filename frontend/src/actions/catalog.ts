@@ -40,7 +40,7 @@ export async function getAdminProductsAction() {
   return getProducts();
 }
 
-export async function createProduct(input: any) {
+export async function createProduct(input: any, token?: string) {
   try {
     const body = {
       nombre: input.name,
@@ -52,14 +52,19 @@ export async function createProduct(input: any) {
       stock_minimo: 5,
       categoria: input.category || 'Displays',
       imagen_url: input.image || 'https://placehold.co/300',
-      status: 'Activo' // estado_comercial in yaml maps to status in JSON tag in backend
+      status: 'Activo'
     };
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
 
     const response = await fetch(`${BACKEND_URL}/api/products`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(body),
       cache: 'no-store',
     });
@@ -85,7 +90,7 @@ export async function createProduct(input: any) {
   }
 }
 
-export async function updateProduct(id: string, input: any) {
+export async function updateProduct(id: string, input: any, token?: string) {
   try {
     const body = {
       id: id,
@@ -101,11 +106,16 @@ export async function updateProduct(id: string, input: any) {
       status: 'Activo'
     };
 
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${BACKEND_URL}/api/products/${id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(body),
       cache: 'no-store',
     });
@@ -131,17 +141,22 @@ export async function updateProduct(id: string, input: any) {
   }
 }
 
-export async function updateProductAction(_token: string, id: string, input: any) {
-  return updateProduct(id, input);
+export async function updateProductAction(token: string, id: string, input: any) {
+  return updateProduct(id, input, token);
 }
 
-export async function deleteProduct(id: string) {
+export async function deleteProduct(id: string, token?: string) {
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${BACKEND_URL}/api/products/${id}`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       cache: 'no-store',
     });
 
@@ -157,6 +172,6 @@ export async function deleteProduct(id: string) {
   }
 }
 
-export async function deleteProductAction(_token: string, id: string) {
-  return deleteProduct(id);
+export async function deleteProductAction(token: string, id: string) {
+  return deleteProduct(id, token);
 }

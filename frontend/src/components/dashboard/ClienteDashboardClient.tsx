@@ -9,7 +9,10 @@ import {
   getClientRepairsAction,
   getClientWarrantiesAction,
   scheduleRepairAction,
-  getCustomerDevicesList
+  getCustomerDevicesList,
+  registerDeviceAction,
+  updateDeviceAction,
+  deleteDeviceAction
 } from '@/actions';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardTabs from '@/components/dashboard/DashboardTabs';
@@ -163,7 +166,13 @@ export default function ClienteDashboardClient() {
     setProfileError('');
     setProfileSubmitting(true);
 
-    const res = await updateProfile(nombre);
+    const res = await updateProfile({
+      nombre,
+      teléfono,
+      dirección,
+      ciudad,
+      documentId
+    });
     if (res.success) {
       setProfileSuccess('Perfil actualizado con éxito');
     } else {
@@ -209,26 +218,44 @@ export default function ClienteDashboardClient() {
     device_type: string;
     purchase_date: string;
   }) => {
+    if (!token) return;
     setDeviceSubmitting(true);
-
-    setTimeout(() => {
+    try {
       if (editingDevice) {
-        setDevices(prev => prev.map(d => d.id === editingDevice.id ? { ...d, ...formData } : d));
+        await updateDeviceAction(token, editingDevice.id, {
+          brand: formData.brand,
+          model: formData.model,
+          serialNumber: formData.serial_number,
+          purchaseDate: formData.purchase_date,
+          device_type: formData.device_type
+        });
       } else {
-        const newDevice: Device = {
-          id: `DEV-00${devices.length + 1}`,
-          ...formData
-        };
-        setDevices(prev => [...prev, newDevice]);
+        await registerDeviceAction(token, {
+          brand: formData.brand,
+          model: formData.model,
+          serialNumber: formData.serial_number,
+          purchaseDate: formData.purchase_date,
+          device_type: formData.device_type
+        });
       }
+      await fetchDevices();
       setShowModal(false);
+    } catch (e: any) {
+      alert(e.message || 'Error al guardar el dispositivo');
+    } finally {
       setDeviceSubmitting(false);
-    }, 600);
+    }
   };
 
   const handleDeleteDevice = async (id: string) => {
+    if (!token) return;
     if (!window.confirm('¿Estás seguro de que quieres eliminar este dispositivo?')) return;
-    setDevices(prev => prev.filter(d => d.id !== id));
+    try {
+      await deleteDeviceAction(token, id);
+      await fetchDevices();
+    } catch (e: any) {
+      alert(e.message || 'Error al eliminar el dispositivo');
+    }
   };
 
   return (
@@ -254,7 +281,7 @@ export default function ClienteDashboardClient() {
         )}
 
         {activeTab === 'reparaciones' && (
-          <RepairsSection repairs={repairs} loading={repairsLoading} />
+          <RepairsSection repairs={repairs} loading={repairsLoading} onRefresh={fetchRepairs} />
         )}
 
         {activeTab === 'compras' && (

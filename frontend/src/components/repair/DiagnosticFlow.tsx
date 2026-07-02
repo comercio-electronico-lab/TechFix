@@ -125,6 +125,7 @@ export default function DiagnosticFlow() {
         <DiagnosticStep5
           ticketId={`TKT-${Date.now()}`}
           deviceType={selectedDeviceType}
+          brand={selectedBrand}
           terminalNode={{ preliminary_result: diagnosis, estimated_min: estimatedMinPrice || 0, estimated_max: estimatedMaxPrice || 0 }}
           symptomPath={[]}
           suggestedProducts={recommendedProducts || []}

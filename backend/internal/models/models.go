@@ -30,6 +30,10 @@ type Usuario struct {
 	Rol          string    `gorm:"size:20;default:'Cliente'" json:"rol" yaml:"rol"`
 	Estado       string    `gorm:"size:20;default:'Activo'" json:"estado" yaml:"estado"`
 	JoinedDate   time.Time `json:"joined_date" yaml:"joined_date"`
+	Telefono     string    `gorm:"size:50" json:"teléfono" yaml:"teléfono"`
+	Direccion    string    `gorm:"size:255" json:"dirección" yaml:"dirección"`
+	Ciudad       string    `gorm:"size:100" json:"ciudad" yaml:"ciudad"`
+	DocumentId   string    `gorm:"size:50" json:"documentId" yaml:"documentId"`
 }
 
 func (Usuario) TableName() string {
@@ -195,6 +199,7 @@ type RepairOrder struct {
 	EstimatedPriceMax float64 `json:"estimated_price_max" yaml:"estimated_price_max"`
 	FinalPrice   float64    `json:"final_price" yaml:"final_price"`
 	Notes        string     `gorm:"type:text" json:"notes" yaml:"notes"`
+	Payments     []Payment  `gorm:"foreignKey:RepairID" json:"payments,omitempty"`
 }
 
 func (RepairOrder) TableName() string {

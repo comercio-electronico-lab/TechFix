@@ -34,6 +34,10 @@ export async function authenticate(email: string, password?: string): Promise<IA
     nombre: data.usuario.nombre,
     role: normalizeRole(data.usuario.rol),
     createdAt: new Date().toISOString(),
+    teléfono: data.usuario.teléfono || data.usuario.telefono || '',
+    dirección: data.usuario.dirección || data.usuario.direccion || '',
+    ciudad: data.usuario.ciudad || '',
+    documentId: data.usuario.documentId || '',
   };
 
   // Guardar token en cookies
@@ -101,6 +105,10 @@ export async function getCurrentUser(token?: string): Promise<IUser> {
     nombre: data.nombre,
     role: normalizeRole(data.rol),
     createdAt: data.joined_date || new Date().toISOString(),
+    teléfono: data.teléfono || data.telefono || '',
+    dirección: data.dirección || data.direccion || '',
+    ciudad: data.ciudad || '',
+    documentId: data.documentId || '',
   };
 }
 
@@ -222,4 +230,46 @@ export async function deleteUser(id: string): Promise<{ success: boolean; error?
     console.error(e);
     return { success: false, error: e.message };
   }
+}
+
+export async function updateProfileAction(token: string, profileData: {
+  nombre: string;
+  teléfono?: string;
+  dirección?: string;
+  ciudad?: string;
+  documentId?: string;
+}): Promise<IUser> {
+  const response = await fetch(`${BACKEND_URL}/api/user/profile`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      nombre: profileData.nombre,
+      teléfono: profileData.teléfono || '',
+      dirección: profileData.dirección || '',
+      ciudad: profileData.ciudad || '',
+      documentId: profileData.documentId || '',
+    }),
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Error al actualizar el perfil');
+  }
+
+  const data = await response.json();
+  return {
+    id: data.id,
+    email: data.email,
+    nombre: data.nombre,
+    role: normalizeRole(data.rol),
+    createdAt: data.joined_date || new Date().toISOString(),
+    teléfono: data.teléfono || data.telefono || '',
+    dirección: data.dirección || data.direccion || '',
+    ciudad: data.ciudad || '',
+    documentId: data.documentId || '',
+  };
 }

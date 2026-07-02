@@ -49,8 +49,12 @@ type LoginInput struct {
 
 // UpdateProfileInput represents profile update payload
 type UpdateProfileInput struct {
-	Nombre string `json:"nombre" binding:"required"`
-	Login  string `json:"login" binding:"required"`
+	Nombre     string `json:"nombre" binding:"required"`
+	Login      string `json:"login"`
+	Telefono   string `json:"teléfono"`
+	Direccion  string `json:"dirección"`
+	Ciudad     string `json:"ciudad"`
+	DocumentId string `json:"documentId"`
 }
 
 // Register handler
@@ -184,7 +188,13 @@ func UpdateProfile(c *gin.Context) {
 	}
 
 	usuario.Nombre = input.Nombre
-	usuario.Login = input.Login
+	if input.Login != "" {
+		usuario.Login = input.Login
+	}
+	usuario.Telefono = input.Telefono
+	usuario.Direccion = input.Direccion
+	usuario.Ciudad = input.Ciudad
+	usuario.DocumentId = input.DocumentId
 
 	if err := db.DB.Save(&usuario).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al guardar el perfil"})

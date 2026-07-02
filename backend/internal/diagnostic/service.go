@@ -197,9 +197,11 @@ func (s *DiagnosticService) AnswerDiagnostic(req AnswerDiagnosticRequest) (*Diag
 				AIReasoning:         part.Reasoning,
 			}
 
-			// Guardar en BD (si queremos persistir imagen)
-			// Nota: AIRecommendedProduct no tiene campo imagen_url por diseño
-			// La URL se genera dinámicamente en responses
+			// Intentar vincular con un producto real de la base de datos
+			var dbProd models.Producto
+			if err := s.db.Where("nombre ILIKE ?", "%"+part.Name+"%").First(&dbProd).Error; err == nil {
+				product.ProductoID = &dbProd.ID
+			}
 
 			if err := s.db.Create(&product).Error; err != nil {
 				log.Printf("failed to save recommended product: %v", err)
@@ -215,12 +217,21 @@ func (s *DiagnosticService) AnswerDiagnostic(req AnswerDiagnosticRequest) (*Diag
 
 		for _, part := range aiResp.RecommendedParts {
 			imageURL := GetImageURLForProduct(session.DeviceType, part.Name)
+			
+			var dbProd models.AIRecommendedProduct
+			var prodIDStr *string
+			if err := s.db.Where("diagnostic_session_id = ? AND name = ?", session.ID, part.Name).First(&dbProd).Error; err == nil && dbProd.ProductoID != nil {
+				sID := dbProd.ProductoID.String()
+				prodIDStr = &sID
+			}
+
 			response.Products = append(response.Products, RecommendedProductDTO{
 				Name:      part.Name,
 				Category:  part.Category,
 				Price:     part.Price,
 				Reasoning: part.Reasoning,
 				ImageURL:  imageURL,
+				ProductID: prodIDStr,
 			})
 		}
 	} else {
@@ -244,6 +255,13 @@ func (s *DiagnosticService) AnswerDiagnostic(req AnswerDiagnosticRequest) (*Diag
 
 // generateFirstQuestion genera la primera pregunta basada en el problema inicial
 func (s *DiagnosticService) generateFirstQuestion(sessionID uuid.UUID, deviceType, initialIssue string) (string, error) {
+	if s.apiKey == "" {
+		if strings.ToLower(deviceType) == "laptop" {
+			return "¿El dispositivo Dell o Apple enciende alguna luz LED o emite algún pitido al presionar el botón de encendido?", nil
+		}
+		return "¿El dispositivo muestra algún símbolo de carga o emite una pequeña vibración cuando lo conectas a la corriente?", nil
+	}
+
 	prompt := fmt.Sprintf(`Eres un experto técnico en reparación de dispositivos electrónicos.
 Un cliente reporta el siguiente problema con su %s: "%s"
 
@@ -271,6 +289,57 @@ func (s *DiagnosticService) generateNextStep(
 	conversationHistory string,
 	latestAnswer string,
 ) (*AIResponse, error) {
+	if s.apiKey == "" {
+		var count int64
+		s.db.Model(&models.DiagnosticTurn{}).Where("diagnostic_session_id = ?", sessionID).Count(&count)
+
+		if count == 1 {
+			return &AIResponse{
+				IsTerminal:   false,
+				NextQuestion: "Entendido. ¿Has intentado utilizar otro cargador o cable USB original? ¿Notaste si el dispositivo se calienta inusualmente?",
+			}, nil
+		}
+		if count == 2 {
+			return &AIResponse{
+				IsTerminal:   false,
+				NextQuestion: "¿El equipo ha sufrido algún golpe reciente, caída fuerte, o ha estado expuesto a humedad/líquidos últimamente?",
+			}, nil
+		}
+
+		// Turn >= 3: terminal diagnosis!
+		if strings.ToLower(deviceType) == "laptop" {
+			return &AIResponse{
+				IsTerminal:        true,
+				Diagnosis:         "Se identificó un fallo severo en la celda de almacenamiento de energía y degradación química de la batería. Requiere reemplazo preventivo de la batería original para solucionar fallas de encendido.",
+				EstimatedMinPrice: 95.00,
+				EstimatedMaxPrice: 150.00,
+				RecommendedParts: []AIRecommendedPart{
+					{
+						Name:      "Batería Dell XPS 13",
+						Category:  "Baterías",
+						Price:     89.99,
+						Reasoning: "La batería original ha cumplido su ciclo de vida y no retiene carga.",
+					},
+				},
+			}, nil
+		}
+
+		// Default smartphone
+		return &AIResponse{
+			IsTerminal:        true,
+			Diagnosis:         "Desgaste crítico de la batería de iones de litio y posible daño menor en la placa de carga. Se aconseja reemplazo de celda de batería original para reestablecer la autonomía.",
+			EstimatedMinPrice: 45.00,
+			EstimatedMaxPrice: 85.00,
+			RecommendedParts: []AIRecommendedPart{
+				{
+					Name:      "Batería iPhone 14",
+					Category:  "Baterías",
+					Price:     59.99,
+					Reasoning: "La batería actual presenta una capacidad de retención de carga inferior al 80% (degradación física).",
+				},
+			},
+		}, nil
+	}
 
 	prompt := fmt.Sprintf(`Eres un experto técnico en reparación de %s.
 El cliente reportó inicialmente: "%s"

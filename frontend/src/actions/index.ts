@@ -4,3 +4,4 @@ export * from './repairs';
 export * from './devices';
 export * from './diagnostic';
 export * from './suppliers';
+export * from './payments';

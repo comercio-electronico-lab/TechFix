@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import TecnicoSidebar from '@/components/layout/TecnicoSidebar';
+import TecnicoNavbar from '@/components/layout/TecnicoNavbar';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -37,8 +38,9 @@ export default function TecnicoLayout({
 
   return (
     <div className="bg-background min-h-screen text-on-background transition-colors duration-300">
+      <TecnicoNavbar />
       <TecnicoSidebar />
-      <main className="ml-64 min-h-screen">
+      <main className="ml-64 pt-[72px] min-h-screen">
         <div className="max-w-container-max mx-auto p-gutter">
           {children}
         </div>
