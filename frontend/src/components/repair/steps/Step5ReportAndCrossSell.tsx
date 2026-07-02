@@ -13,7 +13,8 @@ import {
   MapPin,
   Clock,
   Camera,
-  Layers
+  Layers,
+  Plus
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -23,6 +24,7 @@ import { scheduleRepairAction } from '@/actions';
 interface Step5Props {
   ticketId: string;
   deviceType: string | null;
+  brand?: string;
   terminalNode: any;
   symptomPath: string[];
   suggestedProducts: any[];
@@ -39,6 +41,7 @@ interface Step5Props {
 export function DiagnosticStep5({ 
   ticketId, 
   deviceType, 
+  brand,
   terminalNode, 
   symptomPath, 
   suggestedProducts, 
@@ -54,6 +57,12 @@ export function DiagnosticStep5({
   const { isAuthenticated, token } = useAuth();
   const router = useRouter();
   const [booking, setBooking] = useState(false);
+
+  const [localSerialNumber, setLocalSerialNumber] = useState(serialNumber || '');
+  const [localAppointmentDate, setLocalAppointmentDate] = useState(appointmentDate || new Date().toISOString().split('T')[0]);
+  const [localAppointmentTime, setLocalAppointmentTime] = useState(appointmentTime || '09:00');
+  const [localSelectedBranch, setLocalSelectedBranch] = useState(selectedBranch || 'Laboratorio Central');
+  const [localFailurePhoto, setLocalFailurePhoto] = useState<string | null>(failurePhoto || null);
 
   // Desglose del presupuesto estimado
   const laborCost = terminalNode?.estimated_min ? Math.round(terminalNode.estimated_min * 0.4) : 35;
@@ -89,8 +98,12 @@ export function DiagnosticStep5({
     setBooking(true);
     const repairData = {
       deviceName: `${deviceModel || deviceType || 'Dispositivo'}`,
-      notes: `Pre-diagnóstico ${ticketId} [S/N: ${serialNumber || 'No provisto'}]. Síntomas: ${symptomPath.join(' | ')}. Cita reservada para el ${appointmentDate} a las ${appointmentTime} en la sucursal ${selectedBranch}. Evidencia fotográfica adjunta: ${failurePhoto ? 'SÍ' : 'NO'}.`,
-      deviceSerial: serialNumber || `SN-${Math.floor(Math.random() * 1000000).toString()}`
+      brand: brand || 'Genérico',
+      deviceType: deviceType || 'Smartphone',
+      notes: `Pre-diagnóstico ${ticketId} [S/N: ${localSerialNumber || 'No provisto'}]. Síntomas: ${symptomPath.join(' | ')}. Cita reservada para el ${localAppointmentDate} a las ${localAppointmentTime} en la sucursal ${localSelectedBranch}. Evidencia fotográfica adjunta: ${localFailurePhoto ? 'SÍ' : 'NO'}.`,
+      deviceSerial: localSerialNumber || `SN-${Math.floor(Math.random() * 1000000).toString()}`,
+      appointmentDate: localAppointmentDate,
+      appointmentTime: localAppointmentTime
     };
 
     if (isAuthenticated && token) {
@@ -158,12 +171,16 @@ export function DiagnosticStep5({
                 </span>
               </div>
               <div>
-                <span className="text-on-surface-variant/70 dark:text-slate-500 block mb-0.5 uppercase tracking-wider font-extrabold text-[10px]">
+                <span className="text-on-surface-variant/70 dark:text-slate-500 block mb-1 uppercase tracking-wider font-extrabold text-[10px]">
                   NÚMERO DE SERIE
                 </span>
-                <span className="text-sm font-mono font-bold text-on-surface dark:text-slate-200">
-                  {serialNumber || 'S/N no provisto'}
-                </span>
+                <input
+                  type="text"
+                  value={localSerialNumber}
+                  onChange={(e) => setLocalSerialNumber(e.target.value)}
+                  placeholder="Ej: SN-9823412"
+                  className="w-full text-xs font-mono p-2 border border-outline-variant/40 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-on-surface dark:text-slate-200 focus:outline-none focus:border-secondary dark:focus:border-sky-500"
+                />
               </div>
               
               <div className="col-span-2 border-t border-outline-variant/20 dark:border-slate-800/20 pt-4">
@@ -179,20 +196,50 @@ export function DiagnosticStep5({
             {/* Fila de Cita Reservada */}
             <div className="bg-blue-500/5 border border-blue-500/10 p-4.5 rounded-xl space-y-3">
               <span className="text-[10px] font-black text-secondary dark:text-sky-400 uppercase tracking-widest block border-b border-blue-500/10 pb-1.5">
-                CITA RESERVADA EN LABORATORIO
+                PERSONALIZAR CITA EN LABORATORIO
               </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-semibold text-on-surface-variant dark:text-slate-350">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-secondary shrink-0" />
-                  <span>{selectedBranch}</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] font-bold text-on-surface-variant dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-secondary" /> Sucursal
+                  </label>
+                  <select
+                    value={localSelectedBranch}
+                    onChange={(e) => setLocalSelectedBranch(e.target.value)}
+                    className="w-full p-2 border border-outline-variant/30 dark:border-slate-800 rounded bg-white dark:bg-slate-900 text-on-surface dark:text-slate-200 focus:outline-none"
+                  >
+                    <option value="Laboratorio Central">Laboratorio Central (San Miguel)</option>
+                    <option value="Sucursal Norte">Sucursal Norte (Los Olivos)</option>
+                    <option value="Sucursal Sur">Sucursal Sur (Miraflores)</option>
+                  </select>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-secondary shrink-0" />
-                  <span>{appointmentDate}</span>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] font-bold text-on-surface-variant dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-secondary" /> Fecha de Cita
+                  </label>
+                  <input
+                    type="date"
+                    value={localAppointmentDate}
+                    onChange={(e) => setLocalAppointmentDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full p-2 border border-outline-variant/30 dark:border-slate-800 rounded bg-white dark:bg-slate-900 text-on-surface dark:text-slate-200 focus:outline-none"
+                  />
                 </div>
-                <div className="flex items-center gap-2 sm:col-span-2">
-                  <Clock className="w-4 h-4 text-secondary shrink-0" />
-                  <span>Rango Horario: <strong>{appointmentTime}</strong></span>
+
+                <div className="flex flex-col gap-1 sm:col-span-2">
+                  <label className="text-[9px] font-bold text-on-surface-variant dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-secondary" /> Rango Horario
+                  </label>
+                  <select
+                    value={localAppointmentTime}
+                    onChange={(e) => setLocalAppointmentTime(e.target.value)}
+                    className="w-full p-2 border border-outline-variant/30 dark:border-slate-800 rounded bg-white dark:bg-slate-900 text-on-surface dark:text-slate-200 focus:outline-none"
+                  >
+                    <option value="09:00">Mañana (09:00 AM - 12:00 PM)</option>
+                    <option value="13:00">Tarde (01:00 PM - 04:00 PM)</option>
+                    <option value="17:00">Noche (05:00 PM - 07:00 PM)</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -233,17 +280,49 @@ export function DiagnosticStep5({
               </div>
             </div>
 
-            {/* Evidencia Fotográfica (Miniatura) */}
-            {failurePhoto && (
-              <div className="border border-outline-variant/30 dark:border-slate-850 p-4 rounded-xl space-y-2.5">
-                <h4 className="text-[10px] font-black text-on-surface-variant/75 dark:text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
-                  <Camera className="w-3.5 h-3.5 text-primary dark:text-sky-400" /> Evidencia Fotográfica Adjunta
-                </h4>
-                <div className="relative rounded-lg overflow-hidden border border-outline-variant/10 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 h-28 flex items-center justify-center max-w-xs">
-                  <img src={failurePhoto} alt="Evidencia física" className="h-full object-contain" />
+            {/* Evidencia Fotográfica (Cargador / Vista previa) */}
+            <div className="border border-outline-variant/30 dark:border-slate-850 p-4 rounded-xl space-y-2.5">
+              <h4 className="text-[10px] font-black text-on-surface-variant/75 dark:text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                <Camera className="w-3.5 h-3.5 text-primary dark:text-sky-400" /> Evidencia Fotográfica
+              </h4>
+              
+              {localFailurePhoto ? (
+                <div className="relative rounded-lg overflow-hidden border border-outline-variant/10 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 p-2 flex flex-col items-center justify-center max-w-xs">
+                  <img src={localFailurePhoto} alt="Evidencia física" className="h-24 object-contain rounded" />
+                  <button
+                    onClick={() => setLocalFailurePhoto(null)}
+                    type="button"
+                    className="text-[10px] text-rose-500 hover:underline mt-1 cursor-pointer"
+                  >
+                    Eliminar foto
+                  </button>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="flex items-center justify-center w-full">
+                  <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-outline-variant/30 dark:border-slate-800 rounded-lg cursor-pointer bg-slate-50/50 dark:bg-slate-950/20 hover:bg-slate-100/50 dark:hover:bg-slate-950/40 transition-colors">
+                    <div className="flex flex-col items-center justify-center pt-3 pb-3">
+                      <Plus className="w-5 h-5 text-slate-400 mb-1" />
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400"><span className="font-bold">Subir foto</span> de la falla (opcional)</p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setLocalFailurePhoto(reader.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
 
             {/* Recorrido Histórico */}
             <div className="border-t border-outline-variant/20 dark:border-slate-800/20 pt-5 space-y-2.5">
