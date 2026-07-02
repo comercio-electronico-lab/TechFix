@@ -7,6 +7,7 @@ import Button from '../ui/Button';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { createPaymentAction } from '@/actions';
 
 interface CreditCardFormProps {
   totalAmount: number;
@@ -15,7 +16,7 @@ interface CreditCardFormProps {
 const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   const [cardHolder, setCardHolder] = useState('');
   const [cardNumber, setCardNumber] = useState('');
@@ -27,7 +28,7 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
   const shipping = subtotal > 500 || subtotal === 0 ? 0 : 10;
   const tax = Math.round(subtotal * 0.18 * 100) / 100;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     setSubmitting(true);
@@ -38,8 +39,7 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
       return;
     }
 
-    // Simulate payment transaction processing
-    setTimeout(() => {
+    try {
       // Get shipping details
       const savedAddressString = localStorage.getItem('techfix_shipping_address');
       let shippingInfo = { fullName: user?.nombre || 'Cliente', address: 'Entrega en tienda' };
@@ -49,6 +49,17 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
         } catch (e) {
           console.error(e);
         }
+      }
+
+      // Conectar al backend para registrar la transacción de pago
+      if (token && user) {
+        await createPaymentAction(token, {
+          amount: totalAmount,
+          description: `Compra de catálogo TechFix por ${shippingInfo.fullName}`,
+          payer_email: user.email,
+          cardToken: 'tok_mock_' + Math.floor(Math.random() * 100000), // Token mock para testing
+          installments: 1
+        });
       }
 
       // Record final order
@@ -69,11 +80,14 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
       
       // Clear shopping cart
       clearCart();
-      setSubmitting(false);
-
+      
       // Navigate to confirmation page
       router.push('/checkout/confirmacion');
-    }, 1500);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Error al procesar el pago seguro en el servidor.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
