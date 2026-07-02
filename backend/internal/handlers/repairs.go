@@ -220,6 +220,7 @@ func GetRepairsByUser(c *gin.Context) {
 		Where("user_id = ?", userID).
 		Preload("Device").
 		Preload("User").
+		Preload("Payments").
 		Order("created_at DESC").
 		Find(&repairs).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -238,6 +239,7 @@ func GetRepairByID(c *gin.Context) {
 		Preload("Device").
 		Preload("User").
 		Preload("Technician").
+		Preload("Payments").
 		First(&repair, "id = ?", repairID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Repair not found"})
@@ -552,3 +554,108 @@ func AddPartToRepair(c *gin.Context) {
 	})
 }
 
+// GetUserWarranties returns all warranties for the authenticated user
+func GetUserWarranties(c *gin.Context) {
+	userIDVal, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No autorizado"})
+		return
+	}
+	userID := userIDVal.(uuid.UUID)
+
+	var warranties []models.Warranty
+	if err := db.DB.
+		Where("user_id = ?", userID).
+		Preload("Device").
+		Preload("RepairOrder").
+		Find(&warranties).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, warranties)
+}
+
+// ClaimWarrantyInput represents payload for claiming a warranty
+type ClaimWarrantyInput struct {
+	WarrantyID string `json:"warranty_id" binding:"required"`
+	Notes      string `json:"notes" binding:"required"`
+}
+
+// ClaimWarranty handles the submission of a warranty claim
+func ClaimWarranty(c *gin.Context) {
+	userIDVal, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No autorizado"})
+		return
+	}
+	userID := userIDVal.(uuid.UUID)
+
+	var input ClaimWarrantyInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	warrantyUUID, err := uuid.Parse(input.WarrantyID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de garantía inválido"})
+		return
+	}
+
+	var warranty models.Warranty
+	if err := db.DB.
+		Preload("RepairOrder").
+		Preload("RepairOrder.Device").
+		Where("id = ?", warrantyUUID).
+		First(&warranty).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Garantía no encontrada"})
+		return
+	}
+
+	if warranty.RepairOrder.UserID != userID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Esta garantía no pertenece a tu usuario"})
+		return
+	}
+
+	if !warranty.IsActive {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "La garantía no está activa"})
+		return
+	}
+
+	if time.Now().After(warranty.EndDate) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "La garantía ha expirado"})
+		return
+	}
+
+	claimRepair := models.RepairOrder{
+		UserID:              userID,
+		DeviceID:            warranty.RepairOrder.DeviceID,
+		AppointmentDatetime: time.Now().Add(24 * time.Hour),
+		Status:              "pending",
+		PartType:            warranty.RepairOrder.PartType,
+		EstimatedPriceMin:   0,
+		EstimatedPriceMax:   0,
+		FinalPrice:          0,
+		Notes:               fmt.Sprintf("[RECLAMACIÓN DE GARANTÍA - Token: %s]\nOriginal Ticket: %s\nFalla descrita: %s", warranty.WarrantyToken, warranty.RepairID.String(), input.Notes),
+	}
+
+	if err := db.DB.Create(&claimRepair).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al registrar la reclamación: " + err.Error()})
+		return
+	}
+
+	tracking := models.RepairTracking{
+		RepairID:       claimRepair.ID,
+		PreviousStatus: "",
+		NewStatus:      "pending",
+		ChangedBy:      userID,
+		Notes:          "Orden creada por reclamación de garantía del ticket " + warranty.RepairID.String(),
+	}
+	db.DB.Create(&tracking)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":      "Reclamación de garantía registrada exitosamente. Se ha generado una nueva orden de revisión sin costo.",
+		"repair_order": claimRepair,
+	})
+}

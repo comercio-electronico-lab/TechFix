@@ -307,6 +307,7 @@ export default function RepairTrackingClient() {
             {/* Warranty Certificate Card (Condicional si ya se emitió en el backend) */}
             {warranty ? (
               <WarrantyCertificateCard
+                id={warranty.id}
                 token={warranty.warranty_token}
                 startDate={formatDate(warranty.start_date)}
                 endDate={formatDate(warranty.end_date)}

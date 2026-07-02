@@ -138,7 +138,7 @@ func startServer() {
 			
 			// Modificación de productos protegida para Administrador
 			api.POST("/products", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), productsHandlers.CreateProduct)
-			api.PUT("/products/:productId", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), productsHandlers.UpdateProduct)
+			api.PUT("/products/:productId", auth.AuthMiddleware(), auth.RoleMiddleware("Admin", "Tecnico"), productsHandlers.UpdateProduct)
 			api.DELETE("/products/:productId", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), productsHandlers.DeleteProduct)
 		}
 
@@ -165,6 +165,7 @@ func startServer() {
 		{
 			user.GET("/profile", handlers.GetProfile)
 			user.PUT("/profile", handlers.UpdateProfile)
+			user.GET("/warranties", handlers.GetUserWarranties)
 			user.GET("/all", auth.RoleMiddleware("Admin"), handlers.GetAllUsers)
 			user.GET("/all-devices", auth.RoleMiddleware("Admin", "Tecnico"), handlers.GetAllDevices)
 			user.PUT("/:id/role", auth.RoleMiddleware("Admin"), handlers.UpdateUserRole)
@@ -190,6 +191,7 @@ func startServer() {
 			repairs.PUT("/:id/assign", handlers.AssignTechnician)
 			repairs.POST("/:id/parts", handlers.AddPartToRepair)
 			repairs.POST("", handlers.CreateRepair)
+			repairs.POST("/warranty-claim", handlers.ClaimWarranty)
 		}
 
 		// Rutas de Pagos (protegidas por AuthMiddleware)
