@@ -1,97 +1,172 @@
 'use client';
 
 import React from 'react';
-import PremiumBanner from './PremiumBanner';
+import Link from 'next/link';
 import { ScrollReveal } from '../ui';
-
-interface ServiceBanner {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  isDarkTheme: boolean;
-  bgGradient: string;
-  linkAction: string;
-  actionText: string;
-}
+import { Wrench, ArrowRight, ShieldCheck, Database, HardDrive } from 'lucide-react';
 
 const ServiceBentoGrid = () => {
-  const banners: ServiceBanner[] = [
-    {
-      id: "laptops",
-      title: "Reparación de Laptops Empresariales",
-      description: "Diagnóstico avanzado y reparación de placa madre a nivel de componente para series MacBook Pro, ThinkPad P y Dell Precision.",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAJgM0XVvkuVt1SxY1SIN3aX8vZiXBTtFdYw4mwCLf_GVrXnoZas571zfMvC8tSIK6PyZUWd9EeBtqIkWrRmSe_zYD2mltbiY021JjP0bWmisa4IRUF_NXTSwv0x7pjiZFUn0cvxNUyuJBhzdQaruat1927G2omoXE7B59WEAL4Flo8rbIPrxFXb5wCezBoPMie8v8IAilg9LM7BfJ_Tp_gtaduBNMN3c_dxnvTdhWIS8vBarAx_RTiSDXsJze6s5puJAgHzethfbM",
-      isDarkTheme: false,
-      bgGradient: "from-[#ecf3fa] via-[#f5f8fc] to-[#ffffff]",
-      linkAction: "/reparaciones?type=laptops",
-      actionText: "Reservar reparación",
-    },
-    {
-      id: "microsoldering",
-      title: "Microsoldadura de Alta Precisión",
-      description: "Reparación microscópica de componentes SMD y reemplazo de integrados BGA bajo estándares internacionales IPC.",
-      image: "/microsoldering.png",
-      isDarkTheme: true,
-      bgGradient: "from-[#030c24] via-[#061533] to-[#020816]",
-      linkAction: "/reparaciones?type=laptops",
-      actionText: "Reservar cita",
-    },
-    {
-      id: "data-recovery",
-      title: "Recuperación de Datos Forense",
-      description: "Recuperación forense de archivos en memorias sólidas NVMe y discos duros mecánicos dañados físicamente.",
-      image: "/data_recovery.png",
-      isDarkTheme: false,
-      bgGradient: "from-[#f3f7ff] via-[#f7faff] to-[#ffffff]",
-      linkAction: "/reparaciones?type=desktops",
-      actionText: "Solicitar cotización",
-    },
-    {
-      id: "oem-parts",
-      title: "Pantallas y Baterías Certificadas",
-      description: "Instalación y calibración certificada de paneles OLED, celdas de batería y repuestos oficiales de fábrica.",
-      image: "/oem_screens_batteries.png",
-      isDarkTheme: true,
-      bgGradient: "from-[#010512] via-[#0b1a30]/20 to-[#020816]",
-      linkAction: "/catalogo",
-      actionText: "Ver piezas en stock",
-    }
-  ];
-
   return (
-    <section className="w-full flex flex-col gap-6 pt-6 pb-0 bg-background">
+    <section className="w-full py-16 bg-background">
       {/* Title block of the section */}
       <ScrollReveal variant="fade-up" className="w-full">
         <div className="text-center py-10 max-w-2xl mx-auto px-6">
           <span className="text-[10px] font-extrabold text-secondary dark:text-sky-400 uppercase tracking-widest block mb-2">
-            Nuestras Habilidades
+            Nuestras Especialidades
           </span>
-          <h2 className="text-3xl md:text-5xl font-black text-on-surface dark:text-white tracking-tight leading-tight">
-            Especialidades de Ingeniería
+          <h2 className="text-3xl md:text-5xl font-black text-on-surface dark:text-white tracking-tight leading-tight font-h1">
+            Ingeniería de Precisión
           </h2>
           <p className="text-sm md:text-base text-on-surface-variant dark:text-slate-400 max-w-xl mx-auto mt-3 font-medium">
-            Nuestros laboratorios cuentan con ingenieros certificados, herramientas industriales de calibración y microsoldadura de precisión.
+            Equipados con laboratorios industriales y técnicos certificados para realizar micro-soldadura, reconstrucción de circuitos y diagnósticos asistidos por software.
           </p>
         </div>
       </ScrollReveal>
 
-      {/* Vertical banners list */}
-      {banners.map((banner, index) => (
-        <PremiumBanner
-          key={banner.id}
-          id={banner.id}
-          tagline="Especialidad de Ingeniería"
-          title={banner.title}
-          description={banner.description}
-          image={banner.image}
-          isDarkTheme={banner.isDarkTheme}
-          bgGradient={banner.bgGradient}
-          linkAction={banner.linkAction}
-          actionText={banner.actionText}
-          delay={(index % 2 === 0 ? '0' : '100') as any}
-        />
-      ))}
+      {/* Bento Grid */}
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* Card 1: Laptops (md:col-span-2) - Glassmorphic / Light Ice Theme */}
+        <ScrollReveal 
+          variant="fade-up" 
+          delay="0"
+          className="relative md:col-span-2 min-h-[350px] rounded-3xl overflow-hidden glass-card dark:bg-slate-900/60 p-8 flex flex-col md:flex-row justify-between items-center gap-6 group hover:border-primary/50 dark:hover:border-sky-400/50 transition-all duration-300 shadow-sm hover:shadow-lg"
+        >
+          <div className="flex-1 flex flex-col justify-between h-full z-10 space-y-4">
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+                <Wrench className="w-5 h-5" />
+              </div>
+              <h3 className="text-2xl md:text-3xl font-black text-on-surface dark:text-white leading-tight font-h2">
+                Laptops Empresariales
+              </h3>
+              <p className="text-xs md:text-sm text-on-surface-variant dark:text-slate-400 mt-2 max-w-md font-medium leading-relaxed">
+                Diagnóstico avanzado y reparación de placa madre a nivel de microcomponente para series MacBook Pro, ThinkPad P y Dell Precision.
+              </p>
+            </div>
+            <div>
+              <Link href="/reparaciones?type=laptops">
+                <button className="bg-primary dark:bg-sky-500 text-white font-bold py-2.5 px-6 rounded-full inline-flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all text-[10px] tracking-wider uppercase cursor-pointer">
+                  Reservar Reparación <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </Link>
+            </div>
+          </div>
+          <div className="w-full md:w-1/2 flex items-center justify-center relative select-none pointer-events-none">
+            <img 
+              alt="Reparación Laptops" 
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJgM0XVvkuVt1SxY1SIN3aX8vZiXBTtFdYw4mwCLf_GVrXnoZas571zfMvC8tSIK6PyZUWd9EeBtqIkWrRmSe_zYD2mltbiY021JjP0bWmisa4IRUF_NXTSwv0x7pjiZFUn0cvxNUyuJBhzdQaruat1927G2omoXE7B59WEAL4Flo8rbIPrxFXb5wCezBoPMie8v8IAilg9LM7BfJ_Tp_gtaduBNMN3c_dxnvTdhWIS8vBarAx_RTiSDXsJze6s5puJAgHzethfbM"
+              className="max-h-[200px] md:max-h-[220px] object-contain transform group-hover:scale-[1.04] transition-transform duration-500"
+            />
+          </div>
+        </ScrollReveal>
+
+        {/* Card 2: Microsoldadura (md:col-span-1) - Space Navy Theme */}
+        <ScrollReveal 
+          variant="fade-up" 
+          delay="100"
+          className="relative md:col-span-1 min-h-[350px] rounded-3xl overflow-hidden bg-gradient-to-br from-[#030c24] via-[#061533] to-[#020816] border border-[#13306d]/40 p-8 flex flex-col justify-between group hover:border-secondary/50 transition-all duration-300 shadow-sm"
+        >
+          <div className="z-10 space-y-4">
+            <div className="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-white leading-tight font-h2">
+                Microsoldadura SMD
+              </h3>
+              <p className="text-xs text-slate-400 mt-2 font-medium leading-relaxed">
+                Reparación microscópica de placas lógicas, micro-soldadura SMD e integrados BGA bajo rigurosos estándares IPC.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-center my-4 select-none pointer-events-none">
+            <img 
+              alt="Microsoldadura" 
+              src="/microsoldering.png"
+              className="max-h-[140px] object-contain transform group-hover:scale-[1.05] transition-transform duration-500"
+            />
+          </div>
+          <div className="z-10">
+            <Link href="/reparaciones?type=laptops">
+              <button className="bg-secondary text-on-secondary font-bold py-2.5 px-5 rounded-full w-full inline-flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all text-[10px] tracking-wider uppercase cursor-pointer">
+                Reservar Cita <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </Link>
+          </div>
+        </ScrollReveal>
+
+        {/* Card 3: Data Recovery (md:col-span-1) - Glassmorphic / Light Theme */}
+        <ScrollReveal 
+          variant="fade-up" 
+          delay="200"
+          className="relative md:col-span-1 min-h-[350px] rounded-3xl overflow-hidden glass-card dark:bg-slate-900/60 p-8 flex flex-col justify-between group hover:border-primary/50 dark:hover:border-sky-400/50 transition-all duration-300 shadow-sm hover:shadow-lg"
+        >
+          <div className="z-10 space-y-4">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <Database className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-on-surface dark:text-white leading-tight font-h2">
+                Recuperación Forense
+              </h3>
+              <p className="text-xs text-on-surface-variant dark:text-slate-400 mt-2 font-medium leading-relaxed">
+                Recuperación forense de archivos en memorias de estado sólido NVMe y discos duros mecánicos dañados físicamente.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-center my-4 select-none pointer-events-none">
+            <img 
+              alt="Recuperación de Datos" 
+              src="/data_recovery.png"
+              className="max-h-[140px] object-contain transform group-hover:scale-[1.05] transition-transform duration-500"
+            />
+          </div>
+          <div className="z-10">
+            <Link href="/reparaciones?type=desktops">
+              <button className="bg-[#0b61a1] text-white font-bold py-2.5 px-5 rounded-full w-full inline-flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all text-[10px] tracking-wider uppercase cursor-pointer">
+                Solicitar Cotización <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </Link>
+          </div>
+        </ScrollReveal>
+
+        {/* Card 4: OEM Parts (md:col-span-2) - Dark Theme */}
+        <ScrollReveal 
+          variant="fade-up" 
+          delay="300"
+          className="relative md:col-span-2 min-h-[350px] rounded-3xl overflow-hidden bg-gradient-to-br from-[#010512] via-[#0b1a30]/20 to-[#020816] border border-slate-800/60 p-8 flex flex-col md:flex-row justify-between items-center gap-6 group hover:border-secondary/50 transition-all duration-300 shadow-sm"
+        >
+          <div className="flex-1 flex flex-col justify-between h-full z-10 space-y-4">
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center mb-4">
+                <HardDrive className="w-5 h-5" />
+              </div>
+              <h3 className="text-2xl md:text-3xl font-black text-white leading-tight font-h2">
+                Repuestos Certificados OEM
+              </h3>
+              <p className="text-xs md:text-sm text-slate-400 mt-2 max-w-md font-medium leading-relaxed">
+                Instalación y calibración de paneles de pantalla OLED, celdas de batería de alta densidad y repuestos oficiales importados directamente de fábrica.
+              </p>
+            </div>
+            <div>
+              <Link href="/catalogo">
+                <button className="bg-secondary text-on-secondary font-bold py-2.5 px-6 rounded-full inline-flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all text-[10px] tracking-wider uppercase cursor-pointer">
+                  Ver repuestos en stock <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </Link>
+            </div>
+          </div>
+          <div className="w-full md:w-1/2 flex items-center justify-center relative select-none pointer-events-none">
+            <img 
+              alt="Repuestos Certificados" 
+              src="/oem_screens_batteries.png"
+              className="max-h-[200px] md:max-h-[220px] object-contain transform group-hover:scale-[1.04] transition-transform duration-500"
+            />
+          </div>
+        </ScrollReveal>
+
+      </div>
     </section>
   );
 };
