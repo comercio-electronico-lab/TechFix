@@ -10,7 +10,15 @@ interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<IUser>;
-  register: (name: string, email: string, password: string) => Promise<IUser>;
+  register: (
+    name: string,
+    email: string,
+    password?: string,
+    teléfono?: string,
+    dirección?: string,
+    ciudad?: string,
+    documentId?: string
+  ) => Promise<IUser>;
   logout: () => void;
   updateProfile: (profileData: {
     nombre: string;
@@ -85,10 +93,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleRegister = async (name: string, email: string, password?: string): Promise<IUser> => {
+  const handleRegister = async (
+    name: string,
+    email: string,
+    password?: string,
+    teléfono?: string,
+    dirección?: string,
+    ciudad?: string,
+    documentId?: string
+  ): Promise<IUser> => {
     setError(null);
     try {
-      const { user: userData, token: userToken } = await register(name, email, password);
+      const { user: userData, token: userToken } = await register(
+        name,
+        email,
+        password,
+        teléfono,
+        dirección,
+        ciudad,
+        documentId
+      );
       setToken(userToken);
       setUser(userData);
       localStorage.setItem('techfix_token', userToken);

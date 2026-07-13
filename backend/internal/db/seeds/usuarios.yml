@@ -5,6 +5,10 @@ usuarios:
     rol: Admin
     estado: Activo
     joined_date: 2024-01-15T10:00:00Z
+    teléfono: "+51 900 111 222"
+    dirección: "Av. Carabaya 456"
+    ciudad: "Lima"
+    documentId: "00000001"
 
   - login: technician_juan
     nombre: Juan Pérez García
@@ -12,6 +16,10 @@ usuarios:
     rol: Tecnico
     estado: Activo
     joined_date: 2024-02-20T14:30:00Z
+    teléfono: "+51 988 777 666"
+    dirección: "Calle Las Flores 789"
+    ciudad: "Arequipa"
+    documentId: "12345678"
 
   - login: technician_maria
     nombre: María López Rodríguez
@@ -19,6 +27,10 @@ usuarios:
     rol: Tecnico
     estado: Activo
     joined_date: 2024-03-10T09:15:00Z
+    teléfono: "+51 955 444 333"
+    dirección: "Jr. Pizarro 123"
+    ciudad: "Trujillo"
+    documentId: "87654321"
 
   - login: customer_carlos
     nombre: Carlos González Martínez
@@ -26,6 +38,10 @@ usuarios:
     rol: Cliente
     estado: Activo
     joined_date: 2024-04-05T11:00:00Z
+    teléfono: "+51 911 222 333"
+    dirección: "Av. Larco 1024"
+    ciudad: "Lima"
+    documentId: "77777777"
 
   - login: customer_ana
     nombre: Ana Martínez Fernández
@@ -33,6 +49,10 @@ usuarios:
     rol: Cliente
     estado: Activo
     joined_date: 2024-05-12T16:45:00Z
+    teléfono: "+51 922 333 444"
+    dirección: "Av. La Marina 2048"
+    ciudad: "Callao"
+    documentId: "88888888"
 
   - login: customer_luis
     nombre: Luis Sánchez Díaz
@@ -40,3 +60,7 @@ usuarios:
     rol: Cliente
     estado: Activo
     joined_date: 2024-05-20T13:20:00Z
+    teléfono: "+51 933 444 555"
+    dirección: "Calle San Martín 309"
+    ciudad: "Cusco"
+    documentId: "99999999"

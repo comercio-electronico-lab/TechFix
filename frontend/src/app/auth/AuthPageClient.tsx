@@ -91,7 +91,7 @@ export default function AuthPageClient() {
       if (isLoginTab) {
         await login(email, password);
       } else {
-        await register(nombre, email, password);
+        await register(nombre, email, password, teléfono, dirección, ciudad, documentId);
       }
     } catch (e: any) {
       // Error is handled

@@ -35,10 +35,14 @@ type Claims struct {
 
 // RegisterInput represents register payload
 type RegisterInput struct {
-	Nombre   string `json:"nombre" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	Login    string `json:"login" binding:"required"`
-	Password string `json:"password" binding:"required,min=6"`
+	Nombre     string `json:"nombre" binding:"required"`
+	Email      string `json:"email" binding:"required,email"`
+	Login      string `json:"login" binding:"required"`
+	Password   string `json:"password" binding:"required,min=6"`
+	Telefono   string `json:"teléfono"`
+	Direccion  string `json:"dirección"`
+	Ciudad     string `json:"ciudad"`
+	DocumentId string `json:"documentId"`
 }
 
 // LoginInput represents login payload
@@ -87,6 +91,10 @@ func Register(c *gin.Context) {
 		Rol:          "Cliente", // Rol por defecto
 		Estado:       "Activo",
 		JoinedDate:   time.Now(),
+		Telefono:     input.Telefono,
+		Direccion:    input.Direccion,
+		Ciudad:       input.Ciudad,
+		DocumentId:   input.DocumentId,
 	}
 
 	if err := db.DB.Create(&usuario).Error; err != nil {

@@ -53,7 +53,15 @@ export async function authenticate(email: string, password?: string): Promise<IA
   return { user, token: data.token };
 }
 
-export async function register(nombre: string, email: string, password?: string): Promise<IAuthResponse> {
+export async function register(
+  nombre: string,
+  email: string,
+  password?: string,
+  teléfono?: string,
+  dirección?: string,
+  ciudad?: string,
+  documentId?: string
+): Promise<IAuthResponse> {
   const login = email.split('@')[0] || `user_${Date.now()}`;
   
   const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
@@ -61,7 +69,16 @@ export async function register(nombre: string, email: string, password?: string)
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ nombre, email, login, password }),
+    body: JSON.stringify({
+      nombre,
+      email,
+      login,
+      password,
+      teléfono: teléfono || '',
+      dirección: dirección || '',
+      ciudad: ciudad || '',
+      documentId: documentId || '',
+    }),
     cache: 'no-store',
   });
 
