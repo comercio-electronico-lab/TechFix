@@ -4,9 +4,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { ShoppingCart, Trash2, Plus, Minus } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 const CartDropdown = () => {
   const { items, totalItems, subtotal, removeItem, updateQuantity, lastAddedItem } = useCart();
+  const { isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -143,7 +145,7 @@ const CartDropdown = () => {
                   Ver carrito
                 </Link>
                 <Link
-                  href="/checkout"
+                  href={isAuthenticated ? "/checkout/envio" : "/auth?redirect=/checkout/envio"}
                   onClick={() => setIsOpen(false)}
                   className="w-full block text-center bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-container transition-all"
                 >

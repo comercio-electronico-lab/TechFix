@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import DetailedOrderSummary from '@/components/checkout/DetailedOrderSummary';
 import DeliveryDetailsCard from '@/components/checkout/DeliveryDetailsCard';
 import NextStepsCard from '@/components/checkout/NextStepsCard';
 import WarrantyCard from '@/components/checkout/WarrantyCard';
 import { useAuth } from '@/context/AuthContext';
 import { OrderData } from '@/interfaces/domain';
+import { getOrderByIdAction } from '@/actions';
 
 interface Props {
   defaultOrder: OrderData;
@@ -15,7 +16,8 @@ interface Props {
 
 export default function CheckoutConfirmacionClient({ defaultOrder }: Props) {
   const router = useRouter();
-  const { isAuthenticated, loading } = useAuth();
+  const searchParams = useSearchParams();
+  const { isAuthenticated, loading, token } = useAuth();
   const [order, setOrder] = useState<OrderData>(defaultOrder);
 
   useEffect(() => {
@@ -35,6 +37,34 @@ export default function CheckoutConfirmacionClient({ defaultOrder }: Props) {
       }
     }
   }, []);
+
+  // Si el pedido quedó persistido en el backend, usamos esa versión como fuente de verdad.
+  useEffect(() => {
+    const orderId = searchParams?.get('orderId');
+    if (!orderId || !token) return;
+
+    getOrderByIdAction(token, orderId)
+      .then((pedido) => {
+        setOrder((prev) => ({
+          ...prev,
+          orderNumber: pedido.id,
+          subtotal: pedido.subtotal,
+          shipping: pedido.envio,
+          tax: pedido.impuestos,
+          address: pedido.direccion_envio || prev.address,
+          clientName: pedido.nombre_envio || prev.clientName,
+          items: (pedido.items || []).map((item: any) => ({
+            id: item.producto_id,
+            name: item.producto?.nombre || 'Producto',
+            description: item.producto?.descripcion,
+            quantity: item.cantidad,
+            price: item.precio_unitario,
+            image: item.producto?.imagen_url || '',
+          })),
+        }));
+      })
+      .catch((err) => console.error('No se pudo cargar el pedido desde el backend:', err));
+  }, [searchParams, token]);
 
   if (loading) {
     return (
