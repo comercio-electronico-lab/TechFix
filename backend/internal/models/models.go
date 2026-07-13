@@ -284,6 +284,50 @@ func (r *RepairOrderProducto) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+type Pedido struct {
+	Base
+	UsuarioID      uuid.UUID        `gorm:"type:uuid;not null" json:"usuario_id" yaml:"usuario_id"`
+	Usuario        Usuario          `gorm:"foreignKey:UsuarioID" json:"usuario,omitempty"`
+	PaymentID      *uuid.UUID       `gorm:"type:uuid" json:"payment_id" yaml:"payment_id"`
+	Payment        *Payment         `gorm:"foreignKey:PaymentID" json:"payment,omitempty"`
+	Estado         string           `gorm:"size:50;default:'pagado'" json:"estado" yaml:"estado"`
+	Subtotal       float64          `json:"subtotal" yaml:"subtotal"`
+	Envio          float64          `json:"envio" yaml:"envio"`
+	Impuestos      float64          `json:"impuestos" yaml:"impuestos"`
+	Total          float64          `json:"total" yaml:"total"`
+	NombreEnvio    string           `gorm:"size:255" json:"nombre_envio" yaml:"nombre_envio"`
+	DireccionEnvio string           `gorm:"type:text" json:"direccion_envio" yaml:"direccion_envio"`
+	CiudadEnvio    string           `gorm:"size:100" json:"ciudad_envio" yaml:"ciudad_envio"`
+	TelefonoEnvio  string           `gorm:"size:50" json:"telefono_envio" yaml:"telefono_envio"`
+	Items          []PedidoProducto `gorm:"foreignKey:PedidoID" json:"items,omitempty"`
+}
+
+func (Pedido) TableName() string {
+	return "pedidos"
+}
+
+type PedidoProducto struct {
+	ID             uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	PedidoID       uuid.UUID `gorm:"type:uuid;not null;index" json:"pedido_id"`
+	ProductoID     uuid.UUID `gorm:"type:uuid;not null;index" json:"producto_id"`
+	Producto       Producto  `gorm:"foreignKey:ProductoID" json:"producto,omitempty"`
+	Cantidad       int       `json:"cantidad"`
+	PrecioUnitario float64   `json:"precio_unitario"`
+	Subtotal       float64   `json:"subtotal"`
+	CreatedAt      time.Time `json:"created_at"`
+}
+
+func (PedidoProducto) TableName() string {
+	return "pedido_producto"
+}
+
+func (p *PedidoProducto) BeforeCreate(tx *gorm.DB) error {
+	if p.ID == uuid.Nil {
+		p.ID = uuid.New()
+	}
+	return nil
+}
+
 type Payment struct {
 	Base
 	UserID              uuid.UUID `gorm:"type:uuid;not null" json:"user_id" yaml:"user_id"`

@@ -205,6 +205,15 @@ func startServer() {
 			payments.GET("", payment.GetPayments)
 		}
 
+		// Rutas de Pedidos de catálogo (protegidas por AuthMiddleware)
+		orders := api.Group("/orders")
+		orders.Use(auth.AuthMiddleware())
+		{
+			orders.POST("", handlers.CreateOrder)
+			orders.GET("/me", handlers.GetUserOrders)
+			orders.GET("/:id", handlers.GetOrderByID)
+		}
+
 		// Información pública de Mercado Pago para el frontend (sin autenticación)
 		api.GET("/payments/info", payment.GetTestToken)
 
