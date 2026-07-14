@@ -5,10 +5,12 @@ Plataforma B2C completa para venta de productos tecnológicos y gestión integra
 ## 🏗️ Tech Stack General
 
 ### Backend
-- **Lenguaje**: Go 1.21+
+- **Lenguaje**: Go 1.25
 - **Framework**: Gin Gonic
 - **ORM**: GORM
 - **Base de Datos**: PostgreSQL
+- **Auth**: JWT + bcrypt
+- **Pagos**: Mercado Pago SDK
 - **IDs**: UUID v4
 
 ### Frontend
@@ -54,13 +56,37 @@ laboratorio-1/
 
 ## 🚀 Quick Start
 
-### Requisitos Previos
-- **Go** 1.21+ (backend)
-- **Bun** 1.0+ (frontend) - [Instalar](https://bun.sh/)
+### Opción A: Docker (recomendado)
+
+Con [Docker Desktop](https://www.docker.com/products/docker-desktop/) corriendo:
+
+```bash
+docker compose up -d
+```
+
+Levanta Postgres, corre migraciones y siembra datos base automáticamente.
+- Frontend: http://localhost:3000
+- Backend: http://localhost:8080
+
+Variables opcionales (para pagos reales y diagnóstico por IA real, en vez de modo simulado):
+
+```bash
+JWT_SECRET=...
+API_KEY_IA=...                    # clave de Groq
+MERCADO_PAGO_PUBLIC_KEY=...
+MERCADO_PAGO_ACCESS_TOKEN=...
+MERCADO_PAGO_WEBHOOK_SECRET=...
+```
+
+### Opción B: Local
+
+#### Requisitos Previos
+- **Go** 1.25+ (backend)
+- **Bun** 1.2+ (frontend) - [Instalar](https://bun.sh/)
 - **PostgreSQL** 12+ (base de datos)
 - **Make** (opcional, para backend)
 
-### 1. Backend
+#### 1. Backend
 
 ```bash
 cd backend
@@ -81,7 +107,7 @@ make dev
 
 **Ver más**: [backend/README.md](./backend/README.md)
 
-### 2. Frontend
+#### 2. Frontend
 
 ```bash
 cd frontend
@@ -95,8 +121,6 @@ cp .env.example .env.local
 # Ejecutar servidor dev (puerto 3000)
 bun run dev
 ```
-
-**Ver más**: [frontend/README.md](./frontend/README.md)
 
 ---
 
@@ -239,11 +263,18 @@ bun install  # Genera bun.lockb
 
 ---
 
+## 🧪 CI y Tests
+
+En cada push/PR a `main` corre [`.github/workflows/ci.yml`](.github/workflows/ci.yml): build + vet + tests del backend, y typecheck + build del frontend.
+
+```bash
+cd backend && go test ./... -v
+```
+
 ## 📚 Documentación Relacionada
 
 - [Backend README](./backend/README.md) - Guía completa del servidor Go/Gin
-- [Frontend README](./frontend/README.md) - Guía completa de Next.js/Bun
-- [Figma Design](https://figma.com) - Prototipos UI/UX
+- [docker-compose.yml](./docker-compose.yml) - Levantar todo el stack con un comando
 
 ---
 
@@ -263,5 +294,4 @@ bun install  # Genera bun.lockb
 
 ---
 
-**Última actualización**: 2026-05-26  
-**Versión**: 0.1.0 (Early Development)
+**Última actualización**: 2026-07-13

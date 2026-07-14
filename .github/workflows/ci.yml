@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend (Go)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+          cache-dependency-path: backend/go.sum
+
+      - name: Descargar dependencias
+        run: go mod download
+
+      - name: Compilar
+        run: go build ./...
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Tests
+        run: go test ./... -v
+
+  frontend:
+    name: Frontend (Next.js)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.2"
+
+      - name: Instalar dependencias
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+        continue-on-error: true # el repo tiene deuda de lint preexistente; no bloqueamos CI por ahora
+
+      - name: Type-check
+        run: bunx tsc --noEmit
+
+      - name: Build
+        run: bun run build
+        env:
+          BACKEND_URL: http://localhost:8080

@@ -7,7 +7,10 @@ Sistema modular de reparación de equipos electrónicos con diagnóstico guiado,
 - **Framework**: [Gin Gonic](https://gin-gonic.com/) - Web framework minimalista
 - **ORM**: [GORM](https://gorm.io/) - Object-Relational Mapping
 - **Database**: PostgreSQL - Base de datos relacional
-- **Language**: Go 1.21+
+- **Auth**: JWT (golang-jwt/jwt) + bcrypt
+- **Pagos**: Mercado Pago SDK (Go)
+- **IA de diagnóstico**: motor propio (`internal/diagnostic`) contra Groq (API compatible con OpenAI)
+- **Language**: Go 1.25
 - **ID Generation**: UUID v4 autogenerados
 
 ## 📁 Estructura del Proyecto
@@ -23,22 +26,37 @@ backend/
 │   │   └── seeds/       # Archivos YAML con seed
 │   ├── models/          # Modelos de datos y relaciones
 │   │   └── models.go    # Structs con GORM tags
-│   ├── handlers/        # Controladores HTTP (próximamente)
-│   └── repositories/    # Consultas a BD (próximamente)
+│   ├── handlers/        # Controladores HTTP (auth, orders, repairs, products, suppliers...)
+│   ├── auth/            # Middlewares de autenticación y roles
+│   ├── diagnostic/      # Motor de diagnóstico PIG (IA)
+│   └── payment/         # Integración Mercado Pago
 ├── .env                 # Variables de entorno local
 ├── .env.example         # Template de variables
 ├── go.mod & go.sum      # Dependencias Go
+├── Dockerfile           # Build de producción
 └── Makefile             # Comandos de utilidad
 ```
 
 ## 🚀 Quick Start
 
-### 1. Requisitos
-- Go 1.21+
+### Opción A: Docker (recomendado)
+
+Desde la raíz del repo, con Docker Desktop corriendo:
+
+```bash
+docker compose up -d
+```
+
+Esto levanta Postgres, corre migraciones + seeds automáticamente, y expone el backend en `http://localhost:8080` y el frontend en `http://localhost:3000`.
+
+### Opción B: Local
+
+#### 1. Requisitos
+- Go 1.25+
 - PostgreSQL 12+
 - Make (opcional pero recomendado)
 
-### 2. Configuración
+#### 2. Configuración
 
 ```bash
 # Clonar repo
@@ -51,14 +69,14 @@ cp .env.example .env
 # DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, etc.
 ```
 
-### 3. Instalar dependencias
+#### 3. Instalar dependencias
 
 ```bash
 go mod download
 go mod tidy
 ```
 
-### 4. Base de datos
+#### 4. Base de datos
 
 ```bash
 # Crear tablas y relaciones
@@ -71,7 +89,7 @@ make seed
 make migrate-down
 ```
 
-### 5. Ejecutar servidor
+#### 5. Ejecutar servidor
 
 ```bash
 # Modo desarrollo
@@ -103,9 +121,17 @@ El servidor estará en `http://localhost:8080`
 - `repair_order_producto` - Productos usados en cada reparación
 - `techfix_repair_tracking` - Historial inmutable de estados
 
-#### Transacciones
-- `transacciones` - Pagos realizados
-- `transaccion_producto` - Desglose de productos cobrados
+#### Transacciones y pagos
+- `transacciones` - Pagos de reparaciones (legado, ligado 1:1 a una reparación)
+- `transaccion_producto` - Desglose de productos cobrados en una reparación
+- `techfix_payments` - Pagos vía Mercado Pago (reparaciones o compras de catálogo)
+- `pedidos` - Órdenes de compra de catálogo (checkout e-commerce)
+- `pedido_producto` - Line items de cada pedido de catálogo
+
+#### Diagnóstico por IA
+- `diagnostic_sessions` - Sesiones de diagnóstico conversacional
+- `diagnostic_turns` - Turnos de pregunta/respuesta de cada sesión
+- `ai_recommended_products` - Productos sugeridos por la IA en una sesión
 
 #### Otros
 - `techfix_warranties` - Garantías digitales post-reparación
@@ -201,16 +227,22 @@ ID, UserID, DeviceID, TechnicianID, Status, DiagnosisFinal, FinalPrice, Appointm
 ID, Nombre, SKU, PrecioVenta, PrecioCosto, StockActual, Categoria, EstadoComercial
 ```
 
+## 🧪 Tests
+
+```bash
+go test ./... -v
+```
+
+Cobertura actual: registro/login/credenciales (`internal/handlers/auth_test.go`) y pedidos de catálogo — descuento de stock, rechazo por stock insuficiente, aislamiento por usuario (`internal/handlers/orders_test.go`). Usa SQLite en memoria vía `internal/testutil`, no requiere Postgres.
+
 ## 🎯 Próximos Pasos
 
-- [ ] Implementar handlers para CRUD de órdenes de reparación
-- [ ] Crear endpoints del árbol PIG
-- [ ] Sistema de autenticación (JWT)
-- [ ] Validación de datos
-- [ ] Testes unitarios
+- [ ] Configurar `API_KEY_IA` (Groq) en producción para el diagnóstico por IA
+- [ ] Probar el flujo de pagos con credenciales reales de Mercado Pago (sandbox)
+- [ ] Ampliar cobertura de tests a `repairs.go`, `payment/handlers.go` y `diagnostic/service.go`
 - [ ] API documentation (Swagger)
 - [ ] Logger estructurado
-- [ ] Manejo de errores robusto
+- [ ] Manejo de errores robusto (respuestas de error consistentes)
 
 ## 🤝 Desarrollo
 
@@ -252,5 +284,4 @@ ID, Nombre, SKU, PrecioVenta, PrecioCosto, StockActual, Categoria, EstadoComerci
 
 ---
 
-**Última actualización**: 2026-05-26  
-**Versión**: 0.1.0 (Early Development)
+**Última actualización**: 2026-07-13
