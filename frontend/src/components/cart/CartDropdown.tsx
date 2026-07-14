@@ -94,7 +94,7 @@ const CartDropdown = () => {
                         {item.name}
                       </h4>
                       <p className="text-xs text-on-surface-variant mt-1">
-                        ${item.price.toFixed(2)}
+                        ${(item.price || 0).toFixed(2)}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         <button

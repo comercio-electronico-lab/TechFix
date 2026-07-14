@@ -107,7 +107,7 @@ export default function SidebarFactura() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-[11px] font-bold text-on-surface dark:text-slate-250 truncate group-hover:text-primary dark:group-hover:text-sky-400 transition-colors">{item.name}</h4>
-                    <p className="text-[10px] text-secondary dark:text-sky-455 font-black mt-0.5 font-mono">${item.price.toFixed(2)} c/u</p>
+                    <p className="text-[10px] text-secondary dark:text-sky-455 font-black mt-0.5 font-mono">${(item.price || 0).toFixed(2)} c/u</p>
                   </div>
                   {/* Quantity selector */}
                   <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-outline-variant/30 dark:border-outline/20 px-2 py-1 rounded-lg">

@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button';
 interface CartSummaryProps {
   itemsCount: number;
   subtotal: number;
+  shipping: number;
   tax: number;
   total: number;
   disableCheckout: boolean;
@@ -14,6 +15,7 @@ interface CartSummaryProps {
 const CartSummary: React.FC<CartSummaryProps> = ({
   itemsCount,
   subtotal,
+  shipping,
   tax,
   total,
   disableCheckout
@@ -38,7 +40,11 @@ const CartSummary: React.FC<CartSummaryProps> = ({
         </div>
         <div className="flex justify-between text-on-surface-variant">
           <span>Envío</span>
-          <span className="text-secondary font-bold">GRATIS</span>
+          {shipping === 0 ? (
+            <span className="text-secondary font-bold">GRATIS</span>
+          ) : (
+            <span>${shipping.toFixed(2)}</span>
+          )}
         </div>
         <div className="flex justify-between text-on-surface-variant">
           <span>Impuestos estimados</span>

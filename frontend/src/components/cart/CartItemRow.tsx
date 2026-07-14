@@ -34,7 +34,7 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
             </div>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold text-primary">${item.price.toFixed(2)}</p>
+            <p className="text-2xl font-bold text-primary">${(item.price || 0).toFixed(2)}</p>
           </div>
         </div>
         <div className="flex justify-between items-center mt-6">
