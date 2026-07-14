@@ -52,14 +52,22 @@ export default function RepairPaymentModal({
   useEffect(() => {
     if (!isRealMP || !scriptLoaded || !token || !isOpen) return;
 
+    // React Strict Mode ejecuta este efecto dos veces en desarrollo; sin esta
+    // guarda, la segunda llamada a bricksBuilder.create() choca con el iframe
+    // que la primera dejó a medio montar y el SDK de MP falla con un error
+    // genérico "Bricks component initialization failed".
+    let cancelled = false;
     let brickController: any = null;
 
     const initBrick = async () => {
+      const container = document.getElementById('repairCardPaymentBrick_container');
+      if (container) container.innerHTML = '';
+
       try {
         const mp = new (window as any).MercadoPago(MP_PUBLIC_KEY, { locale: 'es-PE' });
         const bricksBuilder = mp.bricks();
-        
-        brickController = await bricksBuilder.create('cardPayment', 'repairCardPaymentBrick_container', {
+
+        const controller = await bricksBuilder.create('cardPayment', 'repairCardPaymentBrick_container', {
           initialization: {
             amount: amount,
             payer: {
@@ -99,6 +107,12 @@ export default function RepairPaymentModal({
             },
           },
         });
+
+        if (cancelled) {
+          controller.unmount();
+          return;
+        }
+        brickController = controller;
       } catch (err) {
         console.error("Error initializing MP Brick for repairs:", err);
       }
@@ -107,6 +121,7 @@ export default function RepairPaymentModal({
     initBrick();
 
     return () => {
+      cancelled = true;
       if (brickController && typeof brickController.unmount === 'function') {
         brickController.unmount();
       }
