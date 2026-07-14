@@ -1,21 +1,49 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ShieldCheck, Copy } from 'lucide-react';
+import { ShieldCheck, Copy, AlertTriangle } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { claimWarrantyAction } from '@/actions';
+import Modal from '@/components/ui/Modal';
 
 interface WarrantyCertificateCardProps {
+  id: string;
   token: string;
   startDate: string;
   endDate: string;
 }
 
-export default function WarrantyCertificateCard({ token, startDate, endDate }: WarrantyCertificateCardProps) {
+export default function WarrantyCertificateCard({ id, token: warrantyToken, startDate, endDate }: WarrantyCertificateCardProps) {
+  const { token: userToken } = useAuth();
   const [copiedToken, setCopiedToken] = useState(false);
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
+  const [claimNotes, setClaimNotes] = useState('');
+  const [claiming, setClaiming] = useState(false);
 
   const handleCopyToken = () => {
-    navigator.clipboard.writeText(token);
+    navigator.clipboard.writeText(warrantyToken);
     setCopiedToken(true);
     setTimeout(() => setCopiedToken(false), 2000);
+  };
+
+  const handleClaimWarranty = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userToken) return;
+    if (!claimNotes.trim()) {
+      alert('Por favor describe la falla o problema.');
+      return;
+    }
+    setClaiming(true);
+    try {
+      await claimWarrantyAction(userToken, id, claimNotes);
+      alert('Reclamación enviada con éxito. Se ha programado una cita de evaluación técnica sin costo en nuestro taller.');
+      setIsClaimModalOpen(false);
+      setClaimNotes('');
+    } catch (err: any) {
+      alert(err.message || 'Error al enviar reclamación de garantía.');
+    } finally {
+      setClaiming(false);
+    }
   };
 
   return (
@@ -57,7 +85,7 @@ export default function WarrantyCertificateCard({ token, startDate, endDate }: W
             className="bg-slate-50 dark:bg-slate-950 border border-outline-variant/50 dark:border-slate-800 rounded-lg p-3 flex justify-between items-center group cursor-pointer hover:border-primary dark:hover:border-sky-500 transition-colors"
           >
             <span className="font-mono text-xs tracking-wider text-on-surface dark:text-slate-300 font-bold">
-              {token}
+              {warrantyToken}
             </span>
             {copiedToken ? (
               <span className="text-[10px] font-bold text-emerald-650 dark:text-emerald-400 uppercase">
@@ -72,18 +100,71 @@ export default function WarrantyCertificateCard({ token, startDate, endDate }: W
         <div className="flex items-center justify-between pt-4 border-t border-outline-variant/10 dark:border-slate-800">
           <div>
             <span className="text-[10px] font-bold text-outline dark:text-slate-500 uppercase tracking-wide block mb-0.5">Fecha de Inicio</span>
-            <span className="text-xs font-semibold text-on-surface dark:text-slate-350">{startDate}</span>
+            <span className="text-xs font-semibold text-on-surface dark:text-slate-350">{new Date(startDate).toLocaleDateString('es-ES')}</span>
           </div>
           <div className="w-px h-8 bg-outline-variant/20 dark:bg-slate-800 mx-4"></div>
-          <div className="text-right">
+          <div>
             <span className="text-[10px] font-bold text-outline dark:text-slate-500 uppercase tracking-wide block mb-0.5">Fecha de Venc.</span>
-            <span className="text-xs font-semibold text-on-surface dark:text-slate-350">{endDate}</span>
+            <span className="text-xs font-semibold text-on-surface dark:text-slate-350">{new Date(endDate).toLocaleDateString('es-ES')}</span>
           </div>
+        </div>
+
+        {/* Botón de Reclamación de Garantía */}
+        <div className="pt-4 border-t border-outline-variant/10 dark:border-slate-800">
+          <button
+            onClick={() => setIsClaimModalOpen(true)}
+            className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-950 dark:hover:bg-slate-800 text-on-surface dark:text-slate-200 font-bold text-xs uppercase tracking-wider py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer border border-outline-variant/20 dark:border-slate-800/80 shadow-sm"
+          >
+            <AlertTriangle className="w-4 h-4 text-amber-500" />
+            Reclamar Cobertura
+          </button>
         </div>
       </div>
       
       {/* Línea estética de seguridad */}
       <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/30 via-primary dark:via-sky-600 to-primary/30"></div>
+
+      {/* Modal de Reclamación */}
+      <Modal isOpen={isClaimModalOpen} onClose={() => setIsClaimModalOpen(false)} title="Reclamar Cobertura de Garantía">
+        <form onSubmit={handleClaimWarranty} className="p-6 space-y-4">
+          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 p-4 rounded-xl flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <div className="text-xs text-amber-900 dark:text-amber-200">
+              <span className="font-bold">Información Importante:</span> La cobertura técnica de TechCare cubre fallas en la mano de obra o defectos inherentes en las piezas instaladas. Al enviar la solicitud, se generará una nueva orden de revisión sin costo en nuestro taller técnico.
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Descripción del problema *</label>
+            <textarea
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-outline-variant/60 dark:border-slate-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-secondary text-sm text-on-surface dark:text-slate-200"
+              rows={4}
+              placeholder="Ej: El repuesto de batería instalado presenta una descarga muy acelerada o el táctil de la pantalla no responde..."
+              value={claimNotes}
+              onChange={(e) => setClaimNotes(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-outline-variant/20 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setIsClaimModalOpen(false)}
+              className="bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800 border border-outline-variant/65 text-on-surface-variant dark:text-slate-350 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-xl transition-colors cursor-pointer"
+              disabled={claiming}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="bg-primary dark:bg-sky-500 hover:bg-primary/95 dark:hover:bg-sky-600 text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              disabled={claiming}
+            >
+              {claiming ? 'Enviando...' : 'Enviar Solicitud'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

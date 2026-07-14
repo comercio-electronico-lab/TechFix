@@ -58,6 +58,8 @@ func Migrate() {
 		&models.RepairTracking{},
 		&models.Warranty{},
 		&models.Payment{},
+		&models.Pedido{},
+		&models.PedidoProducto{},
 		&models.DiagnosticSession{},
 		&models.DiagnosticTurn{},
 		&models.AIRecommendedProduct{},
@@ -74,9 +76,14 @@ func MigrateDown() {
 	}
 	fmt.Println("Revirtiendo migraciones...")
 	err := DB.Migrator().DropTable(
+		&models.PigNodeProducto{},
+		&models.RepairOrderProducto{},
+		&models.TransaccionProducto{},
 		&models.AIRecommendedProduct{},
 		&models.DiagnosticTurn{},
 		&models.DiagnosticSession{},
+		&models.PedidoProducto{},
+		&models.Pedido{},
 		&models.Payment{},
 		&models.Warranty{},
 		&models.RepairTracking{},

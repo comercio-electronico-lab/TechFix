@@ -11,8 +11,12 @@ import CartSummary from '@/components/cart/CartSummary';
 export default function CartContent() {
   const { items, updateQuantity, removeItem, subtotal } = useCart();
 
-  const tax = subtotal * 0.08;
-  const total = subtotal + tax;
+  // Misma fórmula que ShippingForm/CreditCardForm (18% IGV/IVA, envío $10
+  // salvo compras > $500 o carrito vacío) para que el total coincida con
+  // lo que se cobra realmente en el checkout.
+  const shipping = subtotal > 500 || subtotal === 0 ? 0 : 10;
+  const tax = Math.round(subtotal * 0.18 * 100) / 100;
+  const total = subtotal + shipping + tax;
   const totalQuantity = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -48,6 +52,7 @@ export default function CartContent() {
         <CartSummary
           itemsCount={totalQuantity}
           subtotal={subtotal}
+          shipping={shipping}
           tax={tax}
           total={total}
           disableCheckout={items.length === 0}

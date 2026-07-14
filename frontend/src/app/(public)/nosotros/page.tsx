@@ -20,6 +20,7 @@ import PillarCard from '@/components/cards/PillarCard';
 import TeamMemberCard from '@/components/cards/TeamMemberCard';
 import Timeline from '@/components/about/Timeline';
 import Button from '@/components/ui/Button';
+import { ScrollReveal } from '@/components/ui';
 
 export default function SobreNosotros() {
   const stats = [
@@ -106,7 +107,7 @@ export default function SobreNosotros() {
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-sky-500/10 rounded-full blur-[100px] pointer-events-none" />
         
         <div className="max-w-container-max w-full mx-auto px-gutter relative z-10 flex flex-col items-center text-center space-y-6">
-          <span className="inline-flex items-center gap-1.5 bg-sky-500/10 border border-sky-500/20 text-sky-400 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 bg-sky-500/10 border border-sky-500/20 text-sky-400 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider animate-pulse">
             <Target className="w-3.5 h-3.5" /> Innovación y Precisión en Hardware
           </span>
           <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white max-w-4xl leading-tight">
@@ -121,113 +122,139 @@ export default function SobreNosotros() {
       {/* Stats Section */}
       <section className="max-w-container-max mx-auto px-gutter -mt-20 relative z-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {stats.map((stat, idx) => (
-            <StatsCard 
-              key={idx}
-              label={stat.label}
-              value={stat.value}
-              icon={stat.icon}
-              color={stat.color}
-            />
-          ))}
+          {stats.map((stat, idx) => {
+            const delays = ['0', '100', '200', '300'] as const;
+            const delay = delays[idx % delays.length];
+            return (
+              <ScrollReveal key={idx} variant="fade-up" delay={delay}>
+                <StatsCard 
+                  label={stat.label}
+                  value={stat.value}
+                  icon={stat.icon}
+                  color={stat.color}
+                />
+              </ScrollReveal>
+            );
+          })}
         </div>
       </section>
 
       {/* Company Philosophy & Pillars */}
       <section className="max-w-container-max mx-auto px-gutter space-y-12">
-        <div className="text-center space-y-4 max-w-2xl mx-auto">
-          <h2 className="text-3xl font-black text-on-surface dark:text-white">
-            Nuestros Pilares Operativos
-          </h2>
-          <p className="text-sm md:text-base text-on-surface-variant dark:text-slate-400">
-            Fundamos TechFix sobre la base de la excelencia técnica y la honestidad al cliente. Estos valores guían cada una de nuestras reparaciones.
-          </p>
-        </div>
+        <ScrollReveal variant="fade-up">
+          <div className="text-center space-y-4 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-black text-on-surface dark:text-white">
+              Nuestros Pilares Operativos
+            </h2>
+            <p className="text-sm md:text-base text-on-surface-variant dark:text-slate-400">
+              Fundamos TechFix sobre la base de la excelencia técnica y la honestidad al cliente. Estos valores guían cada una de nuestras reparaciones.
+            </p>
+          </div>
+        </ScrollReveal>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {pillars.map((pillar, index) => (
-            <PillarCard 
-              key={index}
-              title={pillar.title}
-              description={pillar.description}
-              icon={pillar.icon}
-              iconColor={pillar.iconColor}
-            />
-          ))}
+          {pillars.map((pillar, index) => {
+            const delays = ['0', '100', '200'] as const;
+            const delay = delays[index % delays.length];
+            return (
+              <ScrollReveal key={index} variant="fade-up" delay={delay}>
+                <PillarCard 
+                  title={pillar.title}
+                  description={pillar.description}
+                  icon={pillar.icon}
+                  iconColor={pillar.iconColor}
+                />
+              </ScrollReveal>
+            );
+          })}
         </div>
       </section>
 
       {/* Timeline Section */}
       <section className="bg-slate-50 dark:bg-slate-950/40 py-16 border-y border-outline-variant/20">
         <div className="max-w-container-max mx-auto px-gutter space-y-12">
-          <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <h2 className="text-3xl font-black text-on-surface dark:text-white">
-              Nuestra Trayectoria
-            </h2>
-            <p className="text-sm md:text-base text-on-surface-variant dark:text-slate-400">
-              Cómo pasamos de diagnosticar hardware de forma local a automatizar flujos técnicos de forma digital.
-            </p>
-          </div>
+          <ScrollReveal variant="fade-up">
+            <div className="text-center space-y-4 max-w-2xl mx-auto">
+              <h2 className="text-3xl font-black text-on-surface dark:text-white">
+                Nuestra Trayectoria
+              </h2>
+              <p className="text-sm md:text-base text-on-surface-variant dark:text-slate-400">
+                Cómo pasamos de diagnosticar hardware de forma local a automatizar flujos técnicos de forma digital.
+              </p>
+            </div>
+          </ScrollReveal>
 
-          <Timeline items={milestones} />
+          <ScrollReveal variant="fade-in" duration="1000">
+            <Timeline items={milestones} />
+          </ScrollReveal>
         </div>
       </section>
 
       {/* Team Section */}
       <section className="max-w-container-max mx-auto px-gutter space-y-12">
-        <div className="text-center space-y-4 max-w-2xl mx-auto">
-          <h2 className="text-3xl font-black text-on-surface dark:text-white">
-            El Equipo Detrás del Servicio
-          </h2>
-          <p className="text-sm md:text-base text-on-surface-variant dark:text-slate-400">
-            Contamos con ingenieros certificados y técnicos apasionados listos para resolver cualquier desafío de hardware.
-          </p>
-        </div>
+        <ScrollReveal variant="fade-up">
+          <div className="text-center space-y-4 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-black text-on-surface dark:text-white">
+              El Equipo Detrás del Servicio
+            </h2>
+            <p className="text-sm md:text-base text-on-surface-variant dark:text-slate-400">
+              Contamos con ingenieros certificados y técnicos apasionados listos para resolver cualquier desafío de hardware.
+            </p>
+          </div>
+        </ScrollReveal>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {team.map((member, index) => (
-            <TeamMemberCard 
-              key={index}
-              name={member.name}
-              role={member.role}
-              initials={member.initials}
-              bgGradient={member.bgGradient}
-              bio={member.bio}
-            />
-          ))}
+          {team.map((member, index) => {
+            const delays = ['0', '100', '200'] as const;
+            const delay = delays[index % delays.length];
+            return (
+              <ScrollReveal key={index} variant="fade-up" delay={delay}>
+                <TeamMemberCard 
+                  name={member.name}
+                  role={member.role}
+                  initials={member.initials}
+                  bgGradient={member.bgGradient}
+                  bio={member.bio}
+                />
+              </ScrollReveal>
+            );
+          })}
         </div>
       </section>
 
       {/* Call to Action Section */}
       <section className="max-w-container-max mx-auto px-gutter">
-        <div className="relative bg-slate-950 rounded-3xl overflow-hidden p-8 md:p-12 text-white border border-slate-800 flex flex-col lg:flex-row justify-between items-center gap-8">
-          {/* Background Glow */}
-          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-sky-500/10 rounded-full blur-[100px] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-secondary/10 rounded-full blur-[80px] pointer-events-none" />
+        <ScrollReveal variant="scale-up" duration="1000">
+          <div className="relative bg-slate-950 rounded-3xl overflow-hidden p-8 md:p-12 text-white border border-slate-800 flex flex-col lg:flex-row justify-between items-center gap-8">
+            {/* Background Glow */}
+            <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-sky-500/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-secondary/10 rounded-full blur-[80px] pointer-events-none" />
 
-          <div className="space-y-4 max-w-2xl relative z-10 text-center lg:text-left">
-            <h2 className="text-2xl md:text-3xl font-black text-white">
-              ¿Tu equipo electrónico necesita ayuda profesional?
-            </h2>
-            <p className="text-xs md:text-sm text-slate-350 leading-relaxed">
-              Usa nuestro asistente interactivo para diagnosticar tu dispositivo gratis en línea, o visita nuestro catálogo para encontrar el componente exacto que necesitas.
-            </p>
-          </div>
+            <div className="space-y-4 max-w-2xl relative z-10 text-center lg:text-left">
+              <h2 className="text-2xl md:text-3xl font-black text-white">
+                ¿Tu equipo electrónico necesita ayuda profesional?
+              </h2>
+              <p className="text-xs md:text-sm text-slate-350 leading-relaxed">
+                Usa nuestro asistente interactivo para diagnosticar tu dispositivo gratis en línea, o visita nuestro catálogo para encontrar el componente exacto que necesitas.
+              </p>
+            </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 relative z-10 w-full sm:w-auto">
-            <Link href="/reparaciones" className="w-full sm:w-auto">
-              <Button variant="secondary" icon={Wrench} className="w-full uppercase tracking-wider text-xs font-black py-3.5 bg-sky-600 hover:bg-sky-500 border-none text-white">
-                Diagnosticar Dispositivo
-              </Button>
-            </Link>
-            <Link href="/catalogo" className="w-full sm:w-auto">
-              <Button variant="outline" icon={ArrowRight} className="w-full uppercase tracking-wider text-xs font-black py-3.5 bg-slate-800 hover:bg-slate-700 border-slate-700 text-white">
-                Ver Catálogo
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 relative z-10 w-full sm:w-auto">
+              <Link href="/reparaciones" className="w-full sm:w-auto">
+                <Button variant="secondary" icon={Wrench} className="w-full uppercase tracking-wider text-xs font-black py-3.5 bg-sky-600 hover:bg-sky-500 border-none text-white">
+                  Diagnosticar Dispositivo
+                </Button>
+              </Link>
+              <Link href="/catalogo" className="w-full sm:w-auto">
+                <Button variant="outline" icon={ArrowRight} className="w-full uppercase tracking-wider text-xs font-black py-3.5 bg-slate-800 hover:bg-slate-700 border-slate-700 text-white">
+                  Ver Catálogo
+                </Button>
+              </Link>
+            </div>
           </div>
-        </div>
+        </ScrollReveal>
       </section>
     </div>
   );
 }
+

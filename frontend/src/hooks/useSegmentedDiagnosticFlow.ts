@@ -80,7 +80,7 @@ export function useSegmentedDiagnosticFlow(): UseSegmentedFlowReturn {
   const [diagnosticMode, setDiagnosticMode] = useState<'pig' | 'ia' | null>(null);
 
   // Contact info
-  const [clientName, setClientName] = useState(user?.name || '');
+  const [clientName, setClientName] = useState(user?.nombre || '');
   const [clientEmail, setClientEmail] = useState(user?.email || '');
   const [clientPhone, setClientPhone] = useState('');
 

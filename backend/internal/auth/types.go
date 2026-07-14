@@ -11,20 +11,3 @@ type Claims struct {
 	Rol    string    `json:"rol"`
 	jwt.RegisteredClaims
 }
-
-type RegisterInput struct {
-	Nombre   string `json:"nombre" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	Login    string `json:"login" binding:"required"`
-	Password string `json:"password" binding:"required,min=6"`
-}
-
-type LoginInput struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
-}
-
-type UpdateProfileInput struct {
-	Nombre string `json:"nombre" binding:"required"`
-	Login  string `json:"login" binding:"required"`
-}

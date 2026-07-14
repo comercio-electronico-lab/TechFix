@@ -1,11 +1,22 @@
 "use client";
 
+import React, { useState, useEffect } from 'react';
 import Table from '@/components/ui/Table';
 import Badge from '@/components/ui/Badge';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import { mockInventory, InventoryItem } from '@/mock/admin';
+import { getProducts } from '@/actions';
 import { Edit, Trash2, Plus, Search, Filter } from 'lucide-react';
+
+interface InventoryItem {
+  id: string;
+  sku: string;
+  name: string;
+  category: string;
+  stock: number;
+  price: number;
+  status: 'In Stock' | 'Low Stock' | 'Out of Stock';
+}
 
 export default function AdminInventarioClient() {
   const columns = [
@@ -46,6 +57,42 @@ export default function AdminInventarioClient() {
     }
   ];
 
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadInventory() {
+      try {
+        const products = await getProducts();
+        const items: InventoryItem[] = products.map((p: any) => {
+          const stock = p.stock || 0;
+          let status: 'In Stock' | 'Low Stock' | 'Out of Stock' = 'In Stock';
+          if (stock === 0) {
+            status = 'Out of Stock';
+          } else if (stock < 5) {
+            status = 'Low Stock';
+          }
+
+          return {
+            id: p.id,
+            sku: `TF-SKU-${p.id.padStart(3, '0')}`,
+            name: p.name,
+            category: p.category?.name || p.category || 'General',
+            stock,
+            price: p.price,
+            status
+          };
+        });
+        setInventory(items);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadInventory();
+  }, []);
+
   return (
     <div className="space-y-stack-lg">
       <header className="flex justify-between items-end">
@@ -78,11 +125,17 @@ export default function AdminInventarioClient() {
         </div>
 
         <div className="p-2">
-          <Table columns={columns} data={mockInventory} />
+          {loading ? (
+            <div className="py-12 text-center text-sm font-semibold text-on-surface-variant/60">
+              Cargando inventario...
+            </div>
+          ) : (
+            <Table columns={columns} data={inventory} />
+          )}
         </div>
 
         <div className="p-4 bg-surface-container-lowest border-t border-outline-variant/10 flex justify-between items-center text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest">
-          <span>Mostrando {mockInventory.length} productos en total</span>
+          <span>Mostrando {inventory.length} productos en total</span>
           <div className="flex gap-2">
             <button className="px-3 py-1 border border-outline-variant/30 rounded-lg opacity-50">Anterior</button>
             <button className="px-3 py-1 border border-outline-variant/30 rounded-lg hover:bg-white transition-all">Siguiente</button>

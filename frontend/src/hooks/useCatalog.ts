@@ -2,7 +2,8 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { IProduct } from '@/interfaces/domain';
-import { getProducts } from '@/app/actions';
+import { getProducts } from '@/actions';
+import { useSearchParams } from 'next/navigation';
 
 export type SortOption = 'Relevance' | 'Price: Low to High' | 'Price: High to Low' | 'Newest Arrivals';
 
@@ -37,6 +38,10 @@ export interface UseCatalogReturn {
 const ITEMS_PER_PAGE = 8;
 
 export function useCatalog(): UseCatalogReturn {
+  const searchParams = useSearchParams();
+  const paramCategory = searchParams?.get('category');
+  const paramSearch = searchParams?.get('search');
+
   const [products, setProducts] = useState<IProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +53,26 @@ export function useCatalog(): UseCatalogReturn {
   const [inStockOnly, setInStockOnlyState] = useState(false);
   const [sortBy, setSortByState] = useState<SortOption>('Relevance');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Sincronizar búsqueda desde URL
+  useEffect(() => {
+    if (paramSearch) {
+      setSearchQueryState(paramSearch);
+    } else {
+      setSearchQueryState('');
+    }
+    setCurrentPage(1);
+  }, [paramSearch]);
+
+  // Sincronizar categoría desde URL
+  useEffect(() => {
+    if (paramCategory) {
+      setSelectedCategories([paramCategory]);
+    } else {
+      setSelectedCategories([]);
+    }
+    setCurrentPage(1);
+  }, [paramCategory]);
 
   const fetchCatalog = useCallback(async () => {
     setLoading(true);
@@ -68,19 +93,22 @@ export function useCatalog(): UseCatalogReturn {
   }, [fetchCatalog]);
 
   const categoriesList = useMemo(() =>
-    Array.from(new Set(products.map(p => p.category.name))), [products]);
+    Array.from(new Set(products.map(p => typeof p.category === 'object' ? p.category.name : (p.category || '')))), [products]);
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(p => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
+      result = result.filter(p => p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q));
     }
     if (selectedCategories.length > 0) {
-      result = result.filter(p => selectedCategories.includes(p.category.name));
+      result = result.filter(p => {
+        const catName = typeof p.category === 'object' ? p.category.name : p.category;
+        return selectedCategories.includes(catName || '');
+      });
     }
-    if (sortBy === 'Price: Low to High') result.sort((a, b) => a.price - b.price);
-    else if (sortBy === 'Price: High to Low') result.sort((a, b) => b.price - a.price);
+    if (sortBy === 'Price: Low to High') result.sort((a, b) => (a.price || 0) - (b.price || 0));
+    else if (sortBy === 'Price: High to Low') result.sort((a, b) => (b.price || 0) - (a.price || 0));
     return result;
   }, [products, searchQuery, selectedCategories, sortBy]);
 

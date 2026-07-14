@@ -1,7 +1,8 @@
 "use client";
 
 import React from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ShoppingBag } from 'lucide-react';
+import Link from 'next/link';
 
 interface DashboardHeaderProps {
   userName: string;
@@ -18,9 +19,16 @@ const DashboardHeader = ({
 }: DashboardHeaderProps) => {
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-primary dark:text-white font-h1 font-bold">Panel Personal</h1>
-        <p className="text-sm text-on-surface-variant mt-1">Bienvenido de nuevo a tu centro de control TechFix.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-primary dark:text-white font-h1 font-bold">Panel Personal</h1>
+          <p className="text-sm text-on-surface-variant mt-1">Bienvenido de nuevo a tu centro de control TechFix.</p>
+        </div>
+        <Link href="/catalogo">
+          <button className="bg-primary/10 hover:bg-primary/15 dark:bg-sky-500/10 dark:hover:bg-sky-500/15 text-primary dark:text-sky-400 font-bold py-2.5 px-5 rounded-xl text-[10px] tracking-wider uppercase flex items-center gap-2 transition-all cursor-pointer shadow-sm hover:scale-[1.01] active:scale-[0.99]">
+            <ShoppingBag className="w-3.5 h-3.5" /> Volver a la Tienda
+          </button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

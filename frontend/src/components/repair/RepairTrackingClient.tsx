@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { getRepairTrackingAction } from '@/app/actions';
+import { getRepairTrackingAction } from '@/actions';
 import RepairTimeline, { TimelineStep } from '@/components/repair/RepairTimeline';
 import DeviceSummaryCard from '@/components/repair/DeviceSummaryCard';
 import WarrantyCertificateCard from '@/components/repair/WarrantyCertificateCard';
@@ -48,7 +48,7 @@ export default function RepairTrackingClient() {
       setError(null);
 
       try {
-        const data = await getRepairTrackingAction(ticketId);
+        const data = await getRepairTrackingAction(token || '', ticketId);
         setOrder(data.order);
         setTrackingLogs(data.tracking || []);
         setWarranty(data.warranty);
@@ -307,6 +307,7 @@ export default function RepairTrackingClient() {
             {/* Warranty Certificate Card (Condicional si ya se emitió en el backend) */}
             {warranty ? (
               <WarrantyCertificateCard
+                id={warranty.id}
                 token={warranty.warranty_token}
                 startDate={formatDate(warranty.start_date)}
                 endDate={formatDate(warranty.end_date)}

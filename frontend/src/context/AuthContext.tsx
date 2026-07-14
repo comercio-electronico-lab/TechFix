@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authenticate, register, getCurrentUser } from '@/app/actions';
+import { authenticate, register, getCurrentUser, updateProfileAction } from '@/actions';
 import { IUser } from '@/interfaces/domain';
 
 interface AuthContextType {
@@ -10,9 +10,23 @@ interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<IUser>;
-  register: (name: string, email: string, password: string) => Promise<IUser>;
+  register: (
+    name: string,
+    email: string,
+    password?: string,
+    teléfono?: string,
+    dirección?: string,
+    ciudad?: string,
+    documentId?: string
+  ) => Promise<IUser>;
   logout: () => void;
-  updateProfile: (name: string) => Promise<{ success: boolean; error?: string }>;
+  updateProfile: (profileData: {
+    nombre: string;
+    teléfono?: string;
+    dirección?: string;
+    ciudad?: string;
+    documentId?: string;
+  }) => Promise<{ success: boolean; error?: string }>;
   error: string | null;
   setError: (err: string | null) => void;
 }
@@ -79,10 +93,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleRegister = async (name: string, email: string, _password?: string): Promise<IUser> => {
+  const handleRegister = async (
+    name: string,
+    email: string,
+    password?: string,
+    teléfono?: string,
+    dirección?: string,
+    ciudad?: string,
+    documentId?: string
+  ): Promise<IUser> => {
     setError(null);
     try {
-      const { user: userData, token: userToken } = await register(name, email);
+      const { user: userData, token: userToken } = await register(
+        name,
+        email,
+        password,
+        teléfono,
+        dirección,
+        ciudad,
+        documentId
+      );
       setToken(userToken);
       setUser(userData);
       localStorage.setItem('techfix_token', userToken);
@@ -95,12 +125,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateProfile = async (name: string): Promise<{ success: boolean; error?: string }> => {
-    if (!user) return { success: false, error: 'No autenticado' };
-    const updatedUser = { ...user, name };
-    setUser(updatedUser);
-    localStorage.setItem('techfix_user', JSON.stringify(updatedUser));
-    return { success: true };
+  const updateProfile = async (profileData: {
+    nombre: string;
+    teléfono?: string;
+    dirección?: string;
+    ciudad?: string;
+    documentId?: string;
+  }): Promise<{ success: boolean; error?: string }> => {
+    if (!user || !token) return { success: false, error: 'No autenticado' };
+    try {
+      const updatedUser = await updateProfileAction(token, profileData);
+      setUser(updatedUser);
+      localStorage.setItem('techfix_user', JSON.stringify(updatedUser));
+      return { success: true };
+    } catch (e: any) {
+      console.error(e);
+      return { success: false, error: e.message || 'Error al actualizar el perfil' };
+    }
   };
 
   return (

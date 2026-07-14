@@ -16,10 +16,15 @@ const TecnicoNavbar = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-gutter bg-[#022448] text-white h-[72px] shadow-sm">
-      <div className="flex items-center gap-stack-md">
-        <span className="text-xl font-bold font-h2">TechFix Lab</span>
-        <span className="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-full uppercase tracking-wider font-bold flex items-center gap-1.5">
-          <Wrench className="w-3.5 h-3.5" />
+      <div className="flex items-center gap-3">
+        <svg className="w-5.5 h-5.5 text-sky-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="5" y="5" width="14" height="14" rx="3" />
+          <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" />
+          <path d="M12 9a3 3 0 1 0 3 3c0-.83-.34-1.58-.88-2.12L16 8M8 16l1.88-1.88" />
+        </svg>
+        <span className="text-xl font-bold font-h2 tracking-tight">TechFix Lab</span>
+        <span className="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-extrabold flex items-center gap-1.5 ml-2">
+          <Wrench className="w-3 h-3" />
           Técnico
         </span>
       </div>

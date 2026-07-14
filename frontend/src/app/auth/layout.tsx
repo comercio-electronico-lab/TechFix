@@ -26,8 +26,12 @@ export default function AuthLayout({
 
         {/* Header */}
         <div className="flex items-center gap-2.5 z-10">
-          <div className="w-9 h-9 rounded-xl bg-sky-500/10 flex items-center justify-center border border-sky-400/20 shadow-inner">
-            <Wrench className="w-4.5 h-4.5 text-sky-400 animate-pulse" />
+          <div className="w-9 h-9 rounded-xl bg-sky-500/10 flex items-center justify-center border border-sky-400/20 shadow-inner text-sky-400">
+            <svg className="w-5.5 h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="5" y="5" width="14" height="14" rx="3" />
+              <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" />
+              <path d="M12 9a3 3 0 1 0 3 3c0-.83-.34-1.58-.88-2.12L16 8M8 16l1.88-1.88" />
+            </svg>
           </div>
           <div>
             <span className="font-bold text-sm tracking-wider uppercase bg-linear-to-r from-white via-slate-100 to-sky-400 bg-clip-text text-transparent">TechFix Lab</span>

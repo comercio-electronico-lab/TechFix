@@ -19,7 +19,7 @@ const AdminChartCard: React.FC<AdminChartCardProps> = ({ title, subtitle, childr
         </div>
         {extra && <div>{extra}</div>}
       </div>
-      <div className="h-75 w-full">
+      <div className="h-80 w-full">
         {children}
       </div>
     </div>

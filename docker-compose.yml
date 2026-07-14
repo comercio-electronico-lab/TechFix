@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: parker
+      POSTGRES_PASSWORD: parker123
+      POSTGRES_DB: tech_fix
+    ports:
+      - "5432:5432"
+    volumes:
+      - techfix_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U parker -d tech_fix"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 8080
+      GIN_MODE: release
+      DB_HOST: postgres
+      DB_USER: parker
+      DB_PASSWORD: parker123
+      DB_NAME: tech_fix
+      DB_PORT: 5432
+      DB_SSLMODE: disable
+      JWT_SECRET: ${JWT_SECRET:-tu_secreto_super_seguro}
+      API_KEY_IA: ${API_KEY_IA:-}
+      MERCADO_PAGO_PUBLIC_KEY: ${MERCADO_PAGO_PUBLIC_KEY:-}
+      MERCADO_PAGO_ACCESS_TOKEN: ${MERCADO_PAGO_ACCESS_TOKEN:-}
+      MERCADO_PAGO_WEBHOOK_SECRET: ${MERCADO_PAGO_WEBHOOK_SECRET:-}
+      NOTIFICATION_URL: http://localhost:8080
+    ports:
+      - "8080:8080"
+    entrypoint: ["sh", "-c"]
+    command:
+      - "./api-server --migrate && ./api-server --seed; ./api-server"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        BACKEND_URL: http://backend:8080
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      # Los Server Actions de Next.js corren dentro de este contenedor, por lo que
+      # deben resolver el backend por nombre de servicio, no por localhost.
+      NEXT_PUBLIC_API_URL: http://backend:8080
+      BACKEND_URL: http://backend:8080
+      NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY: ${MERCADO_PAGO_PUBLIC_KEY:-}
+    ports:
+      - "3000:3000"
+
+volumes:
+  techfix_postgres_data:

@@ -11,18 +11,13 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 
-const data = [
-  { name: 'Semana 1', volume: 45 },
-  { name: 'Semana 2', volume: 52 },
-  { name: 'Semana 3', volume: 38 },
-  { name: 'Semana 4', volume: 65 },
-  { name: 'Semana 5', volume: 48 },
-  { name: 'Semana 6', volume: 72 },
-];
+interface RepairAreaChartProps {
+  data: Array<{ name: string; volume: number }>;
+}
 
-const RepairAreaChart = () => {
+const RepairAreaChart = ({ data, height = 220 }: RepairAreaChartProps & { height?: number }) => {
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height={height}>
       <AreaChart
         data={data}
         margin={{ top: 10, right: 10, left: -20, bottom: 0 }}

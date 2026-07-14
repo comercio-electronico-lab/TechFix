@@ -135,13 +135,28 @@ func startServer() {
 			api.GET("/products/categories", productsHandlers.GetCategories)
 			api.GET("/products/category/:categoryName", productsHandlers.GetProductsByCategory)
 			api.GET("/products/:productId", productsHandlers.GetProductByID)
+			
+			// Modificación de productos protegida para Administrador
+			api.POST("/products", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), productsHandlers.CreateProduct)
+			api.PUT("/products/:productId", auth.AuthMiddleware(), auth.RoleMiddleware("Admin", "Tecnico"), productsHandlers.UpdateProduct)
+			api.DELETE("/products/:productId", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), productsHandlers.DeleteProduct)
+		}
+
+		// Rutas de Proveedores (protegidas para Administrador)
+		suppliersHandlers := handlers.NewSuppliersHandler(db.DB)
+		{
+			api.GET("/suppliers", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.GetSuppliers)
+			api.POST("/suppliers", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.CreateSupplier)
+			api.PUT("/suppliers/:id", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.UpdateSupplier)
+			api.DELETE("/suppliers/:id", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.DeleteSupplier)
+			api.POST("/suppliers/orders", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.CreateRestockOrder)
 		}
 
 		// Rutas públicas de Autenticación
 		authRoutes := api.Group("/auth")
 		{
-			authRoutes.POST("/register", auth.Register)
-			authRoutes.POST("/login", auth.Login)
+			authRoutes.POST("/register", handlers.Register)
+			authRoutes.POST("/login", handlers.Login)
 		}
 
 		// Rutas privadas del Usuario (protegidas por AuthMiddleware)
@@ -150,6 +165,12 @@ func startServer() {
 		{
 			user.GET("/profile", handlers.GetProfile)
 			user.PUT("/profile", handlers.UpdateProfile)
+			user.GET("/warranties", handlers.GetUserWarranties)
+			user.GET("/all", auth.RoleMiddleware("Admin"), handlers.GetAllUsers)
+			user.GET("/all-devices", auth.RoleMiddleware("Admin", "Tecnico"), handlers.GetAllDevices)
+			user.PUT("/:id/role", auth.RoleMiddleware("Admin"), handlers.UpdateUserRole)
+			user.PUT("/:id/status", auth.RoleMiddleware("Admin"), handlers.UpdateUserStatus)
+			user.DELETE("/:id", auth.RoleMiddleware("Admin"), handlers.DeleteUser)
 
 			// CRUD de Equipos del usuario
 			user.GET("/devices", handlers.GetDevices)
@@ -162,10 +183,15 @@ func startServer() {
 		repairs := api.Group("/repairs")
 		repairs.Use(auth.AuthMiddleware())
 		{
+			repairs.GET("", auth.RoleMiddleware("Admin", "Tecnico"), handlers.GetAllRepairs)
 			repairs.GET("/user/:userId", handlers.GetRepairsByUser)
 			repairs.GET("/:id", handlers.GetRepairByID)
 			repairs.POST("/:id/confirm", handlers.ConfirmRepair)
 			repairs.PATCH("/:id/status", handlers.UpdateRepairStatus)
+			repairs.PUT("/:id/assign", handlers.AssignTechnician)
+			repairs.POST("/:id/parts", handlers.AddPartToRepair)
+			repairs.POST("", handlers.CreateRepair)
+			repairs.POST("/warranty-claim", handlers.ClaimWarranty)
 		}
 
 		// Rutas de Pagos (protegidas por AuthMiddleware)
@@ -177,6 +203,15 @@ func startServer() {
 			payments.GET("/:id/status", payment.CheckPaymentStatus)
 			payments.POST("/:id/refund", payment.RefundPayment)
 			payments.GET("", payment.GetPayments)
+		}
+
+		// Rutas de Pedidos de catálogo (protegidas por AuthMiddleware)
+		orders := api.Group("/orders")
+		orders.Use(auth.AuthMiddleware())
+		{
+			orders.POST("", handlers.CreateOrder)
+			orders.GET("/me", handlers.GetUserOrders)
+			orders.GET("/:id", handlers.GetOrderByID)
 		}
 
 		// Información pública de Mercado Pago para el frontend (sin autenticación)

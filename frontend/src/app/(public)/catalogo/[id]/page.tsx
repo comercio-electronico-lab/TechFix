@@ -1,7 +1,6 @@
 import ProductGallery from '@/components/product/ProductGallery';
 import ProductHeader from '@/components/product/ProductHeader';
 import ProductSpecs from '@/components/product/ProductSpecs';
-import ProductSpecsTable from '@/components/product/ProductSpecsTable';
 import ProductFooter from '@/components/product/ProductFooter';
 import ProductActions from '@/components/product/ProductActions';
 import { getProductById } from '@/actions/products';
@@ -39,8 +38,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <ProductFooter />
           </div>
         </section>
-
-        <ProductSpecsTable />
       </div>
     </div>
   );

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { IAdminRepairTicket, RepairStatus } from '@/interfaces/domain';
-import { getRepairTickets, updateRepairStatus, assignPartToRepair } from '@/app/actions';
+import { getRepairTickets, updateRepairStatus, addPartToRepairAction } from '@/actions';
 
 export interface UseRepairQueueReturn {
   tickets: IAdminRepairTicket[];
@@ -84,15 +84,17 @@ export function useRepairQueue(): UseRepairQueueReturn {
   }, [fetchTickets]);
 
   const moveTicket = async (ticketId: string, nextStatus: string, notes?: string) => {
-    try {
-      await updateRepairStatus(ticketId, nextStatus as RepairStatus, notes);
-      await fetchTickets();
-    } catch (e) { console.error(e); }
+    const result = await updateRepairStatus(ticketId, nextStatus as RepairStatus, notes);
+    if (!result.success) {
+      alert('Error al actualizar estado: ' + result.error);
+      return;
+    }
+    await fetchTickets();
   };
 
   const addPartToRepair = async (ticketId: string, productId: string, quantity: number) => {
     try {
-      await assignPartToRepair(ticketId, productId, quantity);
+      await addPartToRepairAction(token || '', ticketId, productId, quantity);
       await fetchTickets();
       return true;
     } catch (e) { return false; }
@@ -102,8 +104,8 @@ export function useRepairQueue(): UseRepairQueueReturn {
     if (!searchQuery.trim()) return tickets;
     const q = searchQuery.toLowerCase();
     return tickets.filter(t => 
-      t.customerName.toLowerCase().includes(q) || 
-      t.deviceName.toLowerCase().includes(q)
+      (t.customerName || '').toLowerCase().includes(q) || 
+      (t.deviceName || '').toLowerCase().includes(q)
     );
   }, [tickets, searchQuery]);
 

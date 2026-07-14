@@ -37,7 +37,7 @@ export default function PortalSidebar({ activeTab, onTabChange }: PortalSidebarP
             {user?.nombre || 'Portal del Cliente'}
           </h4>
           <p className="text-[9px] text-on-surface-variant dark:text-slate-500 font-bold uppercase tracking-wider mt-0.5 truncate">
-            {user?.rol || 'Cliente'}
+            {user?.role || 'Cliente'}
           </p>
         </div>
       </div>
@@ -63,7 +63,7 @@ export default function PortalSidebar({ activeTab, onTabChange }: PortalSidebarP
         })}
 
         {/* Acceso directo al Panel de Administrador / Técnico */}
-        {(user?.rol?.toLowerCase() === 'admin' || user?.rol?.toLowerCase() === 'tecnico' || user?.rol?.toLowerCase() === 'técnico') && (
+        {(user?.role?.toLowerCase() === 'admin' || user?.role?.toLowerCase() === 'tecnico' || user?.role?.toLowerCase() === 'técnico') && (
           <Link
             href="/admin/dashboard"
             className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-left text-white bg-secondary dark:bg-sky-600 hover:opacity-90 font-bold shadow-md shadow-secondary/20 mt-6"

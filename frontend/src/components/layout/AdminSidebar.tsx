@@ -6,10 +6,12 @@ import {
   ShoppingCart,
   Package,
   Calendar,
-  BarChart3,
+  BarChart,
   Users,
   Settings,
   Ticket,
+  Truck,
+  Laptop
 } from 'lucide-react';
 import SidebarHeader from './SidebarHeader';
 import SidebarUserSection from './SidebarUserSection';
@@ -18,17 +20,17 @@ import SidebarNav from './SidebarNav';
 const AdminSidebar = () => {
   const links = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Órdenes', href: '/admin/ordenes', icon: ShoppingCart },
     { name: 'Inventario', href: '/admin/inventario', icon: Package },
+    { name: 'Proveedores', href: '/admin/proveedores', icon: Truck },
+    { name: 'Equipos', href: '/admin/dispositivos', icon: Laptop },
     { name: 'Citas', href: '/admin/citas', icon: Calendar },
-    { name: 'Reportes', href: '/admin/reportes', icon: BarChart3 },
+    { name: 'Reportes', href: '/admin/reportes', icon: BarChart },
     { name: 'Usuarios', href: '/admin/usuarios', icon: Users },
   ];
 
   return (
     <aside className="fixed left-0 top-0 h-full flex flex-col p-4 border-r border-outline-variant bg-surface-container-low w-64 shadow-md z-40">
       <SidebarHeader
-        icon={Settings}
         title="TechFix Pro"
         subtitle="Enterprise Repair Mgmt"
         bgColor="bg-primary"

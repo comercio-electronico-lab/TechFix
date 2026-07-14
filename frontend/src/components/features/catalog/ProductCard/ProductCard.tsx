@@ -10,7 +10,7 @@ export const ProductCard = ({ product, onAddToCart }: IProductCardProps) => {
     <Card className="flex flex-col h-full group">
       <div className="relative aspect-square overflow-hidden rounded-md mb-4 bg-[var(--color-background)]">
         <Image 
-          src={product.image} 
+          src={product.image || ''}
           alt={product.name} 
           fill
           className="object-cover transition-transform group-hover:scale-105"
@@ -24,7 +24,7 @@ export const ProductCard = ({ product, onAddToCart }: IProductCardProps) => {
       
       <div className="flex-1 flex flex-col">
         <span className="text-xs text-[var(--color-muted)] mb-1 uppercase tracking-tight">
-          {product.category.name}
+          {typeof product.category === 'string' ? product.category : product.category?.name}
         </span>
         <h3 className="font-bold text-lg mb-2 line-clamp-2 leading-tight">
           {product.name}
@@ -35,7 +35,7 @@ export const ProductCard = ({ product, onAddToCart }: IProductCardProps) => {
         
         <div className="flex items-center justify-between mt-auto">
           <span className="text-xl font-black text-[var(--color-primary)]">
-            ${product.price.toLocaleString()}
+             S/. {(product.price || 0).toLocaleString()}
           </span>
           <Button 
             size="sm" 

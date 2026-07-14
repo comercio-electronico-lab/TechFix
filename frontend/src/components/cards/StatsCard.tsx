@@ -9,7 +9,7 @@ interface StatsCardProps {
     isUpward: boolean;
   };
   icon: LucideIcon;
-  color?: 'primary' | 'secondary' | 'accent' | 'amber' | 'blue' | 'green';
+  color?: 'primary' | 'secondary' | 'accent' | 'amber' | 'blue' | 'green' | 'purple';
 }
 
 const StatsCard: React.FC<StatsCardProps> = ({ label, value, trend, icon: Icon, color = 'primary' }) => {
@@ -20,6 +20,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ label, value, trend, icon: Icon, 
     amber: "bg-amber-500/10 text-amber-500",
     blue: "bg-blue-500/10 text-blue-500",
     green: "bg-green-500/10 text-green-500",
+    purple: "bg-purple-500/10 text-purple-600",
   };
 
   return (

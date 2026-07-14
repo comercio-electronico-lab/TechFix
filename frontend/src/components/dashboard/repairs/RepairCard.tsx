@@ -3,20 +3,60 @@
 import React, { useState } from 'react';
 import RepairTimeline, { TimelineStep } from '@/components/repair/RepairTimeline';
 import ConfirmRepairForm, { ConfirmRepairOptions } from './ConfirmRepairForm';
-import { ClientRepair } from '@/mock/repairs';
+import { ClientRepair } from '@/interfaces/domain';
+import { useAuth } from '@/context/AuthContext';
+import { confirmRepairAction, updateRepairStatusAction, createPaymentAction } from '@/actions';
+import RepairPaymentModal from './RepairPaymentModal';
 
 interface RepairCardProps {
   repair: ClientRepair;
+  onRefresh?: () => void;
 }
 
-const RepairCard = ({ repair }: RepairCardProps) => {
+const RepairCard = ({ repair, onRefresh }: RepairCardProps) => {
+  const { token, user } = useAuth();
   const [showConfirmForm, setShowConfirmForm] = useState(false);
+  const [loadingAction, setLoadingAction] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
-  const handleConfirmRepair = (options: ConfirmRepairOptions) => {
-    console.log('Reparación confirmada con opciones:', options);
-    // TODO: Llamar a acción del servidor para actualizar estado a "agendado"
-    setShowConfirmForm(false);
+  const deviceLabel = repair.device ? `${repair.device.brand} ${repair.device.model}` : 'Dispositivo';
+
+  const handleConfirmRepair = async (options: ConfirmRepairOptions) => {
+    if (!token) return;
+    setLoadingAction(true);
+    try {
+      await confirmRepairAction(token, repair.id, options.partType);
+      alert('Reparación confirmada con repuesto ' + options.partType + '. Tu cita se agendó.');
+      setShowConfirmForm(false);
+      if (onRefresh) onRefresh();
+    } catch (e: any) {
+      alert(e.message || 'Error al confirmar la reparación');
+    } finally {
+      setLoadingAction(false);
+    }
   };
+
+  const handleCancelRepair = async () => {
+    if (!token) return;
+    if (!window.confirm('¿Estás seguro de que deseas cancelar este servicio de reparación?')) return;
+    setLoadingAction(true);
+    try {
+      const result = await updateRepairStatusAction(token, repair.id, 'cancelada' as any, 'Cancelado por el cliente.');
+      if (!result.success) {
+        alert(result.error || 'Error al cancelar la reparación');
+        return;
+      }
+      alert('Servicio de reparación cancelado exitosamente.');
+      if (onRefresh) onRefresh();
+    } finally {
+      setLoadingAction(false);
+    }
+  };
+
+  const handlePayRepair = () => {
+    setIsPaymentModalOpen(true);
+  };
+
   const getTimelineSteps = (status: string, diagnosis: string, appointmentDate?: string): TimelineStep[] => {
     const baseSteps: TimelineStep[] = [
       {
@@ -53,9 +93,7 @@ const RepairCard = ({ repair }: RepairCardProps) => {
       }
     ];
 
-    // Mapear nuevos estados al timeline
     if (status === 'pending') {
-      // Solo diagnóstico completado
       baseSteps[0].status = 'active';
       baseSteps[0].detailedInfo = diagnosis || 'Diagnóstico inicial completado. Confirma para agendar reparación.';
     } else if (status === 'agendado') {
@@ -82,15 +120,19 @@ const RepairCard = ({ repair }: RepairCardProps) => {
       baseSteps[3].status = 'completed';
       baseSteps[4].status = 'completed';
       baseSteps[4].detailedInfo = 'Equipamiento retirado. Garantía activa.';
+    } else if (status === 'cancelada') {
+      baseSteps[0].status = 'pending';
+      baseSteps[1].title = 'Cancelado';
+      baseSteps[1].description = 'La reparación ha sido cancelada.';
+      baseSteps[1].status = 'active';
+      baseSteps[1].detailedInfo = 'Orden cancelada por el cliente.';
     }
 
     return baseSteps;
   };
 
-  const deviceLabel = repair.device ? `${repair.device.brand} ${repair.device.model}` : 'Dispositivo';
   const steps = getTimelineSteps(repair.status, repair.diagnosis_final, repair.appointment_datetime);
 
-  // Formatear moneda
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
   return (
@@ -154,14 +196,40 @@ const RepairCard = ({ repair }: RepairCardProps) => {
         />
       )}
 
-      {repair.status === 'agendado' && (
+      {repair.status === 'agendado' && repair.payment_status === 'approved' && (
+        <div className="border-t border-outline-variant/10 dark:border-slate-800/80 pt-4 space-y-3">
+          <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-800">
+            <p className="text-sm font-semibold text-green-900 dark:text-green-100">Pago Aprobado</p>
+            <p className="text-[12px] text-green-800 dark:text-green-200">El pago fue acreditado. Tu equipo está en cola para reparación.</p>
+          </div>
+        </div>
+      )}
+
+      {repair.status === 'agendado' && repair.payment_status !== 'approved' && (
         <div className="border-t border-outline-variant/10 dark:border-slate-800/80 pt-4 space-y-3">
           <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
             <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">Pago Pendiente</p>
-            <p className="text-[12px] text-amber-800 dark:text-amber-200">Completa el pago para confirmar tu cita</p>
+            <p className="text-[12px] text-amber-800 dark:text-amber-200">Completa el pago para habilitar el inicio de la reparación.</p>
           </div>
-          <button className="w-full bg-primary dark:bg-sky-500 hover:bg-primary/90 dark:hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-xl transition-colors">
-            Pagar Cita
+          <button
+            onClick={handlePayRepair}
+            disabled={loadingAction}
+            className="w-full bg-primary dark:bg-sky-500 hover:bg-primary/90 dark:hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-xl transition-colors disabled:opacity-50"
+          >
+            {loadingAction ? 'Procesando Pago...' : 'Pagar Cita'}
+          </button>
+        </div>
+      )}
+
+      {/* Botón de Cancelación */}
+      {((repair.status === 'pending' && !showConfirmForm) || (repair.status === 'agendado' && repair.payment_status !== 'approved')) && (
+        <div className="pt-2 text-right">
+          <button
+            onClick={handleCancelRepair}
+            disabled={loadingAction}
+            className="text-xs text-red-500 hover:text-red-700 dark:hover:text-red-400 font-semibold transition-colors disabled:opacity-50"
+          >
+            {loadingAction ? 'Cancelando...' : 'Cancelar Solicitud de Reparación'}
           </button>
         </div>
       )}
@@ -189,6 +257,17 @@ const RepairCard = ({ repair }: RepairCardProps) => {
           <p className="text-[12px] text-on-surface-variant italic">{repair.notes}</p>
         </div>
       )}
+
+      <RepairPaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        amount={repair.final_price > 0 ? repair.final_price : (repair.estimated_price_min || 100)}
+        repairId={repair.id}
+        deviceName={deviceLabel}
+        onPaymentSuccess={() => {
+          if (onRefresh) onRefresh();
+        }}
+      />
     </div>
   );
 };

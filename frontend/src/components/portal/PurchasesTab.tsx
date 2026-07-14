@@ -1,14 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  ShieldCheck, 
-  ShoppingBag, 
-  Truck, 
-  Coins, 
+import {
+  ShieldCheck,
+  ShoppingBag,
+  Truck,
+  Coins,
   Calendar,
   AlertCircle
 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { getUserOrdersAction } from '@/actions';
 
 interface LocalOrder {
   orderNumber: string;
@@ -20,18 +22,27 @@ interface LocalOrder {
 }
 
 export default function PurchasesTab() {
+  const { token } = useAuth();
   const [order, setOrder] = useState<LocalOrder | null>(null);
 
   useEffect(() => {
-    const savedOrder = localStorage.getItem('checkout_order');
-    if (savedOrder) {
-      try {
-        setOrder(JSON.parse(savedOrder));
-      } catch (e) {
-        console.error('Error parsing local order:', e);
-      }
-    }
-  }, []);
+    if (!token) return;
+
+    getUserOrdersAction(token)
+      .then((pedidos) => {
+        if (!pedidos || pedidos.length === 0) return;
+        const latest = pedidos[0];
+        setOrder({
+          orderNumber: latest.id,
+          subtotal: latest.subtotal,
+          tax: latest.impuestos,
+          total: latest.total,
+          paymentMethod: 'Pasarela Digital Segura (Tarjeta)',
+          date: latest.created_at,
+        });
+      })
+      .catch((err) => console.error('Error al obtener pedidos:', err));
+  }, [token]);
 
   const formatDate = (dateStr?: string) => {
     const date = dateStr ? new Date(dateStr) : new Date();

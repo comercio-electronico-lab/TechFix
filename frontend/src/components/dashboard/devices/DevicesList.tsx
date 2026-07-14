@@ -2,7 +2,7 @@
 
 import React from 'react';
 import DeviceCard from '@/components/cards/DeviceCard';
-import { Device } from '@/mock/devices';
+import { Device } from '@/interfaces/domain';
 
 interface DevicesListProps {
   devices: Device[];

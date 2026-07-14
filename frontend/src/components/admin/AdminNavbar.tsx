@@ -6,8 +6,13 @@ import { Search, Bell, UserCircle } from 'lucide-react';
 const AdminNavbar = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-gutter bg-primary text-white h-[72px] shadow-sm">
-      <div className="flex items-center gap-stack-md">
-        <span className="text-xl font-bold">TechFix Admin</span>
+      <div className="flex items-center gap-3">
+        <svg className="w-5.5 h-5.5 text-secondary-container shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="5" y="5" width="14" height="14" rx="3" />
+          <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" />
+          <path d="M12 9a3 3 0 1 0 3 3c0-.83-.34-1.58-.88-2.12L16 8M8 16l1.88-1.88" />
+        </svg>
+        <span className="text-xl font-bold tracking-tight">TechFix Admin</span>
         <div className="hidden md:flex ml-stack-lg items-center bg-white/10 rounded-lg px-4 py-2 w-96 border border-white/20">
           <Search className="w-5 h-5 mr-2 opacity-70" />
           <input 

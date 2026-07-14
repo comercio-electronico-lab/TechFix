@@ -37,3 +37,45 @@ func AuthMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// RoleMiddleware checks if the user has one of the allowed roles
+func RoleMiddleware(allowedRoles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userRolVal, exists := c.Get("userRol")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "No autorizado: rol no encontrado"})
+			c.Abort()
+			return
+		}
+
+		userRol := userRolVal.(string)
+		isAllowed := false
+		for _, role := range allowedRoles {
+			if NormalizeRole(userRol) == NormalizeRole(role) {
+				isAllowed = true
+				break
+			}
+		}
+
+		if !isAllowed {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado: permisos insuficientes"})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
+func NormalizeRole(role string) string {
+	switch role {
+	case "Admin", "admin", "ADMIN":
+		return "admin"
+	case "Tecnico", "tecnico", "TECNICO", "Técnico", "técnico", "TÉCNICO":
+		return "tecnico"
+	case "Cliente", "cliente", "CLIENTE":
+		return "cliente"
+	default:
+		return role
+	}
+}

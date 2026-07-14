@@ -17,6 +17,30 @@ import {
 } from 'lucide-react';
 
 export default function AdminReportesClient() {
+  const salesData = [
+    { name: 'Ene', revenue: 18500, cost: 9200 },
+    { name: 'Feb', revenue: 22300, cost: 11500 },
+    { name: 'Mar', revenue: 19800, cost: 10200 },
+    { name: 'Abr', revenue: 26700, cost: 13100 },
+    { name: 'May', revenue: 31200, cost: 15800 },
+    { name: 'Jun', revenue: 28900, cost: 14200 },
+    { name: 'Jul', revenue: 34100, cost: 16900 },
+    { name: 'Ago', revenue: 35800, cost: 17500 },
+    { name: 'Sep', revenue: 31200, cost: 15300 },
+    { name: 'Oct', revenue: 28500, cost: 14100 },
+  ];
+
+  const repairData = [
+    { name: 'S1', volume: 42 },
+    { name: 'S2', volume: 38 },
+    { name: 'S3', volume: 55 },
+    { name: 'S4', volume: 49 },
+    { name: 'S5', volume: 63 },
+    { name: 'S6', volume: 58 },
+    { name: 'S7', volume: 71 },
+    { name: 'S8', volume: 66 },
+  ];
+
   const categories = [
     { name: 'Pantallas Mobile', volume: 482, price: '$189.00', margin: 45, sla: 98, trend: 'up' },
     { name: 'Baterías Laptop', volume: 215, price: '$120.00', margin: 32, sla: 92, trend: 'up' },
@@ -139,7 +163,7 @@ export default function AdminReportesClient() {
           title="Tendencia de Ventas"
           subtitle="Comparativa de Ingresos vs Costos mensuales"
         >
-          <SalesBarChart />
+          <SalesBarChart data={salesData} />
         </AdminChartCard>
         <AdminChartCard
           title="Volumen de Tickets"
@@ -152,7 +176,7 @@ export default function AdminReportesClient() {
             </select>
           }
         >
-          <RepairAreaChart />
+          <RepairAreaChart data={repairData} />
         </AdminChartCard>
       </div>
 

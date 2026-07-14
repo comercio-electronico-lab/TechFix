@@ -24,6 +24,7 @@ const WarrantiesList = ({ warranties }: WarrantiesListProps) => {
           <div key={warranty.id} className="space-y-2">
             <div className="px-1 text-xs font-bold text-on-surface-variant">Equipo: {devLabel} (S/N: {warranty.device?.serial_number})</div>
             <WarrantyCertificateCard
+              id={warranty.id}
               token={warranty.warranty_token}
               startDate={warranty.start_date}
               endDate={warranty.end_date}

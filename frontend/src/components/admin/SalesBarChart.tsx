@@ -12,17 +12,13 @@ import {
   Legend
 } from 'recharts';
 
-const data = [
-  { name: 'OCT 01', revenue: 4200, cost: 2400 },
-  { name: 'OCT 08', revenue: 3800, cost: 1800 },
-  { name: 'OCT 15', revenue: 5100, cost: 3100 },
-  { name: 'OCT 22', revenue: 4700, cost: 2800 },
-  { name: 'OCT 29', revenue: 5900, cost: 3400 },
-];
+interface SalesBarChartProps {
+  data: Array<{ name: string; revenue: number; cost: number }>;
+}
 
-const SalesBarChart = () => {
+const SalesBarChart = ({ data, height = 220 }: SalesBarChartProps & { height?: number }) => {
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height={height}>
       <BarChart
         data={data}
         margin={{ top: 10, right: 10, left: -20, bottom: 0 }}

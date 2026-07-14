@@ -5,7 +5,7 @@ import DevicesHeader from './devices/DevicesHeader';
 import DevicesLoading from './devices/DevicesLoading';
 import DevicesEmpty from './devices/DevicesEmpty';
 import DevicesList from './devices/DevicesList';
-import { Device } from '@/mock/devices';
+import { Device } from '@/interfaces/domain';
 
 interface DevicesSectionProps {
   devices: Device[];

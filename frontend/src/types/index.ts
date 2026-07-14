@@ -5,11 +5,11 @@ export interface Product {
   id: string;
   sku?: string;
   name: string;
-  description: string;
-  price: number;
-  category: string;
-  image: string;
-  status: string;
+  description?: string;
+  price?: number;
+  category?: string | { id: string; name: string; slug: string };
+  image?: string;
+  status?: string;
 }
 
 // ============================================

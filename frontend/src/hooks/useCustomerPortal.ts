@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ICustomerDevice } from '@/interfaces/domain';
 import { useAuth } from '@/context/AuthContext';
-import { getCustomerDevicesList } from '@/app/actions';
+import { getCustomerDevicesList, registerDeviceAction } from '@/actions';
 
 export type PortalTab = 'Devices' | 'Purchases' | 'Repairs';
 
@@ -38,15 +38,26 @@ export function useCustomerPortal() {
     if (isAuthenticated) fetchDevices();
   }, [isAuthenticated, fetchDevices]);
 
-  const handleRegisterDevice = (e: React.FormEvent) => {
+  const handleRegisterDevice = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!token) return;
     setIsSubmitting(true);
-    setTimeout(() => {
+    try {
+      await registerDeviceAction(token, {
+        brand: newDevice.brand,
+        model: newDevice.model,
+        serialNumber: newDevice.serialNumber,
+        purchaseDate: newDevice.purchaseDate,
+      });
       alert('Dispositivo registrado profesionalmente!');
       setIsModalOpen(false);
-      setIsSubmitting(false);
       setNewDevice(EMPTY_DEVICE_FORM);
-    }, 600);
+      fetchDevices();
+    } catch (err: any) {
+      alert(err.message || 'Error al registrar el dispositivo');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return {

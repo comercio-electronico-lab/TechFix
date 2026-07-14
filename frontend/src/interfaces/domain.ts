@@ -1,7 +1,11 @@
 export interface IUser {
   id: string;
   email: string;
-  name: string;
+  nombre: string;
+  teléfono?: string;
+  dirección?: string;
+  ciudad?: string;
+  documentId?: string;
   role: 'admin' | 'tecnico' | 'cliente';
   createdAt: string;
 }
@@ -70,25 +74,41 @@ export interface ICategory {
 export interface IProduct {
   id: string;
   name: string;
-  description: string;
-  price: number;
-  stock: number;
-  image: string;
-  category: ICategory;
-  status: 'active' | 'out_of_stock' | 'discontinued';
+  description?: string;
+  price?: number;
+  stock?: number;
+  image?: string;
+  category?: ICategory | string;
+  status?: 'active' | 'out_of_stock' | 'discontinued';
+  sku?: string;
+  reasoning?: string;
+  estimated_price?: number;
 }
 
 export type RepairStatus = 'pending' | 'diagnosing' | 'waiting_parts' | 'repairing' | 'testing' | 'ready' | 'delivered';
 
 export interface IRepair {
   id: string;
-  customerName: string;
-  deviceName: string;
-  serialNumber: string;
-  issueDescription: string;
+  customerName?: string;
+  deviceName?: string;
+  serialNumber?: string;
+  issueDescription?: string;
   status: RepairStatus;
-  createdAt: string;
+  createdAt?: string;
+  created_at?: string;
   estimatedDate?: string;
+  estimated_price_min?: number;
+  estimated_price_max?: number;
+  final_price?: number;
+  diagnosis_final?: string;
+  appointment_datetime?: string;
+  notes?: string;
+  customerEmail?: string;
+  device?: {
+    brand: string;
+    model: string;
+    serial_number: string;
+  };
 }
 
 export interface IAppointment {
@@ -128,3 +148,70 @@ export interface IDiagnosticHistory {
   node: IDiagnosticNode;
   options: IDiagnosticOption[];
 }
+
+export interface RepairOrderProduct {
+  id: string;
+  nombre: string;
+  cantidad: number;
+  precio_unitario: number;
+  subtotal: number;
+}
+
+export interface ClientRepair {
+  id: string;
+  device?: {
+    brand: string;
+    model: string;
+    serial_number: string;
+  };
+  status: 'pending' | 'agendado' | 'en_reparacion' | 'reparado' | 'completado';
+  diagnosis_final: string;
+  created_at: string;
+  appointment_datetime?: string;
+  final_price: number;
+  estimated_price_min?: number;
+  estimated_price_max?: number;
+  productos?: RepairOrderProduct[];
+  notes?: string;
+  warranty?: {
+    warranty_days: number;
+    start_date?: string;
+    end_date?: string;
+    is_active: boolean;
+  };
+  payment_status?: 'pending' | 'approved' | 'failed';
+}
+
+export interface Device {
+  id: string;
+  brand: string;
+  model: string;
+  serial_number: string;
+  device_type: string;
+  purchase_date: string | null;
+}
+
+export interface OrderItem {
+  id: string;
+  name: string;
+  description?: string;
+  quantity: number;
+  price: number;
+  image: string;
+}
+
+export interface OrderData {
+  orderNumber: string;
+  email: string;
+  clientName: string;
+  address: string;
+  estimatedDate: string;
+  courier: string;
+  items: OrderItem[];
+  subtotal: number;
+  shipping: number;
+  tax: number;
+}
+
+
+

@@ -1,11 +1,20 @@
 "use client";
 
+import React, { useState, useEffect } from 'react';
 import AdminMetricCard from '@/components/admin/AdminMetricCard';
 import Table from '@/components/ui/Table';
 import Badge from '@/components/ui/Badge';
-import { mockAppointments, Appointment } from '@/mock/admin';
+import { getRepairTickets, getAllUsers, getProducts } from '@/actions';
 import { CircleDollarSign, Wrench, UserPlus, Package, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+
+interface Appointment {
+  id: string;
+  customer: string;
+  device: string;
+  service: string;
+  status: 'Pending' | 'In Progress' | 'Completed' | 'Cancelled';
+}
 
 export default function AdminDashboardClient() {
   const columns = [
@@ -28,6 +37,74 @@ export default function AdminDashboardClient() {
     },
   ];
 
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [stats, setStats] = useState({
+    ventasTotales: 0,
+    reparacionesActivas: 0,
+    clientesNuevos: 0,
+    bajoStock: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [repairs, users, products] = await Promise.all([
+          getRepairTickets(),
+          getAllUsers(),
+          getProducts()
+        ]);
+
+        const totalSales = repairs
+          .filter((r: any) => r.payment_status === 'approved' || r.status === 'reparado' || r.status === 'entregado')
+          .reduce((sum: number, r: any) => sum + (r.final_price || r.estimated_price_min || 0), 0);
+
+        const activeRepairs = repairs.filter((r: any) => 
+          r.status === 'pending' || r.status === 'agendado' || r.status === 'en_reparacion'
+        ).length;
+
+        const totalClients = users.filter((u: any) => u.role?.toLowerCase() === 'cliente').length;
+
+        const lowStock = products.filter((p: any) => (p.stock || p.stock_actual || 0) < 5).length;
+
+        const recentAppts: Appointment[] = repairs.slice(0, 5).map((r: any) => {
+          const user = users.find((u: any) => u.email?.toLowerCase() === r.customerEmail?.toLowerCase());
+          const customerName = user ? user.name : (r.customerEmail || 'Cliente Anónimo');
+
+          let status: 'Pending' | 'In Progress' | 'Completed' | 'Cancelled' = 'Pending';
+          if (r.status === 'en_reparacion') {
+            status = 'In Progress';
+          } else if (r.status === 'reparado' || r.status === 'entregado' || r.status === 'completado') {
+            status = 'Completed';
+          } else if (r.status === 'cancelado') {
+            status = 'Cancelled';
+          }
+
+          return {
+            id: r.id,
+            customer: customerName,
+            device: r.device ? `${r.device.brand} ${r.device.model}` : (r.deviceName || 'Dispositivo N/A'),
+            service: r.notes || r.diagnosis_final || 'Mantenimiento General',
+            status
+          };
+        });
+
+        setStats({
+          ventasTotales: totalSales,
+          reparacionesActivas: activeRepairs,
+          clientesNuevos: totalClients,
+          bajoStock: lowStock
+        });
+        setAppointments(recentAppts);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
   return (
     <div className="space-y-stack-lg">
       <header>
@@ -39,28 +116,28 @@ export default function AdminDashboardClient() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
         <AdminMetricCard
           label="Ventas Totales"
-          value="$42,500"
+          value={loading ? "..." : `S/. ${stats.ventasTotales.toLocaleString()}`}
           trend={{ value: 12, isUpward: true }}
           icon={CircleDollarSign}
           color="secondary"
         />
         <AdminMetricCard
           label="Reparaciones Activas"
-          value="18"
+          value={loading ? "..." : stats.reparacionesActivas.toString()}
           icon={Wrench}
           color="primary"
           progress={65}
         />
         <AdminMetricCard
           label="Clientes Nuevos"
-          value="125"
+          value={loading ? "..." : stats.clientesNuevos.toString()}
           trend={{ value: 8, isUpward: true }}
           icon={UserPlus}
           color="accent"
         />
         <AdminMetricCard
           label="Bajo Stock"
-          value="4"
+          value={loading ? "..." : stats.bajoStock.toString()}
           icon={Package}
           color="accent"
           description="Requiere atención inmediata"
@@ -76,7 +153,13 @@ export default function AdminDashboardClient() {
           </Link>
         </div>
         <div className="p-2">
-          <Table columns={columns} data={mockAppointments.slice(0, 5)} />
+          {loading ? (
+            <div className="py-12 text-center text-sm font-semibold text-on-surface-variant/60">
+              Cargando resumen...
+            </div>
+          ) : (
+            <Table columns={columns} data={appointments} />
+          )}
         </div>
       </section>
     </div>

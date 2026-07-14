@@ -30,6 +30,10 @@ type Usuario struct {
 	Rol          string    `gorm:"size:20;default:'Cliente'" json:"rol" yaml:"rol"`
 	Estado       string    `gorm:"size:20;default:'Activo'" json:"estado" yaml:"estado"`
 	JoinedDate   time.Time `json:"joined_date" yaml:"joined_date"`
+	Telefono     string    `gorm:"size:50" json:"teléfono" yaml:"teléfono"`
+	Direccion    string    `gorm:"size:255" json:"dirección" yaml:"dirección"`
+	Ciudad       string    `gorm:"size:100" json:"ciudad" yaml:"ciudad"`
+	DocumentId   string    `gorm:"size:50" json:"documentId" yaml:"documentId"`
 }
 
 func (Usuario) TableName() string {
@@ -195,6 +199,7 @@ type RepairOrder struct {
 	EstimatedPriceMax float64 `json:"estimated_price_max" yaml:"estimated_price_max"`
 	FinalPrice   float64    `json:"final_price" yaml:"final_price"`
 	Notes        string     `gorm:"type:text" json:"notes" yaml:"notes"`
+	Payments     []Payment  `gorm:"foreignKey:RepairID" json:"payments,omitempty"`
 }
 
 func (RepairOrder) TableName() string {
@@ -279,6 +284,50 @@ func (r *RepairOrderProducto) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+type Pedido struct {
+	Base
+	UsuarioID      uuid.UUID        `gorm:"type:uuid;not null" json:"usuario_id" yaml:"usuario_id"`
+	Usuario        Usuario          `gorm:"foreignKey:UsuarioID" json:"usuario,omitempty"`
+	PaymentID      *uuid.UUID       `gorm:"type:uuid" json:"payment_id" yaml:"payment_id"`
+	Payment        *Payment         `gorm:"foreignKey:PaymentID" json:"payment,omitempty"`
+	Estado         string           `gorm:"size:50;default:'pagado'" json:"estado" yaml:"estado"`
+	Subtotal       float64          `json:"subtotal" yaml:"subtotal"`
+	Envio          float64          `json:"envio" yaml:"envio"`
+	Impuestos      float64          `json:"impuestos" yaml:"impuestos"`
+	Total          float64          `json:"total" yaml:"total"`
+	NombreEnvio    string           `gorm:"size:255" json:"nombre_envio" yaml:"nombre_envio"`
+	DireccionEnvio string           `gorm:"type:text" json:"direccion_envio" yaml:"direccion_envio"`
+	CiudadEnvio    string           `gorm:"size:100" json:"ciudad_envio" yaml:"ciudad_envio"`
+	TelefonoEnvio  string           `gorm:"size:50" json:"telefono_envio" yaml:"telefono_envio"`
+	Items          []PedidoProducto `gorm:"foreignKey:PedidoID" json:"items,omitempty"`
+}
+
+func (Pedido) TableName() string {
+	return "pedidos"
+}
+
+type PedidoProducto struct {
+	ID             uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	PedidoID       uuid.UUID `gorm:"type:uuid;not null;index" json:"pedido_id"`
+	ProductoID     uuid.UUID `gorm:"type:uuid;not null;index" json:"producto_id"`
+	Producto       Producto  `gorm:"foreignKey:ProductoID" json:"producto,omitempty"`
+	Cantidad       int       `json:"cantidad"`
+	PrecioUnitario float64   `json:"precio_unitario"`
+	Subtotal       float64   `json:"subtotal"`
+	CreatedAt      time.Time `json:"created_at"`
+}
+
+func (PedidoProducto) TableName() string {
+	return "pedido_producto"
+}
+
+func (p *PedidoProducto) BeforeCreate(tx *gorm.DB) error {
+	if p.ID == uuid.Nil {
+		p.ID = uuid.New()
+	}
+	return nil
+}
+
 type Payment struct {
 	Base
 	UserID              uuid.UUID `gorm:"type:uuid;not null" json:"user_id" yaml:"user_id"`
@@ -286,7 +335,7 @@ type Payment struct {
 	RepairID            *uuid.UUID `gorm:"type:uuid" json:"repair_id" yaml:"repair_id"`
 	RepairOrder         *RepairOrder `gorm:"foreignKey:RepairID" json:"repair_order,omitempty"`
 	Amount              float64   `json:"amount" yaml:"amount"`
-	Currency            string    `gorm:"size:10;default:'ARS'" json:"currency" yaml:"currency"`
+	Currency            string    `gorm:"size:10;default:'PEN'" json:"currency" yaml:"currency"`
 	Description         string    `gorm:"type:text" json:"description" yaml:"description"`
 	MercadoPagoID       string    `gorm:"size:255;uniqueIndex" json:"mercado_pago_id" yaml:"mercado_pago_id"`
 	Status              string    `gorm:"size:50;default:'pending'" json:"status" yaml:"status"`

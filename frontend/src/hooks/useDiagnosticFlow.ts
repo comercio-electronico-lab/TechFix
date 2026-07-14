@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { getDiagnosticNodeById } from '@/app/actions';
+import { getDiagnosticNodeById } from '@/actions';
 import { IDiagnosticNode, IDiagnosticOption, IDiagnosticHistory, IProduct } from '@/interfaces/domain';
 
 export interface UseDiagnosticFlowReturn {
@@ -47,7 +47,7 @@ export function useDiagnosticFlow(): UseDiagnosticFlowReturn {
   const [suggestedProducts, setSuggestedProducts] = useState<IProduct[]>([]);
   const [history, setHistory] = useState<IDiagnosticHistory[]>([]);
   const [terminalNode, setTerminalNode] = useState<IDiagnosticNode | null>(null);
-  const [clientName, setClientName] = useState(user?.name || '');
+  const [clientName, setClientName] = useState(user?.nombre || '');
   const [clientEmail, setClientEmail] = useState(user?.email || '');
   const [clientPhone, setClientPhone] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

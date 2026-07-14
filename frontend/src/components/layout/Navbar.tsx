@@ -1,107 +1,277 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Search, User, Sun, Moon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/context/AuthContext';
 import CartDropdown from '@/components/cart/CartDropdown';
+import MegaMenuCatalog from './MegaMenuCatalog';
+import MegaMenuRepairs from './MegaMenuRepairs';
+import MegaMenuNosotros from './MegaMenuNosotros';
+import NavbarBrand from './NavbarBrand';
+import NavbarSearch from './NavbarSearch';
+import NavbarMobileMenu from './NavbarMobileMenu';
 
 const Navbar = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { isAuthenticated, user } = useAuth();
   const [mounted, setMounted] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeDropdown, setActiveDropdown] = useState<'catalogo' | 'reparaciones' | 'nosotros' | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Cerrar menús al cambiar de página
+  useEffect(() => {
+    setIsMenuOpen(false);
+    setIsSearchOpen(false);
+    setActiveDropdown(null);
+  }, [pathname]);
+
+  // Enfocar buscador al abrirlo
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
+
   const navLinks = [
-    { name: 'Inicio', href: '/' },
-    { name: 'Catálogo', href: '/catalogo' },
-    { name: 'Reparaciones', href: '/reparaciones' },
-    { name: 'Nosotros', href: '/nosotros' },
+    { name: 'Catálogo', href: '/catalogo', id: 'catalogo' },
+    { name: 'Reparaciones', href: '/reparaciones', id: 'reparaciones' },
+    { name: 'Nosotros', href: '/nosotros', id: 'nosotros' },
   ];
 
   const getDashboardLink = () => {
     if (!isAuthenticated || !user) return "/auth";
-    if (user.rol === "Admin") return "/admin/dashboard";
-    if (user.rol === "Técnico") return "/tecnico/dashboard";
+    if (user.role === "admin") return "/admin/dashboard";
+    if (user.role === "tecnico") return "/tecnico/dashboard";
     return "/cliente/dashboard";
   };
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/catalogo?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+      setSearchQuery('');
+    }
+  };
+
+  const handleMouseEnterLink = (linkId: string | undefined) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+    if (linkId === 'catalogo' || linkId === 'reparaciones' || linkId === 'nosotros') {
+      setActiveDropdown(linkId as 'catalogo' | 'reparaciones' | 'nosotros');
+    } else {
+      setActiveDropdown(null);
+    }
+  };
+
+  const handleMouseLeaveLink = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null);
+    }, 120);
+  };
+
+  const handleMouseEnterDropdown = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+  };
+
   return (
-    <header className="fixed top-0 w-full h-[72px] bg-primary border-b border-outline-variant/20 shadow-sm z-50">
-      <div className="flex justify-between items-center px-gutter max-w-container-max mx-auto h-full">
-        <div className="flex items-center gap-stack-md">
-          <Link href="/" className="font-h2 text-[32px] text-white">
-            TechFix
-          </Link>
-          <nav className="hidden md:flex items-center gap-gutter ml-stack-lg">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href;
-              return (
+    <>
+      <header 
+        className={`fixed top-0 w-full h-14 border-b z-50 transition-all duration-300 ${
+          activeDropdown 
+            ? 'bg-surface dark:bg-[#020816] border-slate-200/60 dark:border-slate-900/80 shadow-md' 
+            : 'bg-white/70 dark:bg-[#020816]/75 backdrop-blur-md border-slate-200/50 dark:border-slate-900/60'
+        }`}
+        onMouseLeave={handleMouseLeaveLink}
+      >
+        <div className="max-w-container-max mx-auto px-gutter h-full flex items-center justify-between relative">
+          
+          {/* LOGO & BRAND */}
+          <NavbarBrand 
+            isHidden={isSearchOpen || isMenuOpen} 
+            onMouseEnter={() => handleMouseEnterLink(undefined)} 
+          />
+
+          {/* WRAPPER DERECHO: NAVEGACIÓN Y ACCIONES */}
+          <div className="flex items-center gap-8">
+            {/* ENLACES DE NAVEGACIÓN DESKTOP */}
+            <nav className={`hidden md:flex items-center gap-gutter transition-all duration-300 ${
+              isSearchOpen ? 'opacity-0 scale-95 pointer-events-none w-0' : 'opacity-100 scale-100'
+            }`}>
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link 
+                    key={link.href}
+                    href={link.href}
+                    onMouseEnter={() => handleMouseEnterLink(link.id)}
+                    className={`transition-all duration-200 font-semibold text-[11px] uppercase tracking-widest py-4 ${
+                      isActive 
+                        ? 'text-secondary dark:text-sky-400' 
+                        : 'text-slate-650 dark:text-slate-355 hover:text-slate-950 dark:hover:text-white'
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* MENÚ DE ACCIONES */}
+            <div className="flex items-center gap-3.5 text-slate-700 dark:text-slate-200">
+              
+              {/* Botón Lupa */}
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className={`hidden md:flex hover:text-slate-955 dark:hover:text-sky-400 transition-all duration-300 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer ${
+                  isSearchOpen ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
+                }`}
+                onMouseEnter={() => handleMouseEnterLink(undefined)}
+                aria-label="Buscar"
+              >
+                <Search className="w-4.5 h-4.5 text-slate-650 dark:text-slate-355" />
+              </button>
+
+              {/* Alternador de Tema */}
+              <div className={`${isSearchOpen ? 'hidden md:block opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'} transition-all duration-300`}>
+                {mounted && (
+                  <button 
+                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    className="hover:text-slate-955 dark:hover:text-sky-400 transition-colors focus:outline-none p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer"
+                    onMouseEnter={() => handleMouseEnterLink(undefined)}
+                    aria-label="Alternar tema"
+                  >
+                    {theme === 'dark' ? (
+                      <Sun className="w-4.5 h-4.5 text-yellow-400" />
+                    ) : (
+                      <Moon className="w-4.5 h-4.5 text-slate-600" />
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {/* Carrito */}
+              <div className={`${isSearchOpen ? 'hidden md:block opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'} transition-all duration-300`} onMouseEnter={() => handleMouseEnterLink(undefined)}>
+                <CartDropdown />
+              </div>
+
+              {/* Enlace Perfil */}
+              <div className={`${isSearchOpen ? 'hidden md:block opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'} transition-all duration-300`}>
                 <Link 
-                  key={link.href}
-                  href={link.href} 
-                  className={`transition-colors duration-200 font-bold ${
-                    isActive 
-                      ? 'text-secondary-container border-b-2 border-secondary-container pb-1' 
-                      : 'text-white/80 hover:text-white'
-                  }`}
+                  href={getDashboardLink()} 
+                  className="hover:text-slate-955 dark:hover:text-sky-400 transition-colors flex items-center gap-1.5"
+                  onMouseEnter={() => handleMouseEnterLink(undefined)}
+                  title={isAuthenticated ? `Mi Perfil: ${user?.nombre}` : "Iniciar Sesión"}
                 >
-                  {link.name}
+                  <User className="w-4.5 h-4.5 text-slate-650 dark:text-slate-300" />
+                  {isAuthenticated && user && (
+                    <span className="hidden lg:inline text-[9px] font-black bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-white px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      {user.nombre.split(' ')[0]}
+                    </span>
+                  )}
                 </Link>
-              );
-            })}
-          </nav>
+              </div>
+
+              {/* Menú Móvil */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="md:hidden flex flex-col justify-center items-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer relative z-50"
+                aria-label="Menú principal"
+              >
+                <div className="w-4.5 flex flex-col gap-1.5">
+                  <span className={`h-0.5 w-full bg-slate-800 dark:bg-white transition-all duration-350 rounded-full transform origin-center ${
+                    isMenuOpen ? 'rotate-45 translate-y-1' : ''
+                  }`} />
+                  <span className={`h-0.5 w-full bg-slate-800 dark:bg-white transition-all duration-350 rounded-full transform origin-center ${
+                    isMenuOpen ? '-rotate-45 -translate-y-1' : ''
+                  }`} />
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* BUSCADOR DE ESCRITORIO EXPANDIBLE */}
+          <NavbarSearch 
+            ref={searchInputRef}
+            isOpen={isSearchOpen} 
+            onClose={() => setIsSearchOpen(false)} 
+            searchQuery={searchQuery} 
+            setSearchQuery={setSearchQuery} 
+            onSubmit={handleSearchSubmit} 
+          />
         </div>
 
-        <div className="flex items-center gap-stack-md">
-          <div className="relative hidden lg:block">
-            <input 
-              className="bg-primary-container border border-outline/30 text-white rounded-lg px-4 py-2 w-64 focus:ring-2 focus:ring-secondary-container focus:outline-none placeholder:text-white/40"
-              placeholder="Buscar componentes..."
-              type="text"
-            />
-            <Search className="absolute right-3 top-2.5 w-5 h-5 text-white/60" />
-          </div>
-          <div className="flex items-center gap-4 text-white">
-            {mounted && (
-              <button 
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="hover:text-secondary-container transition-colors focus:outline-none p-1.5 rounded-full hover:bg-white/10 flex items-center justify-center"
-                aria-label="Alternar tema"
-              >
-                {theme === 'dark' ? (
-                  <Sun className="w-5 h-5 text-yellow-300" />
-                ) : (
-                  <Moon className="w-5 h-5 text-white" />
-                )}
-              </button>
-            )}
-            {!mounted && (
-              <div className="w-8 h-8" />
-            )}
-            <CartDropdown />
-            <Link 
-              href={getDashboardLink()} 
-              className="hover:text-secondary-container transition-colors flex items-center gap-1.5"
-              title={isAuthenticated ? `Mi Perfil: ${user?.nombre}` : "Iniciar Sesión"}
-            >
-              <User className="w-6 h-6" />
-              {isAuthenticated && user && (
-                <span className="hidden sm:inline text-xs font-bold bg-white/10 px-2 py-0.5 rounded-full">
-                  {user.name.split(' ')[0]}
-                </span>
-              )}
-            </Link>
+        {/* MEGA MENU DRAWER UNIFICADO */}
+        <div 
+          onMouseEnter={handleMouseEnterDropdown} 
+          onMouseLeave={handleMouseLeaveLink}
+          className={`absolute left-0 right-0 top-14 bg-surface dark:bg-[#020816] border-b border-slate-200/60 dark:border-slate-900/80 z-45 transition-all duration-300 ease-out origin-top overflow-hidden shadow-2xl ${
+            activeDropdown !== null 
+              ? 'opacity-100 scale-y-100 max-h-[380px] py-10 pointer-events-auto' 
+              : 'opacity-0 scale-y-95 max-h-0 py-0 pointer-events-none'
+          }`}
+        >
+          <div className="grid grid-cols-1 grid-rows-1 w-full">
+            <div className={`col-start-1 row-start-1 transition-opacity duration-200 ease-out ${
+              activeDropdown === 'catalogo' 
+                ? 'opacity-100 pointer-events-auto' 
+                : 'opacity-0 pointer-events-none'
+            }`}>
+              <MegaMenuCatalog />
+            </div>
+            <div className={`col-start-1 row-start-1 transition-opacity duration-200 ease-out ${
+              activeDropdown === 'reparaciones' 
+                ? 'opacity-100 pointer-events-auto' 
+                : 'opacity-0 pointer-events-none'
+            }`}>
+              <MegaMenuRepairs />
+            </div>
+            <div className={`col-start-1 row-start-1 transition-opacity duration-200 ease-out ${
+              activeDropdown === 'nosotros' 
+                ? 'opacity-100 pointer-events-auto' 
+                : 'opacity-0 pointer-events-none'
+            }`}>
+              <MegaMenuNosotros />
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+
+        {/* PANEL DE NAVEGACIÓN MÓVIL DESPLEGABLE */}
+        <NavbarMobileMenu 
+          isOpen={isMenuOpen} 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery} 
+          onSubmitSearch={handleSearchSubmit} 
+          navLinks={navLinks} 
+        />
+      </header>
+
+      {/* CAPA DE DESENFOQUE DETRÁS DEL NAVBAR */}
+      <div 
+        className={`fixed inset-0 bg-slate-950/40 dark:bg-black/60 backdrop-blur-md z-30 transition-all duration-300 ${
+          activeDropdown 
+            ? 'opacity-100 pointer-events-auto shadow-2xl' 
+            : 'opacity-0 pointer-events-none'
+        }`}
+        onMouseEnter={handleMouseLeaveLink}
+      />
+    </>
   );
 };
 

@@ -1,21 +1,22 @@
 "use client";
 
 import React from 'react';
-import { LayoutDashboard, Wrench, Settings } from 'lucide-react';
+import { LayoutDashboard, Wrench, Package, Clock } from 'lucide-react';
 import SidebarHeader from './SidebarHeader';
 import SidebarUserSection from './SidebarUserSection';
 import SidebarNav from './SidebarNav';
 
 const TecnicoSidebar = () => {
   const links = [
-    { name: 'Dashboard Técnico', href: '/tecnico/dashboard', icon: LayoutDashboard },
-    { name: 'Mis Reparaciones', href: '/tecnico/dashboard', icon: Wrench },
+    { name: 'Dashboard', href: '/tecnico/dashboard', icon: LayoutDashboard },
+    { name: 'Reparaciones', href: '/tecnico/reparaciones', icon: Wrench },
+    { name: 'Inventario', href: '/tecnico/inventario', icon: Package },
+    { name: 'Historial', href: '/tecnico/historial', icon: Clock },
   ];
 
   return (
-    <aside className="fixed left-0 top-0 h-full flex flex-col p-4 border-r border-outline-variant dark:border-outline/20 bg-surface-container-low dark:bg-[#070d19] w-64 shadow-md z-40">
+    <aside className="fixed left-0 top-[72px] h-[calc(100%-72px)] flex flex-col p-4 border-r border-outline-variant dark:border-outline/20 bg-surface-container-low dark:bg-[#070d19] w-64 shadow-md z-40">
       <SidebarHeader
-        icon={Wrench}
         title="TechFix Team"
         subtitle="Panel del Técnico"
         bgColor="bg-primary"

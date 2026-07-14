@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"backend/internal/auth"
 	"backend/internal/db"
 	"backend/internal/models"
 
@@ -34,10 +35,14 @@ type Claims struct {
 
 // RegisterInput represents register payload
 type RegisterInput struct {
-	Nombre   string `json:"nombre" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	Login    string `json:"login" binding:"required"`
-	Password string `json:"password" binding:"required,min=6"`
+	Nombre     string `json:"nombre" binding:"required"`
+	Email      string `json:"email" binding:"required,email"`
+	Login      string `json:"login" binding:"required"`
+	Password   string `json:"password" binding:"required,min=6"`
+	Telefono   string `json:"teléfono"`
+	Direccion  string `json:"dirección"`
+	Ciudad     string `json:"ciudad"`
+	DocumentId string `json:"documentId"`
 }
 
 // LoginInput represents login payload
@@ -48,8 +53,12 @@ type LoginInput struct {
 
 // UpdateProfileInput represents profile update payload
 type UpdateProfileInput struct {
-	Nombre string `json:"nombre" binding:"required"`
-	Login  string `json:"login" binding:"required"`
+	Nombre     string `json:"nombre" binding:"required"`
+	Login      string `json:"login"`
+	Telefono   string `json:"teléfono"`
+	Direccion  string `json:"dirección"`
+	Ciudad     string `json:"ciudad"`
+	DocumentId string `json:"documentId"`
 }
 
 // Register handler
@@ -82,6 +91,10 @@ func Register(c *gin.Context) {
 		Rol:          "Cliente", // Rol por defecto
 		Estado:       "Activo",
 		JoinedDate:   time.Now(),
+		Telefono:     input.Telefono,
+		Direccion:    input.Direccion,
+		Ciudad:       input.Ciudad,
+		DocumentId:   input.DocumentId,
 	}
 
 	if err := db.DB.Create(&usuario).Error; err != nil {
@@ -183,7 +196,13 @@ func UpdateProfile(c *gin.Context) {
 	}
 
 	usuario.Nombre = input.Nombre
-	usuario.Login = input.Login
+	if input.Login != "" {
+		usuario.Login = input.Login
+	}
+	usuario.Telefono = input.Telefono
+	usuario.Direccion = input.Direccion
+	usuario.Ciudad = input.Ciudad
+	usuario.DocumentId = input.DocumentId
 
 	if err := db.DB.Save(&usuario).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al guardar el perfil"})
@@ -191,6 +210,26 @@ func UpdateProfile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, usuario)
+}
+
+// GetAllUsers devuelve todos los usuarios
+// GET /api/user/all
+func GetAllUsers(c *gin.Context) {
+	// Verificar si el solicitante es administrador
+	userRolVal, exists := c.Get("userRol")
+	if !exists || auth.NormalizeRole(userRolVal.(string)) != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado: se requieren permisos de administrador"})
+		c.Abort()
+		return
+	}
+
+	var usuarios []models.Usuario
+	if err := db.DB.Order("joined_date desc").Find(&usuarios).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al consultar usuarios"})
+		return
+	}
+
+	c.JSON(http.StatusOK, usuarios)
 }
 
 // AuthMiddleware protects private routes
@@ -231,4 +270,116 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+type UpdateUserRoleInput struct {
+	Rol string `json:"rol" binding:"required,oneof=Admin Tecnico Cliente"`
+}
+
+type UpdateUserStatusInput struct {
+	Estado string `json:"estado" binding:"required,oneof=Activo Inactivo"`
+}
+
+// UpdateUserRole updates a user's role (Admin only)
+func UpdateUserRole(c *gin.Context) {
+	userRolVal, exists := c.Get("userRol")
+	if !exists || auth.NormalizeRole(userRolVal.(string)) != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado: se requieren permisos de administrador"})
+		c.Abort()
+		return
+	}
+
+	userIDStr := c.Param("id")
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de usuario inválido"})
+		return
+	}
+
+	var input UpdateUserRoleInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var usuario models.Usuario
+	if err := db.DB.First(&usuario, "id = ?", userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Usuario no encontrado"})
+		return
+	}
+
+	usuario.Rol = input.Rol
+	if err := db.DB.Save(&usuario).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al actualizar el rol"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Rol de usuario actualizado con éxito", "usuario": usuario})
+}
+
+// UpdateUserStatus updates a user's status (Admin only)
+func UpdateUserStatus(c *gin.Context) {
+	userRolVal, exists := c.Get("userRol")
+	if !exists || auth.NormalizeRole(userRolVal.(string)) != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado: se requieren permisos de administrador"})
+		c.Abort()
+		return
+	}
+
+	userIDStr := c.Param("id")
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de usuario inválido"})
+		return
+	}
+
+	var input UpdateUserStatusInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var usuario models.Usuario
+	if err := db.DB.First(&usuario, "id = ?", userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Usuario no encontrado"})
+		return
+	}
+
+	usuario.Estado = input.Estado
+	if err := db.DB.Save(&usuario).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al actualizar el estado"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Estado de usuario actualizado con éxito", "usuario": usuario})
+}
+
+// DeleteUser deletes a user (soft delete, Admin only)
+func DeleteUser(c *gin.Context) {
+	userRolVal, exists := c.Get("userRol")
+	if !exists || auth.NormalizeRole(userRolVal.(string)) != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado: se requieren permisos de administrador"})
+		c.Abort()
+		return
+	}
+
+	userIDStr := c.Param("id")
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de usuario inválido"})
+		return
+	}
+
+	var usuario models.Usuario
+	if err := db.DB.First(&usuario, "id = ?", userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Usuario no encontrado"})
+		return
+	}
+
+	if err := db.DB.Delete(&usuario).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al eliminar el usuario"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Usuario eliminado con éxito"})
 }
