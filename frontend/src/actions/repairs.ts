@@ -94,11 +94,15 @@ export async function getRepairTickets() {
       status: r.status as RepairStatus,
       createdAt: r.created_at,
       appointment_datetime: r.appointment_datetime,
+      appointmentDatetime: r.appointment_datetime,
       notes: r.notes || '',
       estimated_price_min: r.estimated_price_min,
       estimated_price_max: r.estimated_price_max,
       final_price: r.final_price || 0,
-      diagnosis_final: r.diagnosis_final || 'Pendiente de diagnóstico técnico'
+      finalPrice: r.final_price || 0,
+      diagnosis_final: r.diagnosis_final || 'Pendiente de diagnóstico técnico',
+      technicianName: r.technician?.nombre || null,
+      technicianId: r.technician_id || null
     }));
   } catch (error) {
     console.error('Error in getRepairTickets action:', error);

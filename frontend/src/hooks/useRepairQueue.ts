@@ -84,10 +84,12 @@ export function useRepairQueue(): UseRepairQueueReturn {
   }, [fetchTickets]);
 
   const moveTicket = async (ticketId: string, nextStatus: string, notes?: string) => {
-    try {
-      await updateRepairStatus(ticketId, nextStatus as RepairStatus, notes);
-      await fetchTickets();
-    } catch (e) { console.error(e); }
+    const result = await updateRepairStatus(ticketId, nextStatus as RepairStatus, notes);
+    if (!result.success) {
+      alert('Error al actualizar estado: ' + result.error);
+      return;
+    }
+    await fetchTickets();
   };
 
   const addPartToRepair = async (ticketId: string, productId: string, quantity: number) => {

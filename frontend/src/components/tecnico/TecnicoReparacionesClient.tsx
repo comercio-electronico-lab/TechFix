@@ -42,13 +42,21 @@ export default function TecnicoReparacionesClient() {
 
   const handleStart = async (id: string) => {
     if (!token) return;
-    await updateRepairStatusAction(token, id, 'en_reparacion', 'Iniciando diagnóstico');
+    const result = await updateRepairStatusAction(token, id, 'en_reparacion', 'Iniciando diagnóstico');
+    if (!result.success) {
+      alert('Error al actualizar estado: ' + result.error);
+      return;
+    }
     loadRepairs();
   };
 
   const handleComplete = async (id: string) => {
     if (!token) return;
-    await updateRepairStatusAction(token, id, 'reparado', 'Reparación completada');
+    const result = await updateRepairStatusAction(token, id, 'reparado', 'Reparación completada');
+    if (!result.success) {
+      alert('Error al actualizar estado: ' + result.error);
+      return;
+    }
     loadRepairs();
   };
 

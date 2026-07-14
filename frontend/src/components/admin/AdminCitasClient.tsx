@@ -109,9 +109,11 @@ export default function AdminCitasClient() {
 
   const getStatusBadge = (status: string) => {
     const s = status?.toLowerCase() || '';
-    if (s === 'ready' || s === 'completed') return <Badge variant="success">Completado</Badge>;
-    if (s === 'repairing' || s === 'in_progress') return <Badge variant="info">En Reparación</Badge>;
+    if (s === 'ready' || s === 'completed' || s === 'reparado' || s === 'completado') return <Badge variant="success">Completado</Badge>;
+    if (s === 'repairing' || s === 'in_progress' || s === 'en_reparacion') return <Badge variant="info">En Reparación</Badge>;
     if (s === 'in_review') return <Badge variant="warning">En Revisión</Badge>;
+    if (s === 'agendado') return <Badge variant="warning">Agendado</Badge>;
+    if (s === 'cancelada') return <Badge variant="neutral">Cancelada</Badge>;
     return <Badge variant="neutral">Pendiente</Badge>;
   };
 

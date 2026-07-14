@@ -43,7 +43,11 @@ export default function TecnicoReparacionDetailClient({ ticketId }: { ticketId: 
     if (!token) return;
     const notes = newStatus === 'en_reparacion' ? 'Técnico inició diagnóstico' :
                   newStatus === 'reparado' ? 'Reparación completada' : '';
-    await updateRepairStatusAction(token, ticketId, newStatus, notes);
+    const result = await updateRepairStatusAction(token, ticketId, newStatus, notes);
+    if (!result.success) {
+      alert('Error al actualizar estado: ' + result.error);
+      return;
+    }
     loadData();
   };
 

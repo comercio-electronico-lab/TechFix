@@ -52,14 +52,14 @@ export default function TecnicoDashboardClient() {
     const mappedStatus = newStatus === 'in_progress' ? 'en_reparacion' :
                          newStatus === 'completed' ? 'reparado' : 'pending';
 
-    try {
-      const notes = newStatus === 'in_progress' ? 'Técnico inició el diagnóstico' :
-                    newStatus === 'completed' ? 'Reparación completada por el técnico' : '';
-      await updateRepairStatusAction(token, jobId, mappedStatus, notes);
-      await loadData();
-    } catch (err: any) {
-      alert('Error al actualizar estado: ' + err.message);
+    const notes = newStatus === 'in_progress' ? 'Técnico inició el diagnóstico' :
+                  newStatus === 'completed' ? 'Reparación completada por el técnico' : '';
+    const result = await updateRepairStatusAction(token, jobId, mappedStatus, notes);
+    if (!result.success) {
+      alert('Error al actualizar estado: ' + result.error);
+      return;
     }
+    await loadData();
   };
 
   const handleAddPartToJob = async (jobId: string, productId: string) => {

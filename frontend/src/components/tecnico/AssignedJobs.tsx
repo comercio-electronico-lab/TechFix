@@ -53,7 +53,7 @@ const AssignedJobs: React.FC<AssignedJobsProps> = ({
             const selectedPartId = selectedParts[job.id] || '';
             const deviceName = job.device ? `${job.device.brand} ${job.device.model}` : 'Dispositivo Genérico';
             const serialNumber = job.device ? job.device.serial_number : 'S/N Desconocido';
-            const clientName = job.user ? job.user.nombre : 'Cliente';
+            const clientName = job.customerName || 'Cliente';
             
             return (
               <div key={job.id} className={`pt-6 ${idx === 0 ? 'pt-0' : ''} flex flex-col gap-4 group`}>

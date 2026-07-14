@@ -155,8 +155,8 @@ func startServer() {
 		// Rutas públicas de Autenticación
 		authRoutes := api.Group("/auth")
 		{
-			authRoutes.POST("/register", auth.Register)
-			authRoutes.POST("/login", auth.Login)
+			authRoutes.POST("/register", handlers.Register)
+			authRoutes.POST("/login", handlers.Login)
 		}
 
 		// Rutas privadas del Usuario (protegidas por AuthMiddleware)

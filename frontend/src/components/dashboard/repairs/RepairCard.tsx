@@ -41,11 +41,13 @@ const RepairCard = ({ repair, onRefresh }: RepairCardProps) => {
     if (!window.confirm('¿Estás seguro de que deseas cancelar este servicio de reparación?')) return;
     setLoadingAction(true);
     try {
-      await updateRepairStatusAction(token, repair.id, 'cancelada' as any, 'Cancelado por el cliente.');
+      const result = await updateRepairStatusAction(token, repair.id, 'cancelada' as any, 'Cancelado por el cliente.');
+      if (!result.success) {
+        alert(result.error || 'Error al cancelar la reparación');
+        return;
+      }
       alert('Servicio de reparación cancelado exitosamente.');
       if (onRefresh) onRefresh();
-    } catch (e: any) {
-      alert(e.message || 'Error al cancelar la reparación');
     } finally {
       setLoadingAction(false);
     }
@@ -259,7 +261,7 @@ const RepairCard = ({ repair, onRefresh }: RepairCardProps) => {
       <RepairPaymentModal
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
-        amount={repair.final_price > 0 ? repair.final_price : (repair.estimated_price_min || 5000)}
+        amount={repair.final_price > 0 ? repair.final_price : (repair.estimated_price_min || 100)}
         repairId={repair.id}
         deviceName={deviceLabel}
         onPaymentSuccess={() => {
