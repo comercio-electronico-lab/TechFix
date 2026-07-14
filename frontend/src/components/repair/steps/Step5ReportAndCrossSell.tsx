@@ -64,28 +64,30 @@ export function DiagnosticStep5({
   const [localSelectedBranch, setLocalSelectedBranch] = useState(selectedBranch || 'Laboratorio Central');
   const [localFailurePhoto, setLocalFailurePhoto] = useState<string | null>(failurePhoto || null);
 
+  // Los productos sugeridos por la IA usan estimated_price/image_url/producto_id
+  // en vez de price/image/id (ver RecommendedProductDTO en el backend).
+  const getProductPrice = (p: any) => p.price ?? p.estimated_price ?? 0;
+
   // Desglose del presupuesto estimado
   const laborCost = terminalNode?.estimated_min ? Math.round(terminalNode.estimated_min * 0.4) : 35;
-  const partsCost = suggestedProducts && suggestedProducts.length > 0 
-    ? suggestedProducts.reduce((sum, p) => sum + p.price, 0)
+  const partsCost = suggestedProducts && suggestedProducts.length > 0
+    ? suggestedProducts.reduce((sum, p) => sum + getProductPrice(p), 0)
     : 0;
-  
+
   const subtotalCost = laborCost + partsCost;
   const taxCost = subtotalCost * 0.18; // 18% IVA/IGV
   const totalCost = subtotalCost + taxCost;
-
-  const formattedEstimate = `$${totalCost.toFixed(2)}S\.`;
 
   // Lógica DIY: Agregar repuestos al carrito y redirigir al catálogo
   const handleAddAllToCart = () => {
     if (suggestedProducts && suggestedProducts.length > 0) {
       suggestedProducts.forEach(prod => {
         addItem({
-          id: prod.id,
+          id: prod.id ?? prod.producto_id ?? crypto.randomUUID(),
           name: prod.name,
-          price: prod.price,
-          image: prod.image,
-          description: prod.description
+          price: getProductPrice(prod),
+          image: prod.image ?? prod.image_url ?? '',
+          description: prod.description ?? prod.reasoning ?? ''
         });
       });
       localStorage.setItem('techfix_open_sidebar_invoice', 'true');
@@ -253,29 +255,29 @@ export function DiagnosticStep5({
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between items-center">
                   <span className="text-on-surface-variant dark:text-slate-400">Mano de Obra Certificada (Evaluación + Labor):</span>
-                  <span className="font-mono text-on-surface dark:text-slate-200 font-bold">${laborCost.toFixed(2)}S\.</span>
+                  <span className="font-mono text-on-surface dark:text-slate-200 font-bold">S/. {laborCost.toFixed(2)}</span>
                 </div>
-                
+
                 {partsCost > 0 && (
                   <div className="flex justify-between items-center">
                     <span className="text-on-surface-variant dark:text-slate-400">Repuestos OEM Sugeridos:</span>
-                    <span className="font-mono text-on-surface dark:text-slate-200 font-bold">${partsCost.toFixed(2)}S\.</span>
+                    <span className="font-mono text-on-surface dark:text-slate-200 font-bold">S/. {partsCost.toFixed(2)}</span>
                   </div>
                 )}
-                
+
                 <div className="border-t border-slate-100 dark:border-slate-850 pt-2 flex justify-between items-center font-semibold">
                   <span className="text-on-surface-variant dark:text-slate-400">Subtotal Neto:</span>
-                  <span className="font-mono text-on-surface dark:text-slate-200">${subtotalCost.toFixed(2)}S\.</span>
+                  <span className="font-mono text-on-surface dark:text-slate-200">S/. {subtotalCost.toFixed(2)}</span>
                 </div>
 
                 <div className="flex justify-between items-center text-[11px] text-on-surface-variant/80 dark:text-slate-500">
                   <span>Impuesto de Ley Aplicado (18% IGV/IVA):</span>
-                  <span className="font-mono">${taxCost.toFixed(2)}S\.</span>
+                  <span className="font-mono">S/. {taxCost.toFixed(2)}</span>
                 </div>
 
                 <div className="border-t-2 border-dashed border-slate-200 dark:border-slate-800 pt-2.5 flex justify-between items-center font-bold text-sm">
                   <span className="text-primary dark:text-sky-400">Total Presupuestado Estimado:</span>
-                  <span className="font-mono text-base text-primary dark:text-sky-400">${totalCost.toFixed(2)}S\.</span>
+                  <span className="font-mono text-base text-primary dark:text-sky-400">S/. {totalCost.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -391,8 +393,8 @@ export function DiagnosticStep5({
                     >
                       {/* Imagen Repuesto */}
                       <div className="w-16 h-16 bg-slate-50 dark:bg-slate-950 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border border-outline-variant/20 dark:border-slate-850">
-                        <img 
-                          src={product.image} 
+                        <img
+                          src={product.image || product.image_url}
                           alt={product.name}
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1591405351990-4726e331f141?q=80&w=300&auto=format&fit=crop';
@@ -423,7 +425,7 @@ export function DiagnosticStep5({
 
                         <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-50 dark:border-slate-850">
                           <span className="text-xs font-black text-primary dark:text-sky-400">
-                            ${((product.price || product.estimated_price) || 0).toFixed(2)}S\.
+                            S/. {((product.price || product.estimated_price) || 0).toFixed(2)}
                           </span>
                         </div>
                       </div>

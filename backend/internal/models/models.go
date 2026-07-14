@@ -335,7 +335,7 @@ type Payment struct {
 	RepairID            *uuid.UUID `gorm:"type:uuid" json:"repair_id" yaml:"repair_id"`
 	RepairOrder         *RepairOrder `gorm:"foreignKey:RepairID" json:"repair_order,omitempty"`
 	Amount              float64   `json:"amount" yaml:"amount"`
-	Currency            string    `gorm:"size:10;default:'ARS'" json:"currency" yaml:"currency"`
+	Currency            string    `gorm:"size:10;default:'PEN'" json:"currency" yaml:"currency"`
 	Description         string    `gorm:"type:text" json:"description" yaml:"description"`
 	MercadoPagoID       string    `gorm:"size:255;uniqueIndex" json:"mercado_pago_id" yaml:"mercado_pago_id"`
 	Status              string    `gorm:"size:50;default:'pending'" json:"status" yaml:"status"`

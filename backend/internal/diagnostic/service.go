@@ -354,8 +354,9 @@ Basándote en el historial:
 2. Si NO tienes suficiente información, genera una siguiente pregunta diagnóstica clara y específica
 3. Si SÍ tienes suficiente información:
    - Proporciona un diagnóstico detallado del problema
-   - Estima rango de precios (en ARS)
-   - Recomienda 2-3 partes/repuestos específicos con precio estimado y justificación
+   - Estima rango de precios en soles peruanos (S/), usando montos realistas de mano de obra y repuestos
+     entre S/ 20 y S/ 500 (igual de magnitud que los precios del catálogo de TechFix, nunca miles)
+   - Recomienda 2-3 partes/repuestos específicos con precio estimado (también entre S/ 20 y S/ 500) y justificación
 
 Responde con JSON válido en este formato:
 {

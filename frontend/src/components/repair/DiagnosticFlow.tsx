@@ -25,6 +25,7 @@ export default function DiagnosticFlow() {
     setDamageDescription,
     diagnosticMode,
     setDiagnosticMode,
+    clientName,
     setClientName,
     setClientEmail,
     diagnosis,
@@ -135,7 +136,7 @@ export default function DiagnosticFlow() {
             terminalNode={{ preliminary_result: diagnosis, estimated_min: estimatedMinPrice || 0, estimated_max: estimatedMaxPrice || 0 }}
             symptomPath={[]}
             suggestedProducts={recommendedProducts || []}
-            clientName=""
+            clientName={clientName}
             serialNumber=""
             deviceModel={selectedModel}
             appointmentDate={new Date().toISOString().split('T')[0]}

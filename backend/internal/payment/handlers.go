@@ -76,7 +76,7 @@ func CreatePayment(c *gin.Context) {
 		UserID:         userUUID,
 		RepairID:       repairID,
 		Amount:         req.Amount,
-		Currency:       "ARS",
+		Currency:       "PEN",
 		Description:    req.Description,
 		Status:         status,
 		PayerEmail:     req.PayerEmail,
