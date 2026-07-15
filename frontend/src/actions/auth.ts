@@ -1,9 +1,11 @@
 'use server';
 
-import { IUser, IAuthResponse } from '@/interfaces/domain';
+import { IUser } from '@/interfaces/domain';
 import { cookies } from 'next/headers';
+import { getAuthToken } from '@/lib/auth-token';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const TOKEN_COOKIE = 'techfix_token';
 
 function normalizeRole(rol: string): 'admin' | 'tecnico' | 'cliente' {
   const r = rol?.toLowerCase() || '';
@@ -12,7 +14,7 @@ function normalizeRole(rol: string): 'admin' | 'tecnico' | 'cliente' {
   return 'cliente';
 }
 
-export async function authenticate(email: string, password?: string): Promise<IAuthResponse> {
+export async function authenticate(email: string, password?: string): Promise<IUser> {
   const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
     method: 'POST',
     headers: {
@@ -40,17 +42,18 @@ export async function authenticate(email: string, password?: string): Promise<IA
     documentId: data.usuario.documentId || '',
   };
 
-  // Guardar token en cookies
+  // El JWT vive únicamente en una cookie httpOnly: nunca se devuelve al
+  // cliente, para que un script inyectado por XSS no pueda leerlo.
   const cookieStore = await cookies();
-  cookieStore.set('techfix_token', data.token, {
-    httpOnly: false, // Permitir leer desde cliente si es necesario
+  cookieStore.set(TOKEN_COOKIE, data.token, {
+    httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 60 * 60 * 24, // 1 día
     path: '/'
   });
 
-  return { user, token: data.token };
+  return user;
 }
 
 export async function register(
@@ -61,9 +64,9 @@ export async function register(
   dirección?: string,
   ciudad?: string,
   documentId?: string
-): Promise<IAuthResponse> {
+): Promise<IUser> {
   const login = email.split('@')[0] || `user_${Date.now()}`;
-  
+
   const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
     method: 'POST',
     headers: {
@@ -90,22 +93,20 @@ export async function register(
   return authenticate(email, password);
 }
 
-export async function getCurrentUser(token?: string): Promise<IUser> {
-  let activeToken = token;
-  
-  if (!activeToken) {
-    const cookieStore = await cookies();
-    activeToken = cookieStore.get('techfix_token')?.value;
-  }
+export async function logoutAction(): Promise<void> {
+  // El cliente no puede borrar una cookie httpOnly con document.cookie;
+  // hay que hacerlo desde el servidor.
+  const cookieStore = await cookies();
+  cookieStore.delete(TOKEN_COOKIE);
+}
 
-  if (!activeToken) {
-    throw new Error('Sesión no encontrada');
-  }
+export async function getCurrentUser(): Promise<IUser> {
+  const token = await getAuthToken();
 
   const response = await fetch(`${BACKEND_URL}/api/user/profile`, {
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${activeToken}`,
+      'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     cache: 'no-store',
@@ -131,12 +132,7 @@ export async function getCurrentUser(token?: string): Promise<IUser> {
 
 export async function getAllUsers(): Promise<any[]> {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('techfix_token')?.value;
-
-    if (!token) {
-      throw new Error('No autorizado (Token faltante)');
-    }
+    const token = await getAuthToken();
 
     const response = await fetch(`${BACKEND_URL}/api/user/all`, {
       method: 'GET',
@@ -168,9 +164,7 @@ export async function getAllUsers(): Promise<any[]> {
 
 export async function updateUserRole(id: string, role: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('techfix_token')?.value;
-    if (!token) throw new Error('Token requerido');
+    const token = await getAuthToken();
 
     const response = await fetch(`${BACKEND_URL}/api/user/${id}/role`, {
       method: 'PUT',
@@ -196,9 +190,7 @@ export async function updateUserRole(id: string, role: string): Promise<{ succes
 
 export async function updateUserStatus(id: string, status: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('techfix_token')?.value;
-    if (!token) throw new Error('Token requerido');
+    const token = await getAuthToken();
 
     const response = await fetch(`${BACKEND_URL}/api/user/${id}/status`, {
       method: 'PUT',
@@ -224,9 +216,7 @@ export async function updateUserStatus(id: string, status: string): Promise<{ su
 
 export async function deleteUser(id: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('techfix_token')?.value;
-    if (!token) throw new Error('Token requerido');
+    const token = await getAuthToken();
 
     const response = await fetch(`${BACKEND_URL}/api/user/${id}`, {
       method: 'DELETE',
@@ -249,13 +239,14 @@ export async function deleteUser(id: string): Promise<{ success: boolean; error?
   }
 }
 
-export async function updateProfileAction(token: string, profileData: {
+export async function updateProfileAction(profileData: {
   nombre: string;
   teléfono?: string;
   dirección?: string;
   ciudad?: string;
   documentId?: string;
 }): Promise<IUser> {
+  const token = await getAuthToken();
   const response = await fetch(`${BACKEND_URL}/api/user/profile`, {
     method: 'PUT',
     headers: {

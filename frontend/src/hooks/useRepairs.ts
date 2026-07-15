@@ -37,14 +37,14 @@ export interface ScheduleRepairInput {
 }
 
 export function useRepairs() {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [repairs, setRepairs] = useState<RepairOrder[]>([]);
   const [warranties, setWarranties] = useState<Warranty[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchRepairsAndWarranties = useCallback(async () => {
-    if (!isAuthenticated || !token) {
+    if (!isAuthenticated) {
       setRepairs([]);
       setWarranties([]);
       return;
@@ -55,9 +55,9 @@ export function useRepairs() {
 
     try {
       // Fetch repairs via Server Action
-      const repairsData = await getClientRepairsAction(token);
+      const repairsData = await getClientRepairsAction();
       // Fetch warranties via Server Action
-      const warrantiesData = await getClientWarrantiesAction(token);
+      const warrantiesData = await getClientWarrantiesAction();
 
       // Cast para compatibilidad (En una API real el mapeo se haría en la Action)
       setRepairs((repairsData as unknown as RepairOrder[]) || []);
@@ -69,17 +69,17 @@ export function useRepairs() {
     } finally {
       setLoading(false);
     }
-  }, [token, isAuthenticated]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     fetchRepairsAndWarranties();
   }, [fetchRepairsAndWarranties]);
 
   const scheduleRepair = async (input: ScheduleRepairInput): Promise<{ success: boolean; data?: unknown; error?: string }> => {
-    if (!token) return { success: false, error: 'No autenticado' };
+    if (!isAuthenticated) return { success: false, error: 'No autenticado' };
 
     try {
-      const data = await scheduleRepairAction(token, input);
+      const data = await scheduleRepairAction(input);
       await fetchRepairsAndWarranties(); // Recargar datos
       return { success: true, data };
     } catch (e: unknown) {

@@ -8,7 +8,7 @@ import Badge from '@/components/ui/Badge';
 import Link from 'next/link';
 
 export default function TecnicoReparacionDetailClient({ ticketId }: { ticketId: string }) {
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [order, setOrder] = useState<any>(null);
   const [tracking, setTracking] = useState<any[]>([]);
   const [warranty, setWarranty] = useState<any>(null);
@@ -18,14 +18,14 @@ export default function TecnicoReparacionDetailClient({ ticketId }: { ticketId: 
 
   useEffect(() => {
     loadData();
-  }, [token, ticketId]);
+  }, [isAuthenticated, ticketId]);
 
   const loadData = async () => {
-    if (!token) return;
+    if (!isAuthenticated) return;
     setLoading(true);
     try {
       const [trackingData, productsData] = await Promise.all([
-        getRepairTrackingAction(token, ticketId),
+        getRepairTrackingAction(ticketId),
         getAdminProductsAction()
       ]);
       setOrder(trackingData.order);
@@ -40,10 +40,10 @@ export default function TecnicoReparacionDetailClient({ ticketId }: { ticketId: 
   };
 
   const handleUpdateStatus = async (newStatus: string) => {
-    if (!token) return;
+    if (!isAuthenticated) return;
     const notes = newStatus === 'en_reparacion' ? 'Técnico inició diagnóstico' :
                   newStatus === 'reparado' ? 'Reparación completada' : '';
-    const result = await updateRepairStatusAction(token, ticketId, newStatus, notes);
+    const result = await updateRepairStatusAction(ticketId, newStatus, notes);
     if (!result.success) {
       alert('Error al actualizar estado: ' + result.error);
       return;
@@ -52,12 +52,12 @@ export default function TecnicoReparacionDetailClient({ ticketId }: { ticketId: 
   };
 
   const handleAddPart = async () => {
-    if (!token || !selectedPart) return;
+    if (!isAuthenticated || !selectedPart) return;
     const prod = products.find(p => p.id === selectedPart);
     if (!prod || prod.stock <= 0) return alert('Stock insuficiente');
 
     try {
-      await addPartToRepairAction(token, ticketId, selectedPart, 1);
+      await addPartToRepairAction(ticketId, selectedPart, 1);
       alert(`Repuesto "${prod.name}" vinculado exitosamente`);
       setSelectedPart('');
       loadData();

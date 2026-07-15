@@ -19,7 +19,7 @@ import WarrantyCertificateCard from '@/components/repair/WarrantyCertificateCard
 
 export default function RepairTrackingClient() {
   const router = useRouter();
-  const { token, user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const searchParams = useSearchParams();
 
   const ticketId = searchParams.get('ticket') || '';
@@ -48,7 +48,7 @@ export default function RepairTrackingClient() {
       setError(null);
 
       try {
-        const data = await getRepairTrackingAction(token || '', ticketId);
+        const data = await getRepairTrackingAction(ticketId);
         setOrder(data.order);
         setTrackingLogs(data.tracking || []);
         setWarranty(data.warranty);

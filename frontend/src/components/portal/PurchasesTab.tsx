@@ -22,13 +22,13 @@ interface LocalOrder {
 }
 
 export default function PurchasesTab() {
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [order, setOrder] = useState<LocalOrder | null>(null);
 
   useEffect(() => {
-    if (!token) return;
+    if (!isAuthenticated) return;
 
-    getUserOrdersAction(token)
+    getUserOrdersAction()
       .then((pedidos) => {
         if (!pedidos || pedidos.length === 0) return;
         const latest = pedidos[0];
@@ -42,7 +42,7 @@ export default function PurchasesTab() {
         });
       })
       .catch((err) => console.error('Error al obtener pedidos:', err));
-  }, [token]);
+  }, [isAuthenticated]);
 
   const formatDate = (dateStr?: string) => {
     const date = dateStr ? new Date(dateStr) : new Date();

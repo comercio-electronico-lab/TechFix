@@ -7,17 +7,17 @@ import { Search, Package, AlertTriangle } from 'lucide-react';
 import Badge from '@/components/ui/Badge';
 
 export default function TecnicoInventarioClient() {
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [products, setProducts] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadProducts();
-  }, [token]);
+  }, [isAuthenticated]);
 
   const loadProducts = async () => {
-    if (!token) return;
+    if (!isAuthenticated) return;
     setLoading(true);
     try {
       const data = await getAdminProductsAction();

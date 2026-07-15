@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"backend/internal/auth"
@@ -15,6 +16,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
+
+func getEnvOrDefault(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
 
 func main() {
 	// Cargar variables de entorno desde el archivo .env si existe
@@ -69,9 +77,20 @@ func startServer() {
 	r.Use(customLogger())
 	r.Use(gin.Recovery())
 
-	// Middleware de CORS para permitir solicitudes del Frontend en Next.js
+	// Middleware de CORS para permitir solicitudes del Frontend en Next.js.
+	// Access-Control-Allow-Origin: * es incompatible con Allow-Credentials: true
+	// (los navegadores rechazan la respuesta) — se necesita un origen explícito
+	// para poder usar cookies (httpOnly) en las peticiones autenticadas.
+	allowedOrigins := strings.Split(getEnvOrDefault("FRONTEND_URL", "http://localhost:3000"), ",")
 	r.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := c.Request.Header.Get("Origin")
+		for _, allowed := range allowedOrigins {
+			if origin != "" && origin == strings.TrimSpace(allowed) {
+				c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+				c.Writer.Header().Set("Vary", "Origin")
+				break
+			}
+		}
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")

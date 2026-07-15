@@ -8,17 +8,17 @@ import Badge from '@/components/ui/Badge';
 import Link from 'next/link';
 
 export default function TecnicoHistorialClient() {
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [repairs, setRepairs] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadRepairs();
-  }, [token]);
+  }, [isAuthenticated]);
 
   const loadRepairs = async () => {
-    if (!token) return;
+    if (!isAuthenticated) return;
     setLoading(true);
     try {
       const data = await getAdminRepairsAction();

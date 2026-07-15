@@ -19,7 +19,7 @@ export interface NewDeviceForm {
 const EMPTY_DEVICE_FORM: NewDeviceForm = { brand: '', model: '', specs: '', serialNumber: '', purchaseDate: '', status: 'Active Warranty' };
 
 export function useCustomerPortal() {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [devices, setDevices] = useState<ICustomerDevice[]>([]);
   const [activeTab, setActiveTab] = useState<PortalTab>('Devices');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,12 +27,12 @@ export function useCustomerPortal() {
   const [newDevice, setNewDevice] = useState<NewDeviceForm>(EMPTY_DEVICE_FORM);
 
   const fetchDevices = useCallback(async () => {
-    if (!token) return;
+    if (!isAuthenticated) return;
     try {
-      const data = await getCustomerDevicesList(token);
+      const data = await getCustomerDevicesList();
       setDevices(data as unknown as ICustomerDevice[]);
     } catch (e) { console.error(e); }
-  }, [token]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (isAuthenticated) fetchDevices();
@@ -40,10 +40,10 @@ export function useCustomerPortal() {
 
   const handleRegisterDevice = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) return;
+    if (!isAuthenticated) return;
     setIsSubmitting(true);
     try {
-      await registerDeviceAction(token, {
+      await registerDeviceAction({
         brand: newDevice.brand,
         model: newDevice.model,
         serialNumber: newDevice.serialNumber,

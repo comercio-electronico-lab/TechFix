@@ -8,17 +8,17 @@ import Badge from '@/components/ui/Badge';
 import Link from 'next/link';
 
 export default function TecnicoReparacionesClient() {
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [repairs, setRepairs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
     loadRepairs();
-  }, [token]);
+  }, [isAuthenticated]);
 
   const loadRepairs = async () => {
-    if (!token) return;
+    if (!isAuthenticated) return;
     setLoading(true);
     try {
       const data = await getAdminRepairsAction();
@@ -41,8 +41,8 @@ export default function TecnicoReparacionesClient() {
   const completed = filtered.filter(r => r.status === 'reparado' || r.status === 'completado');
 
   const handleStart = async (id: string) => {
-    if (!token) return;
-    const result = await updateRepairStatusAction(token, id, 'en_reparacion', 'Iniciando diagnóstico');
+    if (!isAuthenticated) return;
+    const result = await updateRepairStatusAction(id, 'en_reparacion', 'Iniciando diagnóstico');
     if (!result.success) {
       alert('Error al actualizar estado: ' + result.error);
       return;
@@ -51,8 +51,8 @@ export default function TecnicoReparacionesClient() {
   };
 
   const handleComplete = async (id: string) => {
-    if (!token) return;
-    const result = await updateRepairStatusAction(token, id, 'reparado', 'Reparación completada');
+    if (!isAuthenticated) return;
+    const result = await updateRepairStatusAction(id, 'reparado', 'Reparación completada');
     if (!result.success) {
       alert('Error al actualizar estado: ' + result.error);
       return;

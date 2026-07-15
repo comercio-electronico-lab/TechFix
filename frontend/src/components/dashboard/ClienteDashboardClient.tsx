@@ -23,7 +23,7 @@ import WarrantiesSection from '@/components/dashboard/WarrantiesSection';
 import ProfileSection from '@/components/dashboard/ProfileSection';
 
 export default function ClienteDashboardClient() {
-  const { user, token, updateProfile } = useAuth();
+  const { user, updateProfile } = useAuth();
   const searchParams = useSearchParams();
   const sectionParam = searchParams.get('section') as 'dispositivos' | 'reparaciones' | 'compras' | 'garantias' | 'informacion' | null;
 
@@ -81,13 +81,13 @@ export default function ClienteDashboardClient() {
 
   useEffect(() => {
     const checkPendingRepair = async () => {
-      if (!token) return;
+      if (!user) return;
 
       const pendingRepair = localStorage.getItem('techfix_pending_repair');
       if (pendingRepair) {
         try {
           const parsed = JSON.parse(pendingRepair);
-          await scheduleRepairAction(token, parsed);
+          await scheduleRepairAction(parsed);
           alert('¡Tu pre-diagnóstico pendiente ha sido reservado y agendado automáticamente en nuestro taller con tus datos de cliente!');
           localStorage.removeItem('techfix_pending_repair');
           setActiveTab('reparaciones');
@@ -100,7 +100,7 @@ export default function ClienteDashboardClient() {
     checkPendingRepair();
     fetchDevices();
     loadLastOrder();
-  }, [token]);
+  }, [user]);
 
   useEffect(() => {
     if (activeTab === 'reparaciones') {
@@ -108,7 +108,7 @@ export default function ClienteDashboardClient() {
     } else if (activeTab === 'garantias') {
       fetchWarranties();
     }
-  }, [activeTab, token]);
+  }, [activeTab, user]);
 
   const loadLastOrder = () => {
     const savedOrder = localStorage.getItem('techfix_last_order');
@@ -122,10 +122,10 @@ export default function ClienteDashboardClient() {
   };
 
   const fetchDevices = async () => {
-    if (!token) return;
+    if (!user) return;
     setDevicesLoading(true);
     try {
-      const data = await getCustomerDevicesList(token);
+      const data = await getCustomerDevicesList();
       setDevices(data as any[]);
     } catch (e) {
       console.error(e);
@@ -135,10 +135,10 @@ export default function ClienteDashboardClient() {
   };
 
   const fetchRepairs = async () => {
-    if (!token) return;
+    if (!user) return;
     setRepairsLoading(true);
     try {
-      const data = await getClientRepairsAction(token);
+      const data = await getClientRepairsAction();
       setRepairs(data);
     } catch (e) {
       console.error(e);
@@ -148,10 +148,10 @@ export default function ClienteDashboardClient() {
   };
 
   const fetchWarranties = async () => {
-    if (!token) return;
+    if (!user) return;
     setWarrantiesLoading(true);
     try {
-      const data = await getClientWarrantiesAction(token);
+      const data = await getClientWarrantiesAction();
       setWarranties(data);
     } catch (e) {
       console.error(e);
@@ -218,11 +218,11 @@ export default function ClienteDashboardClient() {
     device_type: string;
     purchase_date: string;
   }) => {
-    if (!token) return;
+    if (!user) return;
     setDeviceSubmitting(true);
     try {
       if (editingDevice) {
-        await updateDeviceAction(token, editingDevice.id, {
+        await updateDeviceAction(editingDevice.id, {
           brand: formData.brand,
           model: formData.model,
           serialNumber: formData.serial_number,
@@ -230,7 +230,7 @@ export default function ClienteDashboardClient() {
           device_type: formData.device_type
         });
       } else {
-        await registerDeviceAction(token, {
+        await registerDeviceAction({
           brand: formData.brand,
           model: formData.model,
           serialNumber: formData.serial_number,
@@ -248,10 +248,10 @@ export default function ClienteDashboardClient() {
   };
 
   const handleDeleteDevice = async (id: string) => {
-    if (!token) return;
+    if (!user) return;
     if (!window.confirm('¿Estás seguro de que quieres eliminar este dispositivo?')) return;
     try {
-      await deleteDeviceAction(token, id);
+      await deleteDeviceAction(id);
       await fetchDevices();
     } catch (e: any) {
       alert(e.message || 'Error al eliminar el dispositivo');

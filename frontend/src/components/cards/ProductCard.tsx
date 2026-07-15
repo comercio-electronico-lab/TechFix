@@ -7,6 +7,7 @@ import { ShoppingCart, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import Button from '../ui/Button';
+import ProductImage from '../ui/ProductImage';
 import { showCartHud } from '@/components/cart/showCartHud';
 
 interface ProductCardProps {
@@ -21,8 +22,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {/* Image Section */}
       <div className="relative rounded-[1.5rem] h-64 overflow-hidden mb-5">
         <Link href={`/catalogo/${product.id}`} className="w-full h-full block">
-          <img 
-            src={product.image} 
+          <ProductImage
+            src={product.image}
             alt={product.name}
             className="group-hover:scale-110 transition-transform duration-500 object-cover w-full h-full"
           />

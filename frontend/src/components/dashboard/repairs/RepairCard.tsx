@@ -14,7 +14,7 @@ interface RepairCardProps {
 }
 
 const RepairCard = ({ repair, onRefresh }: RepairCardProps) => {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const [showConfirmForm, setShowConfirmForm] = useState(false);
   const [loadingAction, setLoadingAction] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -22,10 +22,10 @@ const RepairCard = ({ repair, onRefresh }: RepairCardProps) => {
   const deviceLabel = repair.device ? `${repair.device.brand} ${repair.device.model}` : 'Dispositivo';
 
   const handleConfirmRepair = async (options: ConfirmRepairOptions) => {
-    if (!token) return;
+    if (!user) return;
     setLoadingAction(true);
     try {
-      await confirmRepairAction(token, repair.id, options.partType);
+      await confirmRepairAction(repair.id, options.partType);
       alert('Reparación confirmada con repuesto ' + options.partType + '. Tu cita se agendó.');
       setShowConfirmForm(false);
       if (onRefresh) onRefresh();
@@ -37,11 +37,11 @@ const RepairCard = ({ repair, onRefresh }: RepairCardProps) => {
   };
 
   const handleCancelRepair = async () => {
-    if (!token) return;
+    if (!user) return;
     if (!window.confirm('¿Estás seguro de que deseas cancelar este servicio de reparación?')) return;
     setLoadingAction(true);
     try {
-      const result = await updateRepairStatusAction(token, repair.id, 'cancelada' as any, 'Cancelado por el cliente.');
+      const result = await updateRepairStatusAction(repair.id, 'cancelada' as any, 'Cancelado por el cliente.');
       if (!result.success) {
         alert(result.error || 'Error al cancelar la reparación');
         return;

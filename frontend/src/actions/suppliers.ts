@@ -1,25 +1,20 @@
 'use server';
 
 import { getCurrentUser } from './auth';
-import { cookies } from 'next/headers';
+import { getAuthToken } from '@/lib/auth-token';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 export async function getSuppliers() {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('techfix_token')?.value;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+    const token = await getAuthToken();
 
     const response = await fetch(`${BACKEND_URL}/api/suppliers`, {
       method: 'GET',
-      headers,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
       cache: 'no-store',
     });
 
@@ -41,10 +36,11 @@ export async function getSuppliers() {
   }
 }
 
-export async function createRestockOrder(token: string, orderInput: { proveedor_id: string; producto_id: string; cantidad: number }) {
+export async function createRestockOrder(orderInput: { proveedor_id: string; producto_id: string; cantidad: number }) {
   try {
     // Validamos la sesión
-    await getCurrentUser(token);
+    await getCurrentUser();
+    const token = await getAuthToken();
 
     const response = await fetch(`${BACKEND_URL}/api/suppliers/orders`, {
       method: 'POST',
@@ -82,9 +78,7 @@ export async function createRestockOrder(token: string, orderInput: { proveedor_
 
 export async function createSupplier(supplierInput: { nombre: string; contacto?: string; telefono?: string; email?: string }) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('techfix_token')?.value;
-    if (!token) throw new Error('Token requerido');
+    const token = await getAuthToken();
 
     const response = await fetch(`${BACKEND_URL}/api/suppliers`, {
       method: 'POST',
@@ -122,9 +116,7 @@ export async function createSupplier(supplierInput: { nombre: string; contacto?:
 
 export async function updateSupplier(id: string, supplierInput: { nombre: string; contacto?: string; telefono?: string; email?: string }) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('techfix_token')?.value;
-    if (!token) throw new Error('Token requerido');
+    const token = await getAuthToken();
 
     const response = await fetch(`${BACKEND_URL}/api/suppliers/${id}`, {
       method: 'PUT',
@@ -162,9 +154,7 @@ export async function updateSupplier(id: string, supplierInput: { nombre: string
 
 export async function deleteSupplier(id: string) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('techfix_token')?.value;
-    if (!token) throw new Error('Token requerido');
+    const token = await getAuthToken();
 
     const response = await fetch(`${BACKEND_URL}/api/suppliers/${id}`, {
       method: 'DELETE',

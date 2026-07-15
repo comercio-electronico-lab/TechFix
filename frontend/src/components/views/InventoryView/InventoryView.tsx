@@ -24,7 +24,18 @@ export const InventoryView = ({ initialProducts }: IInventoryViewProps) => {
   const [category, setCategory] = useState('Displays');
   const [image, setImage] = useState('');
   const [sku, setSku] = useState('');
+  const [imageError, setImageError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isValidImageUrl = (url: string) => {
+    if (!url) return true;
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
 
   const handleOpenAdd = () => {
     setEditingProduct(null);
@@ -35,6 +46,7 @@ export const InventoryView = ({ initialProducts }: IInventoryViewProps) => {
     setCategory('Displays');
     setImage('');
     setSku('');
+    setImageError('');
     setIsModalOpen(true);
   };
 
@@ -47,6 +59,7 @@ export const InventoryView = ({ initialProducts }: IInventoryViewProps) => {
     setCategory(typeof p.category === 'string' ? p.category : p.category?.name || 'Displays');
     setImage(p.image || '');
     setSku(p.sku || '');
+    setImageError('');
     setIsModalOpen(true);
   };
 
@@ -54,6 +67,10 @@ export const InventoryView = ({ initialProducts }: IInventoryViewProps) => {
     e.preventDefault();
     if (!name || !price || stock === '') {
       alert('Por favor, rellene todos los campos requeridos.');
+      return;
+    }
+    if (!isValidImageUrl(image)) {
+      setImageError('Ingrese una URL válida (debe empezar con http:// o https://) o deje el campo vacío.');
       return;
     }
     setIsSubmitting(true);
@@ -220,11 +237,17 @@ export const InventoryView = ({ initialProducts }: IInventoryViewProps) => {
 
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">URL de Imagen</label>
-            <Input 
-              placeholder="https://ejemplo.com/imagen.jpg" 
-              value={image} 
-              onChange={(e) => setImage(e.target.value)} 
+            <Input
+              placeholder="https://ejemplo.com/imagen.jpg"
+              value={image}
+              onChange={(e) => {
+                setImage(e.target.value);
+                if (imageError) setImageError('');
+              }}
             />
+            {imageError && (
+              <p className="text-xs text-red-600 mt-1">{imageError}</p>
+            )}
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-outline-variant/20">

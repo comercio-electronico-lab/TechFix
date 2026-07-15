@@ -12,9 +12,11 @@ export interface CartItem {
   tags?: string[];
 }
 
+export type NewCartItem = Omit<CartItem, 'quantity'>;
+
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: any) => void;
+  addItem: (product: NewCartItem) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, delta: number) => void;
   clearCart: () => void;
@@ -46,7 +48,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('techfix_cart', JSON.stringify(items));
   }, [items]);
 
-  const addItem = (product: any) => {
+  const addItem = (product: NewCartItem) => {
     setItems(prev => {
       const existing = prev.find(item => item.id === product.id);
       let newItem: CartItem;

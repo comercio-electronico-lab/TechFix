@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Lock, Info, CheckCircle, Loader2 } from 'lucide-react';
+import { Lock, Info, CheckCircle, Loader2, ShieldAlert } from 'lucide-react';
 import Script from 'next/script';
 import Modal from '@/components/ui/Modal';
 import Input from '@/components/ui/Input';
 import { Button } from '@/components/ui';
 import { useAuth } from '@/context/AuthContext';
 import { createPaymentAction } from '@/actions';
+import type { MercadoPagoCardFormData, MercadoPagoBrickController, MercadoPagoBrickError } from '@/types/mercadopago';
+import { MP_PUBLIC_KEY, isRealMP, allowMockPayment } from '@/lib/mercadopago';
 
 interface RepairPaymentModalProps {
   isOpen: boolean;
@@ -18,9 +20,6 @@ interface RepairPaymentModalProps {
   onPaymentSuccess: () => void;
 }
 
-const MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || '';
-const isRealMP = MP_PUBLIC_KEY !== '' && MP_PUBLIC_KEY !== 'tu_public_key_de_mercado_pago';
-
 export default function RepairPaymentModal({
   isOpen,
   onClose,
@@ -29,7 +28,7 @@ export default function RepairPaymentModal({
   deviceName,
   onPaymentSuccess,
 }: RepairPaymentModalProps) {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const [cardHolder, setCardHolder] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
@@ -50,21 +49,21 @@ export default function RepairPaymentModal({
   }, [isOpen]);
 
   useEffect(() => {
-    if (!isRealMP || !scriptLoaded || !token || !isOpen) return;
+    if (!isRealMP || !scriptLoaded || !user || !isOpen) return;
 
     // React Strict Mode ejecuta este efecto dos veces en desarrollo; sin esta
     // guarda, la segunda llamada a bricksBuilder.create() choca con el iframe
     // que la primera dejó a medio montar y el SDK de MP falla con un error
     // genérico "Bricks component initialization failed".
     let cancelled = false;
-    let brickController: any = null;
+    let brickController: MercadoPagoBrickController | null = null;
 
     const initBrick = async () => {
       const container = document.getElementById('repairCardPaymentBrick_container');
       if (container) container.innerHTML = '';
 
       try {
-        const mp = new (window as any).MercadoPago(MP_PUBLIC_KEY, { locale: 'es-PE' });
+        const mp = new window.MercadoPago(MP_PUBLIC_KEY, { locale: 'es-PE' });
         const bricksBuilder = mp.bricks();
 
         const controller = await bricksBuilder.create('cardPayment', 'repairCardPaymentBrick_container', {
@@ -77,31 +76,40 @@ export default function RepairPaymentModal({
           customization: {
             paymentMethods: {
               minInstallments: 1,
-              maxInstallments: 12,
+              maxInstallments: 1,
             },
           },
           callbacks: {
             onReady: () => {
               setLoadingBrick(false);
             },
-            onSubmit: async (formData: any) => {
+            onSubmit: async (formData: MercadoPagoCardFormData) => {
               try {
-                await createPaymentAction(token, {
+                await createPaymentAction({
                   amount: amount,
                   description: `Pago de reparación para ${deviceName} (Orden: ${repairId})`,
                   payer_email: user?.email || '',
                   cardToken: formData.token,
                   installments: formData.installments,
+                  paymentMethodId: formData.payment_method_id,
                   repair_id: repairId
                 });
                 alert('¡Pago procesado con éxito!');
                 onPaymentSuccess();
                 onClose();
-              } catch (err: any) {
-                alert(err.message || 'Error al procesar el pago.');
+              } catch (err: unknown) {
+                alert(err instanceof Error ? err.message : 'Error al procesar el pago.');
               }
             },
-            onError: (error: any) => {
+            onError: (error: MercadoPagoBrickError) => {
+              // El Brick reporta eventos "non_critical" mientras el usuario todavía
+              // está escribiendo la tarjeta (ej. BIN no identificable aún); no son
+              // errores reales, así que ni se loguean como error ni interrumpen
+              // el pago con un banner.
+              if (error?.type === 'non_critical') {
+                console.debug('[MercadoPago Brick]', error);
+                return;
+              }
               console.error(error);
               setErrorMsg('Error al inicializar la pasarela de Mercado Pago.');
             },
@@ -126,7 +134,7 @@ export default function RepairPaymentModal({
         brickController.unmount();
       }
     };
-  }, [isRealMP, scriptLoaded, token, isOpen, amount, repairId, deviceName, user]);
+  }, [isRealMP, scriptLoaded, isOpen, amount, repairId, deviceName, user]);
 
   const handleMockSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,8 +148,8 @@ export default function RepairPaymentModal({
     }
 
     try {
-      if (token && user) {
-        await createPaymentAction(token, {
+      if (user) {
+        await createPaymentAction({
           amount: amount,
           description: `Pago de reparación para ${deviceName} (Orden: ${repairId})`,
           payer_email: user.email,
@@ -153,8 +161,8 @@ export default function RepairPaymentModal({
         onPaymentSuccess();
         onClose();
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Error al procesar el pago seguro en el servidor.');
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Error al procesar el pago seguro en el servidor.');
     } finally {
       setSubmitting(false);
     }
@@ -184,6 +192,12 @@ export default function RepairPaymentModal({
               </div>
             )}
             <div id="repairCardPaymentBrick_container" />
+          </div>
+        ) : !allowMockPayment ? (
+          <div className="bg-error-container/20 border border-error/30 text-error rounded-xl p-6 flex flex-col items-center text-center gap-3">
+            <ShieldAlert className="w-8 h-8" />
+            <p className="font-semibold">El pago con tarjeta no está disponible en este momento.</p>
+            <p className="text-sm opacity-80">Por favor, inténtalo más tarde o contacta a soporte.</p>
           </div>
         ) : (
           <form onSubmit={handleMockSubmit} className="space-y-4">

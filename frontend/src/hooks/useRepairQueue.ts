@@ -31,7 +31,7 @@ export interface UseRepairQueueReturn {
 }
 
 export function useRepairQueue(): UseRepairQueueReturn {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [tickets, setTickets] = useState<IAdminRepairTicket[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,7 +47,7 @@ export function useRepairQueue(): UseRepairQueueReturn {
   });
 
   const fetchTickets = useCallback(async () => {
-    if (!isAuthenticated || !token) {
+    if (!isAuthenticated) {
       setTickets([]);
       return;
     }
@@ -77,7 +77,7 @@ export function useRepairQueue(): UseRepairQueueReturn {
     } finally {
       setLoading(false);
     }
-  }, [token, isAuthenticated]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     fetchTickets();
@@ -94,7 +94,7 @@ export function useRepairQueue(): UseRepairQueueReturn {
 
   const addPartToRepair = async (ticketId: string, productId: string, quantity: number) => {
     try {
-      await addPartToRepairAction(token || '', ticketId, productId, quantity);
+      await addPartToRepairAction(ticketId, productId, quantity);
       await fetchTickets();
       return true;
     } catch (e) { return false; }

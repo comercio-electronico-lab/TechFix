@@ -1,11 +1,12 @@
 'use server';
 
 import { ICustomerDevice } from '@/interfaces/domain';
-import { cookies } from 'next/headers';
+import { getAuthToken } from '@/lib/auth-token';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
-export async function getCustomerDevicesList(token: string): Promise<ICustomerDevice[]> {
+export async function getCustomerDevicesList(): Promise<ICustomerDevice[]> {
+  const token = await getAuthToken();
   const response = await fetch(`${BACKEND_URL}/api/user/devices`, {
     method: 'GET',
     headers: {
@@ -50,13 +51,14 @@ export async function getCustomerDevicesList(token: string): Promise<ICustomerDe
   });
 }
 
-export async function registerDeviceAction(token: string, deviceData: {
+export async function registerDeviceAction(deviceData: {
   brand: string;
   model: string;
   serialNumber: string;
   purchaseDate?: string;
   device_type?: string;
 }): Promise<any> {
+  const token = await getAuthToken();
   // Construir tipo si no se provee
   const modelLower = deviceData.model.toLowerCase();
   let device_type = deviceData.device_type || 'Smartphone';
@@ -92,9 +94,7 @@ export async function registerDeviceAction(token: string, deviceData: {
 
 export async function getAllDevices(): Promise<any[]> {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('techfix_token')?.value;
-    if (!token) throw new Error('Token requerido');
+    const token = await getAuthToken();
 
     const response = await fetch(`${BACKEND_URL}/api/user/all-devices`, {
       method: 'GET',
@@ -126,13 +126,14 @@ export async function getAllDevices(): Promise<any[]> {
   }
 }
 
-export async function updateDeviceAction(token: string, deviceId: string, deviceData: {
+export async function updateDeviceAction(deviceId: string, deviceData: {
   brand: string;
   model: string;
   serialNumber: string;
   purchaseDate?: string;
   device_type?: string;
 }): Promise<any> {
+  const token = await getAuthToken();
   const modelLower = deviceData.model.toLowerCase();
   let device_type = deviceData.device_type || 'Smartphone';
   if (modelLower.includes('macbook') || modelLower.includes('xps') || modelLower.includes('laptop')) {
@@ -165,7 +166,8 @@ export async function updateDeviceAction(token: string, deviceId: string, device
   return await response.json();
 }
 
-export async function deleteDeviceAction(token: string, deviceId: string): Promise<any> {
+export async function deleteDeviceAction(deviceId: string): Promise<any> {
+  const token = await getAuthToken();
   const response = await fetch(`${BACKEND_URL}/api/user/devices/${deviceId}`, {
     method: 'DELETE',
     headers: {

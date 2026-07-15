@@ -1,34 +1,13 @@
-import { ReactNode, ButtonHTMLAttributes, InputHTMLAttributes } from 'react';
-import { Variant, Size } from '../types/ui';
+import { ReactNode } from 'react';
 import { IProduct, ICategory, IRepair, IAppointment, IDiagnosticNode, IDashboardStats, IActivityLog } from './domain';
 
 // Props para componentes de la UI
-export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: Variant;
-  size?: Size;
-  isLoading?: boolean;
-  leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
-  children?: ReactNode;
-}
-
 export interface ICardProps {
   children: ReactNode;
   className?: string;
   title?: string;
   footer?: ReactNode;
   headerAction?: ReactNode;
-}
-
-export interface IBadgeProps {
-  children: ReactNode;
-  variant?: 'info' | 'success' | 'warning' | 'error' | 'neutral';
-}
-
-export interface IInputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-  leftIcon?: ReactNode;
 }
 
 export interface IIconProps {
