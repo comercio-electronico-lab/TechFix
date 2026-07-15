@@ -10,11 +10,6 @@ export interface IUser {
   createdAt: string;
 }
 
-export interface IAuthResponse {
-  user: IUser;
-  token: string;
-}
-
 export interface ICustomerDevice {
   id: string;
   brand: string;

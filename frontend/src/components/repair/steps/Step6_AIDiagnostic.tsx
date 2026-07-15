@@ -177,7 +177,7 @@ export function Step6_AIDiagnostic({
       )}
 
       {/* Pregunta actual */}
-      <div className="space-y-6">
+      <div key={turnNumber} className="space-y-6 animate-fade-in-slide">
         <div className="text-center space-y-2">
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Pregunta {turnNumber}

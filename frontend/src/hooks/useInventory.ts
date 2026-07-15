@@ -50,7 +50,7 @@ export interface UseInventoryReturn {
 const ITEMS_PER_PAGE = 5;
 
 export function useInventory(): UseInventoryReturn {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [inventory, setInventory] = useState<IInventoryItem[]>([]);
   const [searchQuery, setSearchQueryState] = useState('');
   const [selectedCategory, setSelectedCategoryState] = useState('Todas');
@@ -69,7 +69,7 @@ export function useInventory(): UseInventoryReturn {
   });
 
   const fetchInventory = useCallback(async () => {
-    if (!isAuthenticated || !token) {
+    if (!isAuthenticated) {
       setInventory([]);
       return;
     }
@@ -96,7 +96,7 @@ export function useInventory(): UseInventoryReturn {
     } finally {
       setLoading(false);
     }
-  }, [token, isAuthenticated]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     fetchInventory();
@@ -133,10 +133,10 @@ export function useInventory(): UseInventoryReturn {
   const setSelectedStatus = (s: string) => { setSelectedStatusState(s); setCurrentPage(1); };
 
   const handleRequestPart = async (itemId: string) => {
-    if (!token) return;
+    if (!isAuthenticated) return;
     try {
       const suppliers = await getSuppliers();
-      await createRestockOrder(token, { proveedor_id: suppliers[0].id, producto_id: itemId, cantidad: 20 });
+      await createRestockOrder({ proveedor_id: suppliers[0].id, producto_id: itemId, cantidad: 20 });
       alert('Orden enviada!');
       await fetchInventory();
     } catch (e) { console.error(e); }
@@ -144,7 +144,7 @@ export function useInventory(): UseInventoryReturn {
 
   const handleCreateItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) return;
+    if (!isAuthenticated) return;
     try {
       await createProduct(newItem);
       setIsModalOpen(false);
@@ -154,7 +154,7 @@ export function useInventory(): UseInventoryReturn {
 
   const handleUpdateItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token || !editingItem) return;
+    if (!isAuthenticated || !editingItem) return;
     try {
       await updateProduct(editingItem.id, editingItem);
       setIsEditModalOpen(false);

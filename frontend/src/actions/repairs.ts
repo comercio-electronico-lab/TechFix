@@ -2,15 +2,16 @@
 
 import { RepairStatus } from '@/interfaces/domain';
 import { getCurrentUser } from './auth';
-import { cookies } from 'next/headers';
+import { getAuthToken, getOptionalAuthToken } from '@/lib/auth-token';
 import { registerDeviceAction } from './devices';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
-export async function getCustomerRepairs(token: string) {
+export async function getCustomerRepairs() {
   try {
-    const user = await getCurrentUser(token);
-    
+    const token = await getAuthToken();
+    const user = await getCurrentUser();
+
     const response = await fetch(`${BACKEND_URL}/api/repairs/user/${user.id}`, {
       method: 'GET',
       headers: {
@@ -53,14 +54,13 @@ export async function getCustomerRepairs(token: string) {
   }
 }
 
-export async function getClientRepairsAction(token: string) {
-  return getCustomerRepairs(token);
+export async function getClientRepairsAction() {
+  return getCustomerRepairs();
 }
 
 export async function getRepairTickets() {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('techfix_token')?.value;
+    const token = await getOptionalAuthToken();
 
     if (!token) {
       return [];
@@ -115,20 +115,12 @@ export async function getAdminRepairsAction() {
 }
 
 export async function updateRepairStatus(id: string, status: any, notes?: string) {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('techfix_token')?.value;
-    if (!token) {
-      return { success: false, error: 'Token requerido para actualizar estado' };
-    }
-    return await updateRepairStatusAction(token, id, status, notes);
-  } catch (e: any) {
-    return { success: false, error: e.message };
-  }
+  return updateRepairStatusAction(id, status, notes);
 }
 
-export async function updateRepairStatusAction(token: string, id: string, status: any, notes?: string) {
+export async function updateRepairStatusAction(id: string, status: any, notes?: string) {
   try {
+    const token = await getAuthToken();
     const response = await fetch(`${BACKEND_URL}/api/repairs/${id}/status`, {
       method: 'PATCH',
       headers: {
@@ -154,7 +146,8 @@ export async function updateRepairStatusAction(token: string, id: string, status
   }
 }
 
-export async function scheduleRepairAction(token: string, repairData: any) {
+export async function scheduleRepairAction(repairData: any) {
+  const token = await getAuthToken();
   let deviceId = repairData.device_id;
 
   if (!deviceId) {
@@ -165,7 +158,7 @@ export async function scheduleRepairAction(token: string, repairData: any) {
       const serialNumber = repairData.deviceSerial || `SN-${Math.floor(Math.random() * 1000000)}`;
       const deviceType = repairData.deviceType || 'Smartphone';
 
-      const device = await registerDeviceAction(token, {
+      const device = await registerDeviceAction({
         brand,
         model,
         serialNumber,
@@ -219,8 +212,9 @@ export async function scheduleRepairAction(token: string, repairData: any) {
   };
 }
 
-export async function getClientWarrantiesAction(token: string) {
+export async function getClientWarrantiesAction() {
   try {
+    const token = await getAuthToken();
     const response = await fetch(`${BACKEND_URL}/api/user/warranties`, {
       method: 'GET',
       headers: {
@@ -257,7 +251,8 @@ export async function getClientWarrantiesAction(token: string) {
   }
 }
 
-export async function claimWarrantyAction(token: string, warrantyId: string, notes: string) {
+export async function claimWarrantyAction(warrantyId: string, notes: string) {
+  const token = await getAuthToken();
   const response = await fetch(`${BACKEND_URL}/api/repairs/warranty-claim`, {
     method: 'POST',
     headers: {
@@ -275,7 +270,8 @@ export async function claimWarrantyAction(token: string, warrantyId: string, not
   return await response.json();
 }
 
-export async function getRepairTrackingAction(token: string, ticketId: string) {
+export async function getRepairTrackingAction(ticketId: string) {
+  const token = await getAuthToken();
   const response = await fetch(`${BACKEND_URL}/api/repairs/${ticketId}`, {
     method: 'GET',
     headers: {
@@ -290,7 +286,7 @@ export async function getRepairTrackingAction(token: string, ticketId: string) {
   }
 
   const data = await response.json();
-  
+
   // Mapear los estados del log
   const trackingLogs = [
     {
@@ -338,8 +334,9 @@ export async function getRepairTrackingAction(token: string, ticketId: string) {
   };
 }
 
-export async function addPartToRepairAction(token: string, repairId: string, productId: string, quantity: number) {
+export async function addPartToRepairAction(repairId: string, productId: string, quantity: number) {
   try {
+    const token = await getAuthToken();
     const response = await fetch(`${BACKEND_URL}/api/repairs/${repairId}/parts`, {
       method: 'POST',
       headers: {
@@ -367,9 +364,7 @@ export async function addPartToRepairAction(token: string, repairId: string, pro
 
 export async function assignTechnicianAction(repairId: string, technicianId: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('techfix_token')?.value;
-    if (!token) throw new Error('Token requerido');
+    const token = await getAuthToken();
 
     const response = await fetch(`${BACKEND_URL}/api/repairs/${repairId}/assign`, {
       method: 'PUT',
@@ -393,7 +388,8 @@ export async function assignTechnicianAction(repairId: string, technicianId: str
   }
 }
 
-export async function confirmRepairAction(token: string, repairId: string, partType: string) {
+export async function confirmRepairAction(repairId: string, partType: string) {
+  const token = await getAuthToken();
   const response = await fetch(`${BACKEND_URL}/api/repairs/${repairId}/confirm`, {
     method: 'POST',
     headers: {

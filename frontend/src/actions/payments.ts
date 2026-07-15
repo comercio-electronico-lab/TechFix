@@ -1,15 +1,19 @@
 'use server';
 
+import { getAuthToken } from '@/lib/auth-token';
+
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
-export async function createPaymentAction(token: string, paymentData: {
+export async function createPaymentAction(paymentData: {
   amount: number;
   description: string;
   payer_email: string;
   repair_id?: string;
   installments?: number;
   cardToken?: string;
+  paymentMethodId?: string;
 }) {
+  const token = await getAuthToken();
   const response = await fetch(`${BACKEND_URL}/api/payments`, {
     method: 'POST',
     headers: {
@@ -23,6 +27,7 @@ export async function createPaymentAction(token: string, paymentData: {
       repair_id: paymentData.repair_id,
       installments: paymentData.installments || 1,
       token: paymentData.cardToken || '',
+      payment_method_id: paymentData.paymentMethodId || '',
     }),
     cache: 'no-store',
   });

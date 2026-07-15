@@ -18,7 +18,7 @@ interface Supplier {
 }
 
 export default function AdminProveedoresClient() {
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [products, setProducts] = useState<IProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -131,7 +131,7 @@ export default function AdminProveedoresClient() {
 
   const handleCreateRestock = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) {
+    if (!isAuthenticated) {
       alert('Sesión no autorizada');
       return;
     }
@@ -141,7 +141,7 @@ export default function AdminProveedoresClient() {
     }
     setOrdering(true);
     try {
-      await createRestockOrder(token, {
+      await createRestockOrder({
         proveedor_id: selectedSupplierId,
         producto_id: selectedProductId,
         cantidad: restockQuantity,

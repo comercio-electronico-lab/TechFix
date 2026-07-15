@@ -13,14 +13,14 @@ import {
 import { Search } from 'lucide-react';
 
 export default function TecnicoDashboardClient() {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const [jobs, setJobs] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
   const loadData = async () => {
-    if (!token) return;
+    if (!user) return;
     setLoading(true);
     try {
       const [repairsData, productsData] = await Promise.all([
@@ -45,16 +45,16 @@ export default function TecnicoDashboardClient() {
 
   useEffect(() => {
     loadData();
-  }, [token]);
+  }, [user]);
 
   const handleUpdateStatus = async (jobId: string, newStatus: 'pending' | 'in_progress' | 'completed') => {
-    if (!token) return;
+    if (!user) return;
     const mappedStatus = newStatus === 'in_progress' ? 'en_reparacion' :
                          newStatus === 'completed' ? 'reparado' : 'pending';
 
     const notes = newStatus === 'in_progress' ? 'Técnico inició el diagnóstico' :
                   newStatus === 'completed' ? 'Reparación completada por el técnico' : '';
-    const result = await updateRepairStatusAction(token, jobId, mappedStatus, notes);
+    const result = await updateRepairStatusAction(jobId, mappedStatus, notes);
     if (!result.success) {
       alert('Error al actualizar estado: ' + result.error);
       return;
@@ -63,7 +63,7 @@ export default function TecnicoDashboardClient() {
   };
 
   const handleAddPartToJob = async (jobId: string, productId: string) => {
-    if (!token) return;
+    if (!user) return;
     const selectedProd = products.find(p => p.id === productId);
     if (!selectedProd) return;
     if (selectedProd.stock_actual <= 0) {
@@ -72,7 +72,7 @@ export default function TecnicoDashboardClient() {
     }
 
     try {
-      await addPartToRepairAction(token, jobId, productId, 1);
+      await addPartToRepairAction(jobId, productId, 1);
       alert(`Repuesto "${selectedProd.nombre}" vinculado exitosamente`);
       await loadData();
     } catch (err: any) {

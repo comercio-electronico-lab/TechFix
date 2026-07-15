@@ -17,7 +17,7 @@ interface Props {
 export default function CheckoutConfirmacionClient({ defaultOrder }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAuthenticated, loading, token } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const [order, setOrder] = useState<OrderData>(defaultOrder);
 
   useEffect(() => {
@@ -41,9 +41,9 @@ export default function CheckoutConfirmacionClient({ defaultOrder }: Props) {
   // Si el pedido quedó persistido en el backend, usamos esa versión como fuente de verdad.
   useEffect(() => {
     const orderId = searchParams?.get('orderId');
-    if (!orderId || !token) return;
+    if (!orderId || !isAuthenticated) return;
 
-    getOrderByIdAction(token, orderId)
+    getOrderByIdAction(orderId)
       .then((pedido) => {
         setOrder((prev) => ({
           ...prev,
@@ -64,7 +64,7 @@ export default function CheckoutConfirmacionClient({ defaultOrder }: Props) {
         }));
       })
       .catch((err) => console.error('No se pudo cargar el pedido desde el backend:', err));
-  }, [searchParams, token]);
+  }, [searchParams, isAuthenticated]);
 
   if (loading) {
     return (

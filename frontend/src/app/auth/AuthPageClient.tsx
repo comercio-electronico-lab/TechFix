@@ -14,7 +14,7 @@ export default function AuthPageClient() {
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect');
 
-  const { isAuthenticated, loading, user, token, login, register, error, setError } = useAuth();
+  const { isAuthenticated, loading, user, login, register, error, setError } = useAuth();
   const { items: cartItems } = useCart();
 
   const [isLoginTab, setIsLoginTab] = useState(true);
@@ -31,13 +31,13 @@ export default function AuthPageClient() {
   const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && isAuthenticated && user && token) {
+    if (!loading && isAuthenticated && user) {
       const processPendingRepair = async () => {
         const pendingRepair = localStorage.getItem('techfix_pending_repair');
         if (pendingRepair && user.role === 'cliente') {
           try {
             const repairData = JSON.parse(pendingRepair);
-            await scheduleRepairAction(token, repairData);
+            await scheduleRepairAction(repairData);
             localStorage.removeItem('techfix_pending_repair');
           } catch (repairError) {
             console.error('Error scheduling pending repair:', repairError);
@@ -59,7 +59,7 @@ export default function AuthPageClient() {
         }
       }
     }
-  }, [isAuthenticated, loading, user, token, redirectUrl, router]);
+  }, [isAuthenticated, loading, user, redirectUrl, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

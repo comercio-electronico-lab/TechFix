@@ -8,6 +8,7 @@ import SecurityBadges from '@/components/checkout/SecurityBadges';
 import OrderSummary from '@/components/checkout/OrderSummary';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { calculateOrderTotals } from '@/lib/pricing';
 
 export default function CheckoutPagoClient() {
   const router = useRouter();
@@ -21,9 +22,7 @@ export default function CheckoutPagoClient() {
     }
   }, [isAuthenticated, loading, router]);
 
-  const shipping = subtotal > 500 || subtotal === 0 ? 0 : 10;
-  const tax = Math.round(subtotal * 0.18 * 100) / 100;
-  const totalAmount = subtotal + shipping + tax;
+  const { shipping, tax, total: totalAmount } = calculateOrderTotals(subtotal);
 
   if (loading) {
     return (

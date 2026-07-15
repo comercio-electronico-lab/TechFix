@@ -3,6 +3,7 @@ package payment
 import (
 	"context"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 
@@ -10,7 +11,7 @@ import (
 	"github.com/mercadopago/sdk-go/pkg/payment"
 )
 
-func CreateMercadoPagoPayment(amount float64, email, description string, installments int, token string) (*payment.Response, error) {
+func CreateMercadoPagoPayment(amount float64, email, description string, installments int, token string, paymentMethodID string) (*payment.Response, error) {
 	accessToken := os.Getenv("MERCADO_PAGO_ACCESS_TOKEN")
 	if accessToken == "" {
 		return nil, fmt.Errorf("MERCADO_PAGO_ACCESS_TOKEN no configurado")
@@ -23,10 +24,17 @@ func CreateMercadoPagoPayment(amount float64, email, description string, install
 
 	client := payment.NewClient(cfg)
 
+	if paymentMethodID == "" {
+		paymentMethodID = "visa"
+	}
+
+	// Mercado Pago rechaza transaction_amount con más de 2 decimales exactos.
+	amount = math.Round(amount*100) / 100
+
 	request := payment.Request{
 		TransactionAmount: amount,
 		Description:       description,
-		PaymentMethodID:   "visa",
+		PaymentMethodID:   paymentMethodID,
 		Token:             token,
 		Installments:      installments,
 		Payer: &payment.PayerRequest{

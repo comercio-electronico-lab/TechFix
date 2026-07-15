@@ -1,6 +1,7 @@
 import React from 'react';
 import { getProducts } from "@/actions/catalog";
 import { ScrollReveal } from '../ui';
+import ProductImage from '../ui/ProductImage';
 
 import ShowcaseButtons from './ShowcaseButtons';
 
@@ -47,8 +48,8 @@ export const FeaturedProductShowcase = async () => {
 
                 {/* Centered Image Area */}
                 <div className="w-full flex justify-center items-end h-[210px] md:h-[250px] mt-4 z-0 overflow-hidden relative">
-                  <img 
-                    src={product.image} 
+                  <ProductImage
+                    src={product.image}
                     alt={product.name}
                     className="max-h-[100%] max-w-[85%] object-contain object-bottom select-none pointer-events-none transform transition-transform duration-700 hover:scale-105"
                   />

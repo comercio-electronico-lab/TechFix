@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"backend/internal/db"
 	"backend/internal/models"
@@ -95,9 +96,34 @@ func ProcessPaymentWebhook(c *gin.Context) {
 			updates["payment_method"] = resource.PaymentMethodID
 		}
 
-		db.DB.Model(&models.Payment{}).
-			Where("mercado_pago_id = ?", webhookData.Data.ID).
-			Updates(updates)
+		var paymentRecord models.Payment
+		if err := db.DB.Where("mercado_pago_id = ?", webhookData.Data.ID).First(&paymentRecord).Error; err == nil {
+			db.DB.Model(&paymentRecord).Updates(updates)
+
+			// Si el pago fue aprobado y está vinculado a una reparación, actualizar la reparación
+			if resource.Status == "approved" && paymentRecord.RepairID != nil {
+				// Actualizar estado de la reparación a "agendado" y fijar cita por defecto (3 días)
+				db.DB.Model(&models.RepairOrder{}).
+					Where("id = ?", *paymentRecord.RepairID).
+					Updates(map[string]interface{}{
+						"status":               "agendado",
+						"appointment_datetime": time.Now().AddDate(0, 0, 3),
+					})
+
+				// Registrar en tracking
+				db.DB.Create(&models.RepairTracking{
+					RepairID:       *paymentRecord.RepairID,
+					PreviousStatus: "pending",
+					NewStatus:      "agendado",
+					ChangedBy:      paymentRecord.UserID,
+					Notes:          "Pago de cita aprobado vía webhook de Mercado Pago",
+				})
+			}
+		} else {
+			// Si el pago no existe aún en la base de datos local (ej. webhook llegó antes de la respuesta del frontend)
+			// lo creamos o esperamos, pero por consistencia intentamos crear un registro básico o ignorar si no hay repair_id.
+			// Aquí asumimos que ya existe porque el frontend crea el pago local antes de redirigir o esperar.
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "processed"})

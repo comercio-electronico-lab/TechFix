@@ -14,7 +14,7 @@ interface WarrantyCertificateCardProps {
 }
 
 export default function WarrantyCertificateCard({ id, token: warrantyToken, startDate, endDate }: WarrantyCertificateCardProps) {
-  const { token: userToken } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [copiedToken, setCopiedToken] = useState(false);
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
   const [claimNotes, setClaimNotes] = useState('');
@@ -28,14 +28,14 @@ export default function WarrantyCertificateCard({ id, token: warrantyToken, star
 
   const handleClaimWarranty = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userToken) return;
+    if (!isAuthenticated) return;
     if (!claimNotes.trim()) {
       alert('Por favor describe la falla o problema.');
       return;
     }
     setClaiming(true);
     try {
-      await claimWarrantyAction(userToken, id, claimNotes);
+      await claimWarrantyAction(id, claimNotes);
       alert('Reclamación enviada con éxito. Se ha programado una cita de evaluación técnica sin costo en nuestro taller.');
       setIsClaimModalOpen(false);
       setClaimNotes('');

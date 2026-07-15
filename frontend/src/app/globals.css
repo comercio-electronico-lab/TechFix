@@ -36,6 +36,11 @@
     
     --outline: #6e88b2;
     --outline-variant: #cbdcff;
+
+    --error: #ba1a1a;
+    --on-error: #ffffff;
+    --error-container: #ffdad6;
+    --on-error-container: #93000a;
   }
 
   .dark {
@@ -66,6 +71,11 @@
     
     --outline: #13306d; /* Electric navy border */
     --outline-variant: #091e4a;
+
+    --error: #ffb4ab;
+    --on-error: #690005;
+    --error-container: #93000a;
+    --on-error-container: #ffdad6;
   }
 }
 

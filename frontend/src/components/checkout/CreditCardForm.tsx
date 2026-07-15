@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Lock, Info, CheckCircle, Loader2 } from 'lucide-react';
+import { Lock, Info, CheckCircle, Loader2, ShieldAlert } from 'lucide-react';
 import Script from 'next/script';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
@@ -9,18 +9,27 @@ import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { createPaymentAction, createOrderAction } from '@/actions';
+import type { MercadoPagoCardFormData, MercadoPagoBrickController, MercadoPagoBrickError } from '@/types/mercadopago';
+import { MP_PUBLIC_KEY, isRealMP, allowMockPayment } from '@/lib/mercadopago';
+import { calculateOrderTotals } from '@/lib/pricing';
 
 interface CreditCardFormProps {
   totalAmount: number;
 }
 
-const MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || '';
-const isRealMP = MP_PUBLIC_KEY !== '' && MP_PUBLIC_KEY !== 'tu_public_key_de_mercado_pago';
+interface ShippingInfo {
+  fullName: string;
+  address: string;
+  city: string;
+  phone: string;
+  stateProv?: string;
+  zipCode?: string;
+}
 
 const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCart();
-  const { user, token } = useAuth();
+  const { user } = useAuth();
 
   const [cardHolder, setCardHolder] = useState('');
   const [cardNumber, setCardNumber] = useState('');
@@ -32,43 +41,44 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [loadingBrick, setLoadingBrick] = useState(true);
 
-  const shipping = subtotal > 500 || subtotal === 0 ? 0 : 10;
-  const tax = Math.round(subtotal * 0.18 * 100) / 100;
+  const { shipping, tax } = calculateOrderTotals(subtotal);
 
-  const getShippingInfo = () => {
+  const getShippingInfo = (): ShippingInfo => {
     const savedAddressString = localStorage.getItem('techfix_shipping_address');
-    let shippingInfo = { fullName: user?.nombre || 'Cliente', address: 'Entrega en tienda', city: '', phone: '' };
+    const defaults: ShippingInfo = { fullName: user?.nombre || 'Cliente', address: 'Entrega en tienda', city: '', phone: '' };
     if (savedAddressString) {
       try {
-        shippingInfo = { ...shippingInfo, ...JSON.parse(savedAddressString) };
+        const parsed = JSON.parse(savedAddressString) as Partial<ShippingInfo>;
+        return { ...defaults, ...parsed };
       } catch (e) {
         console.error(e);
       }
     }
-    return shippingInfo;
+    return defaults;
   };
 
-  const completeOrder = async (cardToken: string, installments: number) => {
+  const completeOrder = async (cardToken: string, installments: number, paymentMethodId?: string) => {
     const shippingInfo = getShippingInfo();
 
-    const paymentRecord = await createPaymentAction(token!, {
+    const paymentRecord = await createPaymentAction({
       amount: totalAmount,
       description: `Compra de catálogo TechFix por ${shippingInfo.fullName}`,
       payer_email: user!.email,
       cardToken,
       installments,
+      paymentMethodId,
     });
 
     let orderNumber = `#TF-${Math.floor(1000 + Math.random() * 9000)}-0029X`;
 
     try {
-      const pedido = await createOrderAction(token!, {
+      const pedido = await createOrderAction({
         payment_id: paymentRecord.id,
         items: items.map((item) => ({ producto_id: item.id, cantidad: item.quantity })),
         nombre_envio: shippingInfo.fullName,
         direccion_envio: shippingInfo.address,
-        ciudad_envio: (shippingInfo as any).city || '',
-        telefono_envio: (shippingInfo as any).phone || '',
+        ciudad_envio: shippingInfo.city || '',
+        telefono_envio: shippingInfo.phone || '',
         envio: shipping,
         impuestos: tax,
       });
@@ -98,21 +108,25 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
   };
 
   React.useEffect(() => {
-    if (!isRealMP || !scriptLoaded || !token || !user) return;
+    // totalAmount cae a 0 justo después de una compra exitosa (clearCart()
+    // vacía el carrito antes de que termine la navegación a /confirmacion);
+    // sin esta guarda, el efecto reintenta inicializar el Brick con amount:0
+    // y Mercado Pago lo rechaza con "Amount property is required".
+    if (!isRealMP || !scriptLoaded || !user || totalAmount <= 0) return;
 
     // React Strict Mode ejecuta este efecto dos veces en desarrollo; sin esta
     // guarda, la segunda llamada a bricksBuilder.create() choca con el iframe
     // que la primera dejó a medio montar y el SDK de MP falla con un error
     // genérico "Bricks component initialization failed".
     let cancelled = false;
-    let brickController: any = null;
+    let brickController: MercadoPagoBrickController | null = null;
 
     const initBrick = async () => {
       const container = document.getElementById('checkoutCardPaymentBrick_container');
       if (container) container.innerHTML = '';
 
       try {
-        const mp = new (window as any).MercadoPago(MP_PUBLIC_KEY, { locale: 'es-PE' });
+        const mp = new window.MercadoPago(MP_PUBLIC_KEY, { locale: 'es-PE' });
         const bricksBuilder = mp.bricks();
 
         const controller = await bricksBuilder.create('cardPayment', 'checkoutCardPaymentBrick_container', {
@@ -121,21 +135,29 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
             payer: { email: user.email },
           },
           customization: {
-            paymentMethods: { minInstallments: 1, maxInstallments: 12 },
+            paymentMethods: { minInstallments: 1, maxInstallments: 1 },
           },
           callbacks: {
             onReady: () => setLoadingBrick(false),
-            onSubmit: async (formData: any) => {
+            onSubmit: async (formData: MercadoPagoCardFormData) => {
               try {
                 setSubmitting(true);
-                await completeOrder(formData.token, formData.installments);
-              } catch (err: any) {
-                setErrorMsg(err.message || 'Error al procesar el pago.');
+                await completeOrder(formData.token, formData.installments, formData.payment_method_id);
+              } catch (err: unknown) {
+                setErrorMsg(err instanceof Error ? err.message : 'Error al procesar el pago.');
               } finally {
                 setSubmitting(false);
               }
             },
-            onError: (error: any) => {
+            onError: (error: MercadoPagoBrickError) => {
+              // El Brick reporta eventos "non_critical" mientras el usuario todavía
+              // está escribiendo la tarjeta (ej. BIN no identificable aún); no son
+              // errores reales, así que ni se loguean como error ni interrumpen
+              // el checkout con un banner.
+              if (error?.type === 'non_critical') {
+                console.debug('[MercadoPago Brick]', error);
+                return;
+              }
               console.error(error);
               setErrorMsg('Error al inicializar la pasarela de Mercado Pago.');
             },
@@ -161,7 +183,7 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scriptLoaded, token, user, totalAmount]);
+  }, [scriptLoaded, user, totalAmount]);
 
   const handleMockSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,10 +197,10 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
     }
 
     try {
-      if (!token || !user) throw new Error('Debes iniciar sesión para completar la compra.');
+      if (!user) throw new Error('Debes iniciar sesión para completar la compra.');
       await completeOrder('tok_mock_' + Math.floor(Math.random() * 100000), 1);
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Error al procesar el pago seguro en el servidor.');
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Error al procesar el pago seguro en el servidor.');
     } finally {
       setSubmitting(false);
     }
@@ -210,6 +232,12 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
             </div>
           )}
           <div id="checkoutCardPaymentBrick_container" />
+        </div>
+      ) : !allowMockPayment ? (
+        <div className="bg-error-container/20 border border-error/30 text-error rounded-xl p-6 flex flex-col items-center text-center gap-3">
+          <ShieldAlert className="w-8 h-8" />
+          <p className="font-semibold">El pago con tarjeta no está disponible en este momento.</p>
+          <p className="text-sm opacity-80">Por favor, inténtalo más tarde o contacta a soporte.</p>
         </div>
       ) : (
         <form onSubmit={handleMockSubmit} className="space-y-6">

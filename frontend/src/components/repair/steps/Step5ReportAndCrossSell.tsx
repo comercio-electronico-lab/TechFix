@@ -54,7 +54,7 @@ export function DiagnosticStep5({
   failurePhoto
 }: Step5Props) {
   const { addItem } = useCart();
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
   const [booking, setBooking] = useState(false);
 
@@ -108,9 +108,9 @@ export function DiagnosticStep5({
       appointmentTime: localAppointmentTime
     };
 
-    if (isAuthenticated && token) {
+    if (isAuthenticated) {
       try {
-        await scheduleRepairAction(token, repairData);
+        await scheduleRepairAction(repairData);
         alert('¡Reserva de cita confirmada con éxito en nuestro laboratorio! Hemos cargado la ficha técnica y la evidencia en la cola del técnico asignado.');
         router.push('/cliente/dashboard');
       } catch (err: any) {
