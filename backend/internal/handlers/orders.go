@@ -54,6 +54,11 @@ func CreateOrder(c *gin.Context) {
 		return
 	}
 
+	if paymentRecord.Status != "approved" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "El pago asociado a este pedido no ha sido aprobado"})
+		return
+	}
+
 	tx := db.DB.Begin()
 
 	var subtotal float64

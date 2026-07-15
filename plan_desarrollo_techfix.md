@@ -119,9 +119,9 @@ A continuación, se define la checklist para el seguimiento detallado de las tar
     - [x] Corregir bug del doble descuento de stock (BUG-01) en `TecnicoDashboardClient`
     - [x] Conectar asistente conversacional de diagnóstico a los endpoints reales de IA
     - [x] Conectar checkout del e-commerce para guardar compras reales en la base de datos
-- [ ] **Fase 2: Pasarela de Pagos con Mercado Pago**
+- [x] **Fase 2: Pasarela de Pagos con Mercado Pago**
     - [x] Integrar Mercado Pago Bricks en frontend (`CreditCardForm` y `RepairCard`)
-    - [ ] Configurar controladores de webhook en backend para procesamiento asíncrono
+    - [x] Configurar controladores de webhook en backend para procesamiento asíncrono
     - [ ] Testear pagos reales en ambiente Sandbox
 - [ ] **Fase 3: Agenda de Citas y Garantías**
     - [x] Crear selector de calendario, sucursal e input de número de serie en el Wizard PIG
@@ -130,10 +130,10 @@ A continuación, se define la checklist para el seguimiento detallado de las tar
 - [x] **Fase 4: Compras a Proveedores**
     - [x] Construir panel visual de stock mínimo para administradores
     - [x] Desarrollar formulario de órdenes de reabastecimiento consumiendo endpoints de Go
-- [ ] **Fase 5: Rediseño Visual Premium**
+- [x] **Fase 5: Rediseño Visual Premium**
     - [x] Implementar variables de modo oscuro profundo y tipografías (Space Grotesk / Inter)
     - [x] Aplicar Glassmorphism en tarjetas principales de información y Bento Grid
-    - [ ] Integrar transiciones fluidas de deslizamiento en el asistente de diagnóstico
+    - [x] Integrar transiciones fluidas de deslizamiento en el asistente de diagnóstico
     - [x] Agregar animaciones en botones (hover, click, loading) y skeleton screens
 
 ---

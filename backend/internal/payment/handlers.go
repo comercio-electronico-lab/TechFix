@@ -59,7 +59,7 @@ func CreatePayment(c *gin.Context) {
 		mercadoPagoID = fmt.Sprintf("TEST-%d", time.Now().Unix())
 	} else {
 		// Modo producción: crear pago en Mercado Pago
-		mpPayment, err = CreateMercadoPagoPayment(req.Amount, req.PayerEmail, req.Description, installments, req.Token)
+		mpPayment, err = CreateMercadoPagoPayment(req.Amount, req.PayerEmail, req.Description, installments, req.Token, req.PaymentMethodID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("error creando pago en Mercado Pago: %v", err)})
 			return
@@ -86,7 +86,37 @@ func CreatePayment(c *gin.Context) {
 
 	// Usar transacción para garantizar consistencia
 	err = db.DB.Transaction(func(tx *gorm.DB) error {
-		return tx.Create(&paymentRecord).Error
+		if err := tx.Create(&paymentRecord).Error; err != nil {
+			return err
+		}
+
+		// Si el pago es aprobado inmediatamente (ej: TESTING_MODE=true) y tiene vinculada una reparación
+		if paymentRecord.Status == "approved" && paymentRecord.RepairID != nil {
+			// Actualizar estado de la reparación a "agendado" y fijar cita por defecto (3 días)
+			err := tx.Model(&models.RepairOrder{}).
+				Where("id = ?", *paymentRecord.RepairID).
+				Updates(map[string]interface{}{
+					"status":               "agendado",
+					"appointment_datetime": time.Now().AddDate(0, 0, 3),
+				}).Error
+			if err != nil {
+				return err
+			}
+
+			// Registrar en tracking
+			err = tx.Create(&models.RepairTracking{
+				RepairID:       *paymentRecord.RepairID,
+				PreviousStatus: "pending",
+				NewStatus:      "agendado",
+				ChangedBy:      paymentRecord.UserID,
+				Notes:          "Pago de cita aprobado e inicio agendado",
+			}).Error
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
 	})
 	if err != nil {
 		// Si falla el INSERT pero el pago fue creado en MP, loguear el ID para recuperación
