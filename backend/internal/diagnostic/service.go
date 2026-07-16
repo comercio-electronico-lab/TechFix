@@ -197,9 +197,11 @@ func (s *DiagnosticService) AnswerDiagnostic(req AnswerDiagnosticRequest) (*Diag
 				AIReasoning:         part.Reasoning,
 			}
 
-			// Intentar vincular con un producto real de la base de datos
+			// Intentar vincular con un producto real de la base de datos.
+			// LOWER()+LIKE en vez de ILIKE: ILIKE es específico de Postgres y
+			// falla en SQLite (usado en los tests), además de no ser portable.
 			var dbProd models.Producto
-			if err := s.db.Where("nombre ILIKE ?", "%"+part.Name+"%").First(&dbProd).Error; err == nil {
+			if err := s.db.Where("LOWER(nombre) LIKE LOWER(?)", "%"+part.Name+"%").First(&dbProd).Error; err == nil {
 				product.ProductoID = &dbProd.ID
 			}
 

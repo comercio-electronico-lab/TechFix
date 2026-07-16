@@ -8,6 +8,7 @@ import (
 	"backend/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type OrderItemInput struct {
@@ -59,6 +60,15 @@ func CreateOrder(c *gin.Context) {
 		return
 	}
 
+	// Idempotencia por payment_id: si el pedido ya fue creado para este pago (reintento
+	// del frontend tras perder la respuesta por un corte de red, doble clic, etc.),
+	// devolvemos el existente en vez de duplicar el pedido y descontar el stock dos veces.
+	var existingPedido models.Pedido
+	if err := db.DB.Preload("Items.Producto").Where("payment_id = ?", paymentUUID).First(&existingPedido).Error; err == nil {
+		c.JSON(http.StatusOK, existingPedido)
+		return
+	}
+
 	tx := db.DB.Begin()
 
 	var subtotal float64
@@ -79,16 +89,20 @@ func CreateOrder(c *gin.Context) {
 			return
 		}
 
-		if producto.StockActual < item.Cantidad {
-			tx.Rollback()
-			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("stock insuficiente para %s", producto.Nombre)})
-			return
-		}
-
-		producto.StockActual -= item.Cantidad
-		if err := tx.Save(&producto).Error; err != nil {
+		// Descuento atómico condicionado al stock disponible: el chequeo y la resta
+		// ocurren en una sola sentencia SQL, evitando que dos pedidos concurrentes
+		// lean el mismo stock y ambos pasen la validación (oversell).
+		result := tx.Model(&models.Producto{}).
+			Where("id = ? AND stock_actual >= ?", productoUUID, item.Cantidad).
+			Update("stock_actual", gorm.Expr("stock_actual - ?", item.Cantidad))
+		if result.Error != nil {
 			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "error al actualizar stock"})
+			return
+		}
+		if result.RowsAffected == 0 {
+			tx.Rollback()
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("stock insuficiente para %s", producto.Nombre)})
 			return
 		}
 
@@ -118,6 +132,14 @@ func CreateOrder(c *gin.Context) {
 	}
 	if err := tx.Create(&pedido).Error; err != nil {
 		tx.Rollback()
+		// Si el INSERT falló por la restricción unique de payment_id (dos reintentos
+		// concurrentes para el mismo pago corriendo a la vez), el pedido ya existe:
+		// devolverlo en vez de fallar con 500.
+		var raced models.Pedido
+		if lookupErr := db.DB.Preload("Items.Producto").Where("payment_id = ?", paymentUUID).First(&raced).Error; lookupErr == nil {
+			c.JSON(http.StatusOK, raced)
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error al crear el pedido"})
 		return
 	}

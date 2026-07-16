@@ -53,10 +53,13 @@ func CreatePayment(c *gin.Context) {
 	var mpPayment *payment.Response
 	var err error
 	var mercadoPagoID string
+	var status string
+	var paymentMethod string
 
 	// En modo testing, crear un pago simulado sin llamar a MP
 	if os.Getenv("TESTING_MODE") == "true" {
 		mercadoPagoID = fmt.Sprintf("TEST-%d", time.Now().Unix())
+		status = "approved"
 	} else {
 		// Modo producción: crear pago en Mercado Pago
 		mpPayment, err = CreateMercadoPagoPayment(req.Amount, req.PayerEmail, req.Description, installments, req.Token, req.PaymentMethodID)
@@ -65,11 +68,12 @@ func CreatePayment(c *gin.Context) {
 			return
 		}
 		mercadoPagoID = fmt.Sprintf("%d", mpPayment.ID)
-	}
-
-	status := "pending"
-	if os.Getenv("TESTING_MODE") == "true" {
-		status = "approved"
+		// Mercado Pago resuelve pagos con tarjeta de forma síncrona en esta misma
+		// respuesta (approved/rejected/in_process). Usar ese status real evita que
+		// el pedido o la reparación queden bloqueados esperando un webhook que
+		// requiere una NOTIFICATION_URL pública y puede no llegar nunca en dev/sandbox.
+		status = mpPayment.Status
+		paymentMethod = mpPayment.PaymentMethodID
 	}
 
 	paymentRecord := models.Payment{
@@ -79,6 +83,7 @@ func CreatePayment(c *gin.Context) {
 		Currency:       "PEN",
 		Description:    req.Description,
 		Status:         status,
+		PaymentMethod:  paymentMethod,
 		PayerEmail:     req.PayerEmail,
 		PaymentDetails: "{}",
 		MercadoPagoID:  mercadoPagoID,
@@ -90,28 +95,11 @@ func CreatePayment(c *gin.Context) {
 			return err
 		}
 
-		// Si el pago es aprobado inmediatamente (ej: TESTING_MODE=true) y tiene vinculada una reparación
+		// Si el pago es aprobado inmediatamente (ej: TESTING_MODE=true) y tiene vinculada una reparación.
+		// SyncApprovedRepairPayment es idempotente: si el usuario pagó dos veces (doble clic) o el
+		// webhook ya adelantó la reparación, esta llamada no hace nada.
 		if paymentRecord.Status == "approved" && paymentRecord.RepairID != nil {
-			// Actualizar estado de la reparación a "agendado" y fijar cita por defecto (3 días)
-			err := tx.Model(&models.RepairOrder{}).
-				Where("id = ?", *paymentRecord.RepairID).
-				Updates(map[string]interface{}{
-					"status":               "agendado",
-					"appointment_datetime": time.Now().AddDate(0, 0, 3),
-				}).Error
-			if err != nil {
-				return err
-			}
-
-			// Registrar en tracking
-			err = tx.Create(&models.RepairTracking{
-				RepairID:       *paymentRecord.RepairID,
-				PreviousStatus: "pending",
-				NewStatus:      "agendado",
-				ChangedBy:      paymentRecord.UserID,
-				Notes:          "Pago de cita aprobado e inicio agendado",
-			}).Error
-			if err != nil {
+			if _, err := SyncApprovedRepairPayment(tx, *paymentRecord.RepairID, paymentRecord.UserID, "Pago de cita aprobado e inicio agendado"); err != nil {
 				return err
 			}
 		}

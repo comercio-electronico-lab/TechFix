@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 
 	"gopkg.in/yaml.v3"
 )
@@ -52,6 +54,17 @@ func NewDevicesService() *DevicesService {
 
 func loadDeviceCatalog() (*DeviceCatalog, error) {
 	data, err := os.ReadFile("seeds/yamls/devices_catalog.yaml")
+	if err != nil {
+		// La ruta relativa de arriba asume que el proceso corre con cwd=backend/
+		// (cierto en `make dev` y en el contenedor Docker, que copia seeds/ junto
+		// al binario). Bajo `go test` el cwd es el directorio del paquete, así que
+		// como fallback resolvemos la ruta relativa al propio archivo fuente para
+		// que el catálogo sea cargable en tests sin depender del cwd del proceso.
+		if _, thisFile, _, ok := runtime.Caller(0); ok {
+			fallbackPath := filepath.Join(filepath.Dir(thisFile), "..", "..", "seeds", "yamls", "devices_catalog.yaml")
+			data, err = os.ReadFile(fallbackPath)
+		}
+	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to read devices catalog: %w", err)
 	}

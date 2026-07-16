@@ -288,7 +288,7 @@ type Pedido struct {
 	Base
 	UsuarioID      uuid.UUID        `gorm:"type:uuid;not null" json:"usuario_id" yaml:"usuario_id"`
 	Usuario        Usuario          `gorm:"foreignKey:UsuarioID" json:"usuario,omitempty"`
-	PaymentID      *uuid.UUID       `gorm:"type:uuid" json:"payment_id" yaml:"payment_id"`
+	PaymentID      *uuid.UUID       `gorm:"type:uuid;uniqueIndex" json:"payment_id" yaml:"payment_id"`
 	Payment        *Payment         `gorm:"foreignKey:PaymentID" json:"payment,omitempty"`
 	Estado         string           `gorm:"size:50;default:'pagado'" json:"estado" yaml:"estado"`
 	Subtotal       float64          `json:"subtotal" yaml:"subtotal"`
