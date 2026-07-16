@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authenticate, register, getCurrentUser, updateProfileAction, logoutAction } from '@/actions';
+import { authenticate, register, getCurrentUser, hasSessionAction, updateProfileAction, logoutAction } from '@/actions';
 import { IUser } from '@/interfaces/domain';
 
 interface AuthContextType {
@@ -54,6 +54,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (storedUser) {
           // Render optimista mientras se valida la sesión contra el servidor.
           setUser(JSON.parse(storedUser));
+        }
+
+        // Visitante sin cookie de sesión: caso normal (no un error), así que
+        // no llamamos a getCurrentUser() ni dejamos que lance el "sin sesión"
+        // que Next.js igual loguea en el servidor aunque lo capturemos aquí.
+        if (!(await hasSessionAction())) {
+          if (storedUser) await handleLogout();
+          return;
         }
 
         try {

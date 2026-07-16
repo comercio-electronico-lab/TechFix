@@ -2,7 +2,7 @@
 
 import { IUser } from '@/interfaces/domain';
 import { cookies } from 'next/headers';
-import { getAuthToken } from '@/lib/auth-token';
+import { getAuthToken, getOptionalAuthToken } from '@/lib/auth-token';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 const TOKEN_COOKIE = 'techfix_token';
@@ -98,6 +98,18 @@ export async function logoutAction(): Promise<void> {
   // hay que hacerlo desde el servidor.
   const cookieStore = await cookies();
   cookieStore.delete(TOKEN_COOKIE);
+}
+
+/**
+ * Indica si existe una cookie de sesión, sin validarla contra el backend ni
+ * lanzar si falta. Pensado para que el cliente decida si vale la pena llamar
+ * a getCurrentUser() al arrancar, en vez de intentarlo siempre y descartar el
+ * error esperado de "sin sesión" (que Next.js igual loguea en el servidor
+ * aunque el llamador lo capture).
+ */
+export async function hasSessionAction(): Promise<boolean> {
+  const token = await getOptionalAuthToken();
+  return !!token;
 }
 
 export async function getCurrentUser(): Promise<IUser> {
