@@ -12,6 +12,8 @@ export async function createPaymentAction(paymentData: {
   installments?: number;
   cardToken?: string;
   paymentMethodId?: string;
+  payerIdentificationType?: string;
+  payerIdentificationNumber?: string;
 }) {
   const token = await getAuthToken();
   const response = await fetch(`${BACKEND_URL}/api/payments`, {
@@ -28,6 +30,8 @@ export async function createPaymentAction(paymentData: {
       installments: paymentData.installments || 1,
       token: paymentData.cardToken || '',
       payment_method_id: paymentData.paymentMethodId || '',
+      payer_identification_type: paymentData.payerIdentificationType || '',
+      payer_identification_number: paymentData.payerIdentificationNumber || '',
     }),
     cache: 'no-store',
   });

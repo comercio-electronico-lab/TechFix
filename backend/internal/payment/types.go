@@ -1,13 +1,15 @@
 package payment
 
 type CreatePaymentRequest struct {
-	Amount          float64 `json:"amount" binding:"required,gt=0"`
-	Description     string  `json:"description" binding:"required"`
-	PayerEmail      string  `json:"payer_email" binding:"required,email"`
-	Token           string  `json:"token"`
-	RepairID        *string `json:"repair_id"`
-	Installments    int     `json:"installments"`
-	PaymentMethodID string  `json:"payment_method_id"`
+	Amount                    float64 `json:"amount" binding:"required,gt=0"`
+	Description               string  `json:"description" binding:"required"`
+	PayerEmail                string  `json:"payer_email" binding:"required,email"`
+	Token                     string  `json:"token"`
+	RepairID                  *string `json:"repair_id"`
+	Installments              int     `json:"installments"`
+	PaymentMethodID           string  `json:"payment_method_id"`
+	PayerIdentificationType   string  `json:"payer_identification_type"`
+	PayerIdentificationNumber string  `json:"payer_identification_number"`
 }
 
 type PaymentResponse struct {

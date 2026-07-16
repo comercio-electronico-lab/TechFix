@@ -105,7 +105,9 @@ export function DiagnosticStep5({
       notes: `Pre-diagnóstico ${ticketId} [S/N: ${localSerialNumber || 'No provisto'}]. Síntomas: ${symptomPath.join(' | ')}. Cita reservada para el ${localAppointmentDate} a las ${localAppointmentTime} en la sucursal ${localSelectedBranch}. Evidencia fotográfica adjunta: ${localFailurePhoto ? 'SÍ' : 'NO'}.`,
       deviceSerial: localSerialNumber || `SN-${Math.floor(Math.random() * 1000000).toString()}`,
       appointmentDate: localAppointmentDate,
-      appointmentTime: localAppointmentTime
+      appointmentTime: localAppointmentTime,
+      branch: localSelectedBranch,
+      failurePhoto: localFailurePhoto,
     };
 
     if (isAuthenticated) {

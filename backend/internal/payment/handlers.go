@@ -62,7 +62,7 @@ func CreatePayment(c *gin.Context) {
 		status = "approved"
 	} else {
 		// Modo producción: crear pago en Mercado Pago
-		mpPayment, err = CreateMercadoPagoPayment(req.Amount, req.PayerEmail, req.Description, installments, req.Token, req.PaymentMethodID)
+		mpPayment, err = CreateMercadoPagoPayment(req.Amount, req.PayerEmail, req.Description, installments, req.Token, req.PaymentMethodID, req.PayerIdentificationType, req.PayerIdentificationNumber)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("error creando pago en Mercado Pago: %v", err)})
 			return

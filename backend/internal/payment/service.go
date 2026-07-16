@@ -11,7 +11,7 @@ import (
 	"github.com/mercadopago/sdk-go/pkg/payment"
 )
 
-func CreateMercadoPagoPayment(amount float64, email, description string, installments int, token string, paymentMethodID string) (*payment.Response, error) {
+func CreateMercadoPagoPayment(amount float64, email, description string, installments int, token string, paymentMethodID string, identificationType string, identificationNumber string) (*payment.Response, error) {
 	accessToken := os.Getenv("MERCADO_PAGO_ACCESS_TOKEN")
 	if accessToken == "" {
 		return nil, fmt.Errorf("MERCADO_PAGO_ACCESS_TOKEN no configurado")
@@ -37,9 +37,7 @@ func CreateMercadoPagoPayment(amount float64, email, description string, install
 		PaymentMethodID:   paymentMethodID,
 		Token:             token,
 		Installments:      installments,
-		Payer: &payment.PayerRequest{
-			Email: email,
-		},
+		Payer:             buildPayerRequest(email, identificationType, identificationNumber),
 	}
 
 	notifURL := os.Getenv("NOTIFICATION_URL")
@@ -53,6 +51,24 @@ func CreateMercadoPagoPayment(amount float64, email, description string, install
 	}
 
 	return resource, nil
+}
+
+// buildPayerRequest arma el payer del pago incluyendo el documento de
+// identidad cuando está disponible. Mercado Pago exige DNI/RUC del pagador en
+// Perú; sin él rechaza el pago con 403 "Payer email forbidden" aunque la
+// tarjeta y el token sean válidos.
+func buildPayerRequest(email, identificationType, identificationNumber string) *payment.PayerRequest {
+	payer := &payment.PayerRequest{Email: email}
+	if identificationNumber != "" {
+		if identificationType == "" {
+			identificationType = "DNI"
+		}
+		payer.Identification = &payment.IdentificationRequest{
+			Type:   identificationType,
+			Number: identificationNumber,
+		}
+	}
+	return payer
 }
 
 func GetMercadoPagoPayment(paymentID string) (*payment.Response, error) {

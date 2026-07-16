@@ -57,7 +57,12 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
     return defaults;
   };
 
-  const completeOrder = async (cardToken: string, installments: number, paymentMethodId?: string) => {
+  const completeOrder = async (
+    cardToken: string,
+    installments: number,
+    paymentMethodId?: string,
+    payerIdentification?: { type?: string; number?: string }
+  ) => {
     const shippingInfo = getShippingInfo();
 
     const paymentRecord = await createPaymentAction({
@@ -67,6 +72,8 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
       cardToken,
       installments,
       paymentMethodId,
+      payerIdentificationType: payerIdentification?.type,
+      payerIdentificationNumber: payerIdentification?.number,
     });
 
     let orderNumber = `#TF-${Math.floor(1000 + Math.random() * 9000)}-0029X`;
@@ -142,7 +149,7 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ totalAmount }) => {
             onSubmit: async (formData: MercadoPagoCardFormData) => {
               try {
                 setSubmitting(true);
-                await completeOrder(formData.token, formData.installments, formData.payment_method_id);
+                await completeOrder(formData.token, formData.installments, formData.payment_method_id, formData.payer?.identification);
               } catch (err: unknown) {
                 setErrorMsg(err instanceof Error ? err.message : 'Error al procesar el pago.');
               } finally {

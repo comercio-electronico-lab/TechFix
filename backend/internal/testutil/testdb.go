@@ -33,6 +33,8 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 		&models.DiagnosticSession{},
 		&models.DiagnosticTurn{},
 		&models.AIRecommendedProduct{},
+		&models.Proveedor{},
+		&models.PedidoRepuesto{},
 	)
 	if err != nil {
 		t.Fatalf("no se pudo migrar la base de datos de pruebas: %v", err)

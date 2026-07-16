@@ -106,6 +106,59 @@ func (h *SuppliersHandler) CreateRestockOrder(c *gin.Context) {
 	c.JSON(http.StatusCreated, order)
 }
 
+// GetRestockOrders devuelve las órdenes de reabastecimiento (Admin only)
+// GET /api/suppliers/orders
+func (h *SuppliersHandler) GetRestockOrders(c *gin.Context) {
+	var orders []models.PedidoRepuesto
+	if err := h.db.Preload("Proveedor").Preload("Producto").Order("created_at DESC").Find(&orders).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener las órdenes de reabastecimiento"})
+		return
+	}
+
+	c.JSON(http.StatusOK, orders)
+}
+
+// ReceiveRestockOrder marca una orden de reabastecimiento como recibida e
+// incrementa el stock del producto correspondiente (Admin only). Sin este
+// paso, una orden de compra queda para siempre en "solicitado" y el stock
+// nunca refleja la mercadería que efectivamente llegó al laboratorio.
+// PUT /api/suppliers/orders/:id/receive
+func (h *SuppliersHandler) ReceiveRestockOrder(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de orden inválido"})
+		return
+	}
+
+	var order models.PedidoRepuesto
+	if err := h.db.First(&order, "id = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Orden de reabastecimiento no encontrada"})
+		return
+	}
+
+	if order.Estado == "recibido" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Esta orden ya fue marcada como recibida"})
+		return
+	}
+
+	err = h.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&models.Producto{}).
+			Where("id = ?", order.ProductoID).
+			Update("stock_actual", gorm.Expr("stock_actual + ?", order.Cantidad)).Error; err != nil {
+			return err
+		}
+		return tx.Model(&order).Update("estado", "recibido").Error
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al recibir la orden de reabastecimiento"})
+		return
+	}
+
+	h.db.Preload("Proveedor").Preload("Producto").First(&order, "id = ?", order.ID)
+	c.JSON(http.StatusOK, order)
+}
+
 // CreateSupplier crea un nuevo proveedor (Admin only)
 func (h *SuppliersHandler) CreateSupplier(c *gin.Context) {
 	var input models.Proveedor

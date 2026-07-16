@@ -16,6 +16,7 @@ import {
   FileText
 } from 'lucide-react';
 import { useRepairs, RepairOrder, Warranty } from '@/hooks/useRepairs';
+import Skeleton from '@/components/ui/Skeleton';
 
 // Mapeador de colores e iconos para el estado de reparación
 const STATUS_META: Record<string, { label: string; bg: string; text: string; ring: string; icon: React.ElementType }> = {
@@ -83,11 +84,28 @@ export default function RepairsTab() {
 
   if (loading) {
     return (
-      <div className="py-16 flex flex-col items-center justify-center space-y-4">
-        <div className="w-10 h-10 rounded-full border-4 border-primary/20 dark:border-sky-500/20 border-t-primary dark:border-t-sky-500 animate-spin" />
-        <p className="text-xs font-semibold text-on-surface-variant dark:text-slate-450 animate-pulse">
-          Consultando órdenes de laboratorio y certificados...
-        </p>
+      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="bg-white dark:bg-slate-900 border border-outline-variant/60 dark:border-slate-800 rounded-2xl shadow-sm p-6 space-y-4">
+            <div className="flex justify-between items-start border-b border-slate-50 dark:border-slate-850 pb-3">
+              <div className="space-y-2">
+                <Skeleton className="h-2.5 w-24" />
+                <Skeleton className="h-5 w-32" />
+              </div>
+              <Skeleton className="h-5 w-20 rounded-full" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Skeleton className="h-2 w-14" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-2 w-14" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

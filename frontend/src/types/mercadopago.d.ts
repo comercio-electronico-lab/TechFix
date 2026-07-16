@@ -3,7 +3,10 @@ export interface MercadoPagoCardFormData {
   installments: number;
   payment_method_id: string;
   issuer_id?: string;
-  payer?: { email?: string };
+  payer?: {
+    email?: string;
+    identification?: { type?: string; number?: string };
+  };
 }
 
 export interface MercadoPagoBrickController {

@@ -92,6 +92,8 @@ export default function RepairPaymentModal({
                   cardToken: formData.token,
                   installments: formData.installments,
                   paymentMethodId: formData.payment_method_id,
+                  payerIdentificationType: formData.payer?.identification?.type,
+                  payerIdentificationNumber: formData.payer?.identification?.number,
                   repair_id: repairId
                 });
                 alert('¡Pago procesado con éxito!');

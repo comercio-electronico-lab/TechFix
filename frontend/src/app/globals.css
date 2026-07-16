@@ -204,6 +204,33 @@ h3 { @apply font-h3 text-[24px] leading-[1.4] font-semibold; }
   50% { transform: scale(1.15); }
 }
 
+@keyframes skeleton-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0.15) 25%,
+    rgba(99, 102, 241, 0.25) 37%,
+    rgba(56, 189, 248, 0.25) 45%,
+    rgba(148, 163, 184, 0.15) 63%
+  );
+  background-size: 400px 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.dark .skeleton-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    rgba(51, 65, 85, 0.4) 25%,
+    rgba(99, 102, 241, 0.3) 37%,
+    rgba(56, 189, 248, 0.3) 45%,
+    rgba(51, 65, 85, 0.4) 63%
+  );
+}
+
 @keyframes badge-pulse {
   0%, 100% {
     opacity: 1;

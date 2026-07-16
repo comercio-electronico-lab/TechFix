@@ -4,10 +4,21 @@ import React, { useState, useEffect } from 'react';
 import Table from '@/components/ui/Table';
 import { Button, Input } from '@/components/ui';
 import Modal from '@/components/ui/Modal';
-import { getSuppliers, createSupplier, updateSupplier, deleteSupplier, createRestockOrder, getProducts } from '@/actions';
+import { getSuppliers, createSupplier, updateSupplier, deleteSupplier, createRestockOrder, getRestockOrders, receiveRestockOrder, getProducts } from '@/actions';
 import { useAuth } from '@/context/AuthContext';
-import { Edit, Plus, Search, Mail, Phone, User, Trash2, AlertTriangle, Truck, ArrowRight, BookOpen } from 'lucide-react';
+import { Edit, Plus, Search, Mail, Phone, User, Trash2, AlertTriangle, Truck, ArrowRight, BookOpen, PackageCheck } from 'lucide-react';
+import Skeleton from '@/components/ui/Skeleton';
 import { IProduct } from '@/interfaces/domain';
+
+interface RestockOrder {
+  id: string;
+  supplierName: string;
+  productName: string;
+  quantity: number;
+  status: string;
+  expectedDate?: string;
+  orderDate: string;
+}
 
 interface Supplier {
   id: string;
@@ -39,6 +50,8 @@ export default function AdminProveedoresClient() {
   const [selectedSupplierId, setSelectedSupplierId] = useState('');
   const [restockQuantity, setRestockQuantity] = useState(10);
   const [ordering, setOrdering] = useState(false);
+  const [orders, setOrders] = useState<RestockOrder[]>([]);
+  const [receivingId, setReceivingId] = useState<string | null>(null);
 
   async function loadSuppliers() {
     setLoading(true);
@@ -61,10 +74,33 @@ export default function AdminProveedoresClient() {
     }
   }
 
+  async function loadOrders() {
+    try {
+      const data = await getRestockOrders();
+      setOrders(data);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   useEffect(() => {
     loadSuppliers();
     loadProducts();
+    loadOrders();
   }, []);
+
+  const handleReceiveOrder = async (order: RestockOrder) => {
+    if (!confirm(`¿Confirmas que llegaron ${order.quantity} unidades de "${order.productName}"? Esto sumará el stock automáticamente.`)) return;
+    setReceivingId(order.id);
+    try {
+      await receiveRestockOrder(order.id);
+      await Promise.all([loadOrders(), loadProducts()]);
+    } catch (err: any) {
+      alert(err.message || 'Error al recibir la orden.');
+    } finally {
+      setReceivingId(null);
+    }
+  };
 
   const handleOpenAdd = () => {
     setEditingSupplier(null);
@@ -149,6 +185,7 @@ export default function AdminProveedoresClient() {
       alert('¡Orden de reabastecimiento enviada correctamente a fábrica (ETA: 7 días)!');
       setRestockQuantity(10);
       loadProducts(); // refresh products to check stock levels
+      loadOrders();
     } catch (err: any) {
       alert(err.message || 'Error al crear la orden de reabastecimiento.');
     } finally {
@@ -293,8 +330,15 @@ export default function AdminProveedoresClient() {
 
             <div className="p-2">
               {loading ? (
-                <div className="py-12 text-center text-sm font-semibold text-on-surface-variant/60">
-                  Cargando lista de proveedores...
+                <div className="p-4 space-y-3">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-6 p-3">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-4 w-28" />
+                      <Skeleton className="h-4 w-28" />
+                      <Skeleton className="h-4 w-36" />
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <Table columns={columns} data={filteredSuppliers} />
@@ -414,6 +458,53 @@ export default function AdminProveedoresClient() {
                 </Button>
               </div>
             </form>
+          </div>
+
+          {/* Órdenes de Reabastecimiento en Tránsito */}
+          <div className="lg:col-span-12 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-outline-variant/10 dark:border-slate-800 p-6 space-y-4">
+            <div className="flex items-center gap-2 border-b border-outline-variant/10 dark:border-slate-800 pb-4">
+              <PackageCheck className="w-5 h-5 text-secondary dark:text-sky-450" />
+              <h2 className="font-bold text-lg text-on-surface dark:text-white">Órdenes de Reabastecimiento</h2>
+            </div>
+
+            {orders.length === 0 ? (
+              <div className="py-8 text-center text-sm font-semibold text-on-surface-variant/60">
+                Aún no se han generado órdenes de reabastecimiento.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {orders.map(order => (
+                  <div key={order.id} className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-950 border border-outline-variant/20 dark:border-slate-800/80 rounded-xl">
+                    <div>
+                      <h3 className="font-bold text-sm text-primary dark:text-sky-400">{order.productName}</h3>
+                      <p className="text-[11px] text-on-surface-variant dark:text-slate-400 mt-0.5">
+                        {order.quantity} unid. · {order.supplierName}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
+                        order.status === 'recibido'
+                          ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400'
+                          : 'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400'
+                      }`}>
+                        {order.status === 'recibido' ? 'Recibido' : 'En tránsito'}
+                      </span>
+                      {order.status !== 'recibido' && (
+                        <button
+                          type="button"
+                          onClick={() => handleReceiveOrder(order)}
+                          disabled={receivingId === order.id}
+                          className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                        >
+                          <PackageCheck className="w-3.5 h-3.5" />
+                          {receivingId === order.id ? 'Confirmando...' : 'Marcar Recibido'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

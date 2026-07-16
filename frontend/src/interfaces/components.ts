@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { IProduct, ICategory, IRepair, IAppointment, IDiagnosticNode, IDashboardStats, IActivityLog } from './domain';
+import { IProduct, ICategory, IRepair, IAppointment, IDashboardStats, IActivityLog } from './domain';
 
 // Props para componentes de la UI
 export interface ICardProps {
@@ -34,11 +34,6 @@ export interface IDashboardHeaderProps {
 // Props para Features (Reparaciones)
 export interface IRepairStatusBadgeProps {
   status: IRepair['status'];
-}
-
-export interface IDiagnosticFlowProps {
-  nodes: IDiagnosticNode[];
-  onComplete: (result: { status: string; finalNode?: string }) => void;
 }
 
 // Props para Features (Citas)

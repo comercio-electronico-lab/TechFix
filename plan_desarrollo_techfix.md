@@ -122,8 +122,8 @@ A continuación, se define la checklist para el seguimiento detallado de las tar
 - [x] **Fase 2: Pasarela de Pagos con Mercado Pago**
     - [x] Integrar Mercado Pago Bricks en frontend (`CreditCardForm` y `RepairCard`)
     - [x] Configurar controladores de webhook en backend para procesamiento asíncrono
-    - [ ] Testear pagos reales en ambiente Sandbox
-- [ ] **Fase 3: Agenda de Citas y Garantías**
+    - [x] Testear pagos reales en ambiente Sandbox
+- [x] **Fase 3: Agenda de Citas y Garantías**
     - [x] Crear selector de calendario, sucursal e input de número de serie en el Wizard PIG
     - [x] Habilitar sistema de subida de imágenes de fallas
     - [x] Desarrollar botón e interfaz de reclamación de garantías en panel del cliente
