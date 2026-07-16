@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"backend/internal/db"
 	"backend/internal/models"
@@ -100,24 +99,14 @@ func ProcessPaymentWebhook(c *gin.Context) {
 		if err := db.DB.Where("mercado_pago_id = ?", webhookData.Data.ID).First(&paymentRecord).Error; err == nil {
 			db.DB.Model(&paymentRecord).Updates(updates)
 
-			// Si el pago fue aprobado y está vinculado a una reparación, actualizar la reparación
+			// Si el pago fue aprobado y está vinculado a una reparación, actualizar la reparación.
+			// Mercado Pago puede reenviar el mismo evento (reintentos por timeout) y este webhook
+			// puede llegar después de que el pago ya se aprobó de forma síncrona en CreatePayment;
+			// SyncApprovedRepairPayment es idempotente y evita retroceder una reparación que el
+			// técnico ya avanzó (en_reparacion, reparado, etc.) a "agendado" por un evento
+			// duplicado o tardío.
 			if resource.Status == "approved" && paymentRecord.RepairID != nil {
-				// Actualizar estado de la reparación a "agendado" y fijar cita por defecto (3 días)
-				db.DB.Model(&models.RepairOrder{}).
-					Where("id = ?", *paymentRecord.RepairID).
-					Updates(map[string]interface{}{
-						"status":               "agendado",
-						"appointment_datetime": time.Now().AddDate(0, 0, 3),
-					})
-
-				// Registrar en tracking
-				db.DB.Create(&models.RepairTracking{
-					RepairID:       *paymentRecord.RepairID,
-					PreviousStatus: "pending",
-					NewStatus:      "agendado",
-					ChangedBy:      paymentRecord.UserID,
-					Notes:          "Pago de cita aprobado vía webhook de Mercado Pago",
-				})
+				SyncApprovedRepairPayment(db.DB, *paymentRecord.RepairID, paymentRecord.UserID, "Pago de cita aprobado vía webhook de Mercado Pago")
 			}
 		} else {
 			// Si el pago no existe aún en la base de datos local (ej. webhook llegó antes de la respuesta del frontend)

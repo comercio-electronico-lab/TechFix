@@ -169,6 +169,8 @@ func startServer() {
 			api.PUT("/suppliers/:id", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.UpdateSupplier)
 			api.DELETE("/suppliers/:id", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.DeleteSupplier)
 			api.POST("/suppliers/orders", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.CreateRestockOrder)
+			api.GET("/suppliers/orders", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.GetRestockOrders)
+			api.PUT("/suppliers/orders/:id/receive", auth.AuthMiddleware(), auth.RoleMiddleware("Admin"), suppliersHandlers.ReceiveRestockOrder)
 		}
 
 		// Rutas públicas de Autenticación

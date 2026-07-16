@@ -278,6 +278,8 @@ type CreateRepairInput struct {
 	PigSessionID        string `json:"pig_session_id"`
 	AppointmentDatetime string `json:"appointment_datetime" binding:"required"`
 	Notes               string `json:"notes"`
+	Sucursal            string `json:"sucursal"`
+	FailurePhoto        string `json:"failure_photo"`
 }
 
 // CreateRepair schedules a new repair order for the authenticated user
@@ -327,6 +329,8 @@ func CreateRepair(c *gin.Context) {
 		AppointmentDatetime: appointmentTime,
 		Status:              "pending",
 		Notes:               input.Notes,
+		Sucursal:            input.Sucursal,
+		FailurePhoto:        input.FailurePhoto,
 	}
 
 	// Si hay sesión PIG, cargar estimaciones y diagnóstico preliminar

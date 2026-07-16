@@ -191,7 +191,9 @@ export async function scheduleRepairAction(repairData: any) {
       device_id: deviceId,
       pig_session_id: repairData.pig_session_id || '',
       appointment_datetime: appointmentDatetime,
-      notes: repairData.notes || 'Cita de servicio agendada desde el portal.'
+      notes: repairData.notes || 'Cita de servicio agendada desde el portal.',
+      sucursal: repairData.branch || '',
+      failure_photo: repairData.failurePhoto || '',
     }),
     cache: 'no-store',
   });

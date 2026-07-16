@@ -76,6 +76,59 @@ export async function createRestockOrder(orderInput: { proveedor_id: string; pro
   }
 }
 
+export async function getRestockOrders() {
+  try {
+    const token = await getAuthToken();
+
+    const response = await fetch(`${BACKEND_URL}/api/suppliers/orders`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al obtener las órdenes de reabastecimiento');
+    }
+
+    const data = await response.json();
+    return data.map((o: any) => ({
+      id: o.id,
+      supplierName: o.proveedor?.nombre || 'N/D',
+      productName: o.producto?.nombre || 'N/D',
+      quantity: o.cantidad,
+      status: o.estado,
+      expectedDate: o.fecha_llegada,
+      orderDate: o.created_at,
+    }));
+  } catch (error) {
+    console.error('Error in getRestockOrders action:', error);
+    return [];
+  }
+}
+
+export async function receiveRestockOrder(orderId: string) {
+  const token = await getAuthToken();
+
+  const response = await fetch(`${BACKEND_URL}/api/suppliers/orders/${orderId}/receive`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error || 'Error al recibir la orden de reabastecimiento');
+  }
+
+  return await response.json();
+}
+
 export async function createSupplier(supplierInput: { nombre: string; contacto?: string; telefono?: string; email?: string }) {
   try {
     const token = await getAuthToken();

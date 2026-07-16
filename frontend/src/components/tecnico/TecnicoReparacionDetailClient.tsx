@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getRepairTrackingAction, updateRepairStatusAction, getAdminProductsAction, addPartToRepairAction } from '@/actions';
-import { ArrowLeft, Wrench, CheckCircle2, AlertCircle, Cpu, Plus, DollarSign, Calendar, User, Smartphone } from 'lucide-react';
+import { ArrowLeft, Wrench, CheckCircle2, AlertCircle, Cpu, Plus, DollarSign, Calendar, User, Smartphone, MapPin, Camera } from 'lucide-react';
 import Badge from '@/components/ui/Badge';
 import Link from 'next/link';
 
@@ -144,7 +144,25 @@ export default function TecnicoReparacionDetailClient({ ticketId }: { ticketId: 
               <p className="font-semibold">{order.appointment_datetime ? new Date(order.appointment_datetime).toLocaleDateString('es-ES', { dateStyle: 'long' }) : 'No agendada'}</p>
             </div>
           </div>
+          {order.sucursal && (
+            <div className="flex items-center gap-3 text-sm">
+              <MapPin className="w-5 h-5 text-on-surface-variant/60" />
+              <div>
+                <p className="text-[10px] font-bold text-on-surface-variant uppercase">Sucursal</p>
+                <p className="font-semibold">{order.sucursal}</p>
+              </div>
+            </div>
+          )}
         </div>
+
+        {order.failure_photo && (
+          <div className="p-4 bg-surface-container-low dark:bg-slate-800/30 rounded-xl">
+            <p className="text-[10px] font-bold text-on-surface-variant uppercase mb-2 flex items-center gap-1.5">
+              <Camera className="w-3.5 h-3.5" /> Evidencia fotográfica del cliente
+            </p>
+            <img src={order.failure_photo} alt="Evidencia de la falla" className="max-h-48 rounded-lg border border-outline-variant/20" />
+          </div>
+        )}
 
         {order.notes && (
           <div className="flex items-start gap-2 text-sm bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 p-4 rounded-xl border border-amber-200/30">

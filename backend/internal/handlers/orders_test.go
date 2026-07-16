@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 	"testing"
 
 	"backend/internal/db"
@@ -119,6 +120,114 @@ func TestCreateOrder_DescuentaStockYPersisteItems(t *testing.T) {
 	}
 }
 
+// TestCreateOrder_ReintentoConMismoPaymentIdNoDuplica simula un reintento del
+// frontend (respuesta perdida por corte de red, doble clic, etc.) reenviando
+// la misma petición con el mismo payment_id: debe devolver el pedido ya
+// creado en vez de duplicarlo y descontar el stock una segunda vez.
+func TestCreateOrder_ReintentoConMismoPaymentIdNoDuplica(t *testing.T) {
+	testutil.SetupTestDB(t)
+	usuario := seedUsuario(t)
+	r := buildOrdersRouter(usuario.ID)
+
+	producto := seedProducto(t, 10, 250.0)
+	payment := seedPayment(t, usuario.ID, 500.0)
+
+	body := map[string]any{
+		"payment_id": payment.ID.String(),
+		"items": []map[string]any{
+			{"producto_id": producto.ID.String(), "cantidad": 2},
+		},
+	}
+
+	first := doRequest(r, "POST", "/api/orders", body)
+	if first.Code != http.StatusCreated {
+		t.Fatalf("esperaba 201 en la primera petición, obtuve %d: %s", first.Code, first.Body.String())
+	}
+	var firstPedido map[string]any
+	if err := json.Unmarshal(first.Body.Bytes(), &firstPedido); err != nil {
+		t.Fatalf("respuesta inválida: %v", err)
+	}
+
+	retry := doRequest(r, "POST", "/api/orders", body)
+	if retry.Code != http.StatusOK {
+		t.Fatalf("esperaba 200 en el reintento (pedido ya existente), obtuve %d: %s", retry.Code, retry.Body.String())
+	}
+	var retryPedido map[string]any
+	if err := json.Unmarshal(retry.Body.Bytes(), &retryPedido); err != nil {
+		t.Fatalf("respuesta inválida: %v", err)
+	}
+	if retryPedido["id"] != firstPedido["id"] {
+		t.Fatalf("el reintento debía devolver el mismo pedido (%v), obtuve %v", firstPedido["id"], retryPedido["id"])
+	}
+
+	var pedidosCount int64
+	db.DB.Model(&models.Pedido{}).Where("payment_id = ?", payment.ID).Count(&pedidosCount)
+	if pedidosCount != 1 {
+		t.Fatalf("esperaba exactamente 1 pedido para el payment_id, obtuve %d", pedidosCount)
+	}
+
+	var productoFinal models.Producto
+	if err := db.DB.First(&productoFinal, "id = ?", producto.ID).Error; err != nil {
+		t.Fatalf("no se pudo releer el producto: %v", err)
+	}
+	if productoFinal.StockActual != 8 {
+		t.Fatalf("esperaba stock=8 (descontado una sola vez), obtuve %d", productoFinal.StockActual)
+	}
+}
+
+// TestCreateOrder_ReintentoConcurrenteNoDuplica es la versión concurrente del
+// caso anterior: dos peticiones con el mismo payment_id corriendo a la vez
+// (ninguna alcanza a ver el pre-check de la otra). La restricción unique en
+// payment_id debe frenar el duplicado en el INSERT, y el handler debe
+// recuperarse devolviendo el pedido ganador en vez de un 500.
+func TestCreateOrder_ReintentoConcurrenteNoDuplica(t *testing.T) {
+	testutil.SetupTestDB(t)
+	usuario := seedUsuario(t)
+	r := buildOrdersRouter(usuario.ID)
+
+	producto := seedProducto(t, 10, 250.0)
+	payment := seedPayment(t, usuario.ID, 500.0)
+
+	body := map[string]any{
+		"payment_id": payment.ID.String(),
+		"items": []map[string]any{
+			{"producto_id": producto.ID.String(), "cantidad": 2},
+		},
+	}
+
+	var wg sync.WaitGroup
+	codes := make([]int, 2)
+	for i := 0; i < 2; i++ {
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			w := doRequest(r, "POST", "/api/orders", body)
+			codes[idx] = w.Code
+		}(i)
+	}
+	wg.Wait()
+
+	for _, code := range codes {
+		if code != http.StatusCreated && code != http.StatusOK {
+			t.Fatalf("código de respuesta inesperado: %d", code)
+		}
+	}
+
+	var pedidosCount int64
+	db.DB.Model(&models.Pedido{}).Where("payment_id = ?", payment.ID).Count(&pedidosCount)
+	if pedidosCount != 1 {
+		t.Fatalf("esperaba exactamente 1 pedido tras la carrera, obtuve %d", pedidosCount)
+	}
+
+	var productoFinal models.Producto
+	if err := db.DB.First(&productoFinal, "id = ?", producto.ID).Error; err != nil {
+		t.Fatalf("no se pudo releer el producto: %v", err)
+	}
+	if productoFinal.StockActual != 8 {
+		t.Fatalf("esperaba stock=8 (descontado una sola vez pese a la carrera), obtuve %d", productoFinal.StockActual)
+	}
+}
+
 func TestCreateOrder_StockInsuficienteNoDescuenta(t *testing.T) {
 	testutil.SetupTestDB(t)
 	usuario := seedUsuario(t)
@@ -144,6 +253,58 @@ func TestCreateOrder_StockInsuficienteNoDescuenta(t *testing.T) {
 	}
 	if productoSinCambios.StockActual != 1 {
 		t.Fatalf("el stock no debía cambiar tras un pedido rechazado, obtuve %d", productoSinCambios.StockActual)
+	}
+}
+
+// TestCreateOrder_ConcurrenciaNoSobrevendeStock reproduce dos compras simultáneas
+// por la última unidad disponible: solo una debe tener éxito y el stock jamás
+// debe quedar negativo (regresión de la condición de carrera en el descuento de stock).
+func TestCreateOrder_ConcurrenciaNoSobrevendeStock(t *testing.T) {
+	testutil.SetupTestDB(t)
+	usuario := seedUsuario(t)
+	r := buildOrdersRouter(usuario.ID)
+
+	producto := seedProducto(t, 1, 250.0)
+	paymentA := seedPayment(t, usuario.ID, 250.0)
+	paymentB := seedPayment(t, usuario.ID, 250.0)
+
+	var wg sync.WaitGroup
+	codes := make([]int, 2)
+	payments := []models.Payment{paymentA, paymentB}
+
+	for i := 0; i < 2; i++ {
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			w := doRequest(r, "POST", "/api/orders", map[string]any{
+				"payment_id": payments[idx].ID.String(),
+				"items": []map[string]any{
+					{"producto_id": producto.ID.String(), "cantidad": 1},
+				},
+			})
+			codes[idx] = w.Code
+		}(i)
+	}
+	wg.Wait()
+
+	successCount := 0
+	for _, code := range codes {
+		if code == http.StatusCreated {
+			successCount++
+		} else if code != http.StatusBadRequest {
+			t.Fatalf("código de respuesta inesperado: %d", code)
+		}
+	}
+	if successCount != 1 {
+		t.Fatalf("esperaba exactamente 1 pedido exitoso de 2 concurrentes, obtuve %d", successCount)
+	}
+
+	var productoFinal models.Producto
+	if err := db.DB.First(&productoFinal, "id = ?", producto.ID).Error; err != nil {
+		t.Fatalf("no se pudo releer el producto: %v", err)
+	}
+	if productoFinal.StockActual != 0 {
+		t.Fatalf("esperaba stock=0 tras la carrera, obtuve %d (posible oversell)", productoFinal.StockActual)
 	}
 }
 

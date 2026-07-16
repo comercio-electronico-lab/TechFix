@@ -3,5 +3,6 @@ export { default as Input } from './Input';
 export { Card } from './Card/Card';
 export { Icon } from './Icon/Icon';
 export { default as Badge } from './Badge';
+export { default as Skeleton } from './Skeleton';
 export { ScrollReveal } from './ScrollReveal';
 

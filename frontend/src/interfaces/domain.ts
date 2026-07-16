@@ -115,35 +115,6 @@ export interface IAppointment {
   status: 'confirmed' | 'pending' | 'cancelled';
 }
 
-export interface IDiagnosticOption {
-  id: string;
-  label: string;
-  nextStepId?: string;
-  action?: string;
-  isTerminal?: boolean;
-  suggestedProducts?: IProduct[];
-  question_text?: string;
-  answer_option?: string;
-}
-
-export interface IDiagnosticNode {
-  id: string;
-  question: string;
-  question_text?: string;
-  answer_option?: string;
-  isTerminal?: boolean;
-  options: IDiagnosticOption[];
-  preliminary_result?: string;
-  estimated_min?: number;
-  estimated_max?: number;
-  suggestedProducts?: IProduct[];
-}
-
-export interface IDiagnosticHistory {
-  node: IDiagnosticNode;
-  options: IDiagnosticOption[];
-}
-
 export interface RepairOrderProduct {
   id: string;
   nombre: string;

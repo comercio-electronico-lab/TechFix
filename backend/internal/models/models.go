@@ -194,6 +194,8 @@ type RepairOrder struct {
 	AppointmentDatetime time.Time `json:"appointment_datetime" yaml:"appointment_datetime"`
 	Status       string     `gorm:"size:30;default:'pending'" json:"status" yaml:"status"`
 	PartType     string     `gorm:"size:20" json:"part_type" yaml:"part_type"` // original, compatible, economic
+	Sucursal     string     `gorm:"size:100" json:"sucursal" yaml:"sucursal"`
+	FailurePhoto string     `gorm:"type:text" json:"failure_photo,omitempty" yaml:"failure_photo"`
 	DiagnosisFinal string   `gorm:"type:text" json:"diagnosis_final" yaml:"diagnosis_final"`
 	EstimatedPriceMin float64 `json:"estimated_price_min" yaml:"estimated_price_min"`
 	EstimatedPriceMax float64 `json:"estimated_price_max" yaml:"estimated_price_max"`
@@ -288,7 +290,7 @@ type Pedido struct {
 	Base
 	UsuarioID      uuid.UUID        `gorm:"type:uuid;not null" json:"usuario_id" yaml:"usuario_id"`
 	Usuario        Usuario          `gorm:"foreignKey:UsuarioID" json:"usuario,omitempty"`
-	PaymentID      *uuid.UUID       `gorm:"type:uuid" json:"payment_id" yaml:"payment_id"`
+	PaymentID      *uuid.UUID       `gorm:"type:uuid;uniqueIndex" json:"payment_id" yaml:"payment_id"`
 	Payment        *Payment         `gorm:"foreignKey:PaymentID" json:"payment,omitempty"`
 	Estado         string           `gorm:"size:50;default:'pagado'" json:"estado" yaml:"estado"`
 	Subtotal       float64          `json:"subtotal" yaml:"subtotal"`
